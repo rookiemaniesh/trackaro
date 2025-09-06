@@ -66,8 +66,8 @@ const LoginPage: React.FC = () => {
     window.location.href = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/auth/google`;
   };
 
-  return (
-     <main className="fixed inset-0 w-full h-full bg-trackaro-bg dark:bg-[#0f0f0f] text-trackaro-text dark:text-white overflow-hidden">
+   return (
+    <main className="fixed inset-0 w-full h-full bg-trackaro-bg dark:bg-[#0f0f0f] text-trackaro-text dark:text-white overflow-hidden">
       <div className="mx-auto w-full h-full grid grid-cols-1 lg:grid-cols-2">
         {/* Left: CTA + Auth */}
         <section
