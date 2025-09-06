@@ -12,6 +12,7 @@ interface Message {
   sender: "user" | "bot";
   timestamp: Date;
   animate?: boolean; // whether to animate typewriter on mount (bot only)
+  requiresPaymentMethod?: boolean; // whether this message requires a payment method response
 }
 
 const initialMessage: Message = {
@@ -92,12 +93,14 @@ const ChatBox: React.FC = () => {
 
       if (response.data?.messages && response.data.messages.length > 0) {
         // Transform messages from API to match our interface
-        const formattedMessages: Message[] = response.data.messages.map((msg) => ({
-          id: msg.id,
-          text: msg.content, // Changed from msg.text to msg.content
-          sender: msg.sender,
-          timestamp: new Date(msg.createdAt), // Changed from msg.timestamp to msg.createdAt
-        }));
+        const formattedMessages: Message[] = response.data.messages.map(
+          (msg) => ({
+            id: msg.id,
+            text: msg.content, // Changed from msg.text to msg.content
+            sender: msg.sender,
+            timestamp: new Date(msg.createdAt), // Changed from msg.timestamp to msg.createdAt
+          })
+        );
         setMessages(formattedMessages);
       } else {
         // If no messages in history, show the initial greeting
@@ -111,7 +114,6 @@ const ChatBox: React.FC = () => {
       setIsFetchingMessages(false);
     }
   };
-
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -251,7 +253,7 @@ const ChatBox: React.FC = () => {
 
     try {
       // Send message to the backend using the correct endpoint
-      const response = await api.post<{ 
+      const response = await api.post<{
         success: boolean;
         message: string;
         data?: {
@@ -271,6 +273,7 @@ const ChatBox: React.FC = () => {
         sender: "bot",
         timestamp: new Date(),
         animate: true,
+        requiresPaymentMethod: response.data?.requiresPaymentMethod || false,
       };
 
       setMessages((prev) => [...prev, botMessage]);
@@ -367,6 +370,7 @@ const ChatBox: React.FC = () => {
                     animateTypewriter={
                       message.animate && message.sender === "bot"
                     }
+                    requiresPaymentMethod={message.requiresPaymentMethod}
                   />
                 </motion.div>
               ))}

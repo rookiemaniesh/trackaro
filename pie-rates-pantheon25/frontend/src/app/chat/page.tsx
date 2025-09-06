@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ChatBox from "../../components/ChatBox";
 import { motion, AnimatePresence } from "framer-motion";
-import { Html5Qrcode } from "html5-qrcode";
 
 // Icons
 const HomeIcon = ({ className }: { className?: string }) => (
@@ -157,11 +156,12 @@ const PaymentIcon = ({ className }: { className?: string }) => (
 export default function ChatPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
-  const [isScanning, setIsScanning] = useState(false);
-  const [scannedQR, setScannedQR] = useState("");
+  const [upiId, setUpiId] = useState("");
+  const [payeeName, setPayeeName] = useState("");
   const [paymentAmount, setPaymentAmount] = useState("");
   const [paymentNote, setPaymentNote] = useState("");
-  const [qrScanner, setQrScanner] = useState<Html5Qrcode | null>(null);
+  const [generatedUpiUrl, setGeneratedUpiUrl] = useState("");
+  const [showCopyButton, setShowCopyButton] = useState(false);
   const router = useRouter();
 
   const handleNavigation = (
@@ -172,107 +172,119 @@ export default function ChatPage() {
     router.push(path);
   };
 
-  const startQRScan = async () => {
-    // First set scanning state to true to render the qr-reader element
-    setIsScanning(true);
-
-    // Wait for the DOM to update
-    setTimeout(async () => {
-      try {
-        // Check if the element exists
-        const qrReaderElement = document.getElementById("qr-reader");
-        if (!qrReaderElement) {
-          throw new Error("QR reader element not found in DOM");
-        }
-
-        // Create a new QR Code scanner
-        const scanner = new Html5Qrcode("qr-reader");
-        setQrScanner(scanner);
-
-        // Start scanning using camera
-        const qrScannerConfig = {
-          fps: 10,
-          qrbox: { width: 250, height: 250 },
-          aspectRatio: 1.0,
-        };
-
-        // Start scanning
-        await scanner.start(
-          { facingMode: "environment" }, // Use back camera
-          qrScannerConfig,
-          (decodedText) => {
-            // On successful scan
-            console.log(`QR Code detected: ${decodedText}`);
-            setScannedQR(decodedText);
-            setIsScanning(false);
-
-            // Stop scanning
-            scanner
-              .stop()
-              .then(() => {
-                console.log("QR Code scanning stopped");
-              })
-              .catch((err) => {
-                console.error("Error stopping QR scanner:", err);
-              });
-          },
-          (errorMessage) => {
-            // On error - we don't need to show this to the user
-            console.log(`QR scan error: ${errorMessage}`);
-          }
-        );
-      } catch (err) {
-        console.error("Error with QR scanning:", err);
-        setIsScanning(false);
-      }
-    }, 500); // Give the DOM 500ms to update
+  const validateUpiId = (upi: string) => {
+    // Basic UPI ID validation - should contain @ and be in format like user@paytm, user@phonepe, etc.
+    const upiRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+$/;
+    return upiRegex.test(upi);
   };
 
-  const stopCamera = () => {
-    if (qrScanner) {
-      qrScanner
-        .stop()
-        .then(() => {
-          console.log("QR scanner stopped successfully");
-          setQrScanner(null);
-        })
-        .catch((err) => {
-          console.error("Error stopping QR scanner:", err);
-        });
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      alert("UPI link copied to clipboard!");
+    } catch (err) {
+      console.error("Failed to copy: ", err);
+      // Fallback for older browsers
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+      alert("UPI link copied to clipboard!");
     }
   };
 
   const handlePaymentContinue = () => {
-    if (paymentAmount && scannedQR) {
-      // Redirect to Google Pay or payment processor
-      // In a real app, you'd integrate with a payment gateway
-      window.open(`https://pay.google.com/`, "_blank");
-      setIsPaymentModalOpen(false);
-      setScannedQR("");
-      setPaymentAmount("");
-      setPaymentNote("");
+    if (paymentAmount && upiId && validateUpiId(upiId)) {
+      // Create UPI payment URL with proper format for Google Pay
+      const upiUrl = `upi://pay?pa=${encodeURIComponent(
+        upiId
+      )}&pn=${encodeURIComponent(payeeName || "Payee")}&am=${encodeURIComponent(
+        paymentAmount
+      )}&cu=INR&tn=${encodeURIComponent(paymentNote || "Payment")}`;
+
+      console.log("Generated UPI URL:", upiUrl);
+      console.log("Payment Details:", {
+        upiId,
+        payeeName: payeeName || "Payee",
+        amount: paymentAmount,
+        note: paymentNote || "Payment",
+      });
+
+      // Store the generated URL and show copy button
+      setGeneratedUpiUrl(upiUrl);
+      setShowCopyButton(true);
+
+      // Create a more user-friendly payment initiation
+      const paymentDetails = {
+        upiId,
+        payeeName: payeeName || "Payee",
+        amount: paymentAmount,
+        note: paymentNote || "Payment",
+        upiUrl,
+      };
+
+      // Store payment details in sessionStorage for debugging
+      sessionStorage.setItem(
+        "lastPaymentDetails",
+        JSON.stringify(paymentDetails)
+      );
+
+      // Try to open UPI payment
+      try {
+        // Create a hidden link and click it
+        const link = document.createElement("a");
+        link.href = upiUrl;
+        link.style.display = "none";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        // Show success message
+        alert(`Payment initiated! 
+        
+UPI ID: ${upiId}
+Amount: ₹${paymentAmount}
+Note: ${paymentNote || "Payment"}
+
+If Google Pay didn't open automatically, please:
+1. Open Google Pay manually
+2. Tap "Send Money" 
+3. Enter UPI ID: ${upiId}
+4. Enter Amount: ₹${paymentAmount}`);
+      } catch (error) {
+        console.error("Error opening UPI payment:", error);
+
+        // Show fallback instructions
+        alert(`Unable to open Google Pay automatically.
+
+Please manually open Google Pay and use these details:
+UPI ID: ${upiId}
+Amount: ₹${paymentAmount}
+Note: ${paymentNote || "Payment"}
+
+Or copy this UPI link: ${upiUrl}`);
+      }
+
+      // Don't close modal immediately, let user copy the link if needed
+      // setIsPaymentModalOpen(false);
+      // setUpiId("");
+      // setPayeeName("");
+      // setPaymentAmount("");
+      // setPaymentNote("");
     }
   };
 
   const closePaymentModal = () => {
     setIsPaymentModalOpen(false);
-    setIsScanning(false);
-    stopCamera();
-    setScannedQR("");
+    setUpiId("");
+    setPayeeName("");
     setPaymentAmount("");
     setPaymentNote("");
+    setGeneratedUpiUrl("");
+    setShowCopyButton(false);
   };
-
-  // Cleanup effect to ensure the scanner is stopped when component unmounts
-  useEffect(() => {
-    return () => {
-      if (qrScanner) {
-        qrScanner.stop().catch((err) => {
-          console.error("Error stopping QR scanner during cleanup:", err);
-        });
-      }
-    };
-  }, [qrScanner]);
 
   return (
     <motion.div
@@ -577,85 +589,111 @@ export default function ChatPage() {
               exit={{ scale: 0.9, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
             >
-              <h2 className="text-xl font-semibold mb-4 font-poppins">
-                Payment
+              <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200 font-poppins">
+                💳 UPI Payment
               </h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 font-inter">
+                Fill in the details below and click "Open Google Pay" to
+                initiate payment with pre-filled information.
+              </p>
 
-              {isScanning ? (
-                <div className="mb-4">
-                  <p className="text-sm mb-3 font-inter">Scanning QR code...</p>
-                  <div
-                    id="qr-reader"
-                    className="w-full aspect-square bg-gray-100 rounded-lg overflow-hidden mb-4"
-                  ></div>
-                  <button
-                    onClick={() => {
-                      setIsScanning(false);
-                      stopCamera();
-                    }}
-                    className="w-full py-2 px-4 bg-red-500 text-white rounded-lg font-medium font-inter"
-                  >
-                    Cancel Scan
-                  </button>
-                </div>
-              ) : (
-                <>
-                  {scannedQR ? (
-                    <div className="mb-4">
-                      <p className="text-sm mb-2 font-inter">
-                        QR code scanned successfully!
-                      </p>
-                      <div className="mb-4">
-                        <label className="block text-sm font-medium mb-1 font-inter">
-                          Enter Amount
-                        </label>
-                        <input
-                          type="number"
-                          value={paymentAmount}
-                          onChange={(e) => setPaymentAmount(e.target.value)}
-                          placeholder="Enter amount"
-                          className="w-full p-2 border border-gray-300 rounded-md font-inter"
-                        />
-                      </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300 font-inter">
+                  UPI ID *
+                </label>
+                <input
+                  type="text"
+                  value={upiId}
+                  onChange={(e) => setUpiId(e.target.value)}
+                  placeholder="Enter UPI ID (e.g., user@paytm, user@phonepe)"
+                  className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md font-inter bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                {upiId && !validateUpiId(upiId) && (
+                  <p className="text-red-500 text-xs mt-1 font-inter">
+                    Please enter a valid UPI ID format
+                  </p>
+                )}
+              </div>
 
-                      <div className="mb-4">
-                        <label className="block text-sm font-medium mb-1 font-inter">
-                          Note (Optional)
-                        </label>
-                        <textarea
-                          value={paymentNote}
-                          onChange={(e) => setPaymentNote(e.target.value)}
-                          placeholder="Add a note about this payment"
-                          className="w-full p-2 border border-gray-300 rounded-md font-inter resize-none h-20"
-                        />
-                      </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300 font-inter">
+                  Payee Name (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={payeeName}
+                  onChange={(e) => setPayeeName(e.target.value)}
+                  placeholder="Enter payee name (e.g., John Doe, Store Name)"
+                  className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md font-inter bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
 
-                      <button
-                        onClick={handlePaymentContinue}
-                        disabled={!paymentAmount}
-                        className={`w-full py-2 px-4 rounded-lg font-medium ${
-                          paymentAmount
-                            ? "bg-green-600 text-white"
-                            : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                        } font-inter`}
-                      >
-                        Continue to Google Pay
-                      </button>
-                    </div>
-                  ) : (
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300 font-inter">
+                  Amount *
+                </label>
+                <input
+                  type="number"
+                  value={paymentAmount}
+                  onChange={(e) => setPaymentAmount(e.target.value)}
+                  placeholder="Enter amount (e.g., 100)"
+                  className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md font-inter bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300 font-inter">
+                  Note (Optional)
+                </label>
+                <textarea
+                  value={paymentNote}
+                  onChange={(e) => setPaymentNote(e.target.value)}
+                  placeholder="Add a note about this payment (e.g., Dinner, Groceries)"
+                  className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md font-inter bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none h-20"
+                />
+              </div>
+
+              <button
+                onClick={handlePaymentContinue}
+                disabled={!paymentAmount || !upiId || !validateUpiId(upiId)}
+                className={`w-full py-3 px-4 rounded-lg font-medium mb-4 ${
+                  paymentAmount && upiId && validateUpiId(upiId)
+                    ? "bg-green-600 text-white hover:bg-green-700 shadow-lg"
+                    : "bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                } font-inter transition-all duration-200`}
+              >
+                💰 Open Google Pay
+              </button>
+
+              {showCopyButton && generatedUpiUrl && (
+                <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 font-inter">
+                    UPI Payment Link:
+                  </p>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="text"
+                      value={generatedUpiUrl}
+                      readOnly
+                      className="flex-1 p-2 text-xs bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded font-mono"
+                    />
                     <button
-                      onClick={startQRScan}
-                      className="w-full py-3 px-4 bg-blue-600 text-white rounded-lg font-medium mb-4 font-inter"
+                      onClick={() => copyToClipboard(generatedUpiUrl)}
+                      className="px-3 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors"
                     >
-                      Scan QR Code
+                      Copy
                     </button>
-                  )}
-                </>
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 font-inter">
+                    Copy this link and paste it in your browser or share it with
+                    others
+                  </p>
+                </div>
               )}
 
               <button
                 onClick={closePaymentModal}
-                className="w-full py-2 px-4 border border-gray-300 rounded-lg font-medium font-inter"
+                className="w-full py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-lg font-medium font-inter text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
                 Close
               </button>

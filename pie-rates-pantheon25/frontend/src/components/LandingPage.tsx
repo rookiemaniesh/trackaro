@@ -527,152 +527,198 @@ const LandingPage: React.FC = () => {
           <section
             id="features"
             ref={featuresRef}
-            className="container mx-auto px-6 py-5 my-3"
+            className="container mx-auto px-6 py-20 "
           >
-            <h2 className="text-3xl font-bold text-center text-trackaro-text dark:text-on-dark mb-10 relative">
+            <h2 className="text-4xl font-bold text-center text-trackaro-text dark:text-trackaro-text mb-16 relative">
               KEY FEATURES
               <span className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-20 h-1 bg-trackaro-accent rounded-full"></span>
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="feature-card bg-trackaro-card dark:bg-trackaro-card p-6 border border-trackaro-border dark:border-trackaro-border rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
-                <div className="text-trackaro-accent dark:text-on-dark text-4xl mb-4 flex justify-center">
-                  💰
-                </div>
-                <h3 className="text-xl font-semibold text-trackaro-text dark:text-on-dark mb-3 text-center">
+            {/* Feature 1: Standalone Platform */}
+            <motion.div
+              className="flex flex-col lg:flex-row items-center gap-12 mb-20"
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              viewport={{ once: true }}
+            >
+              <div className="flex-1 ml-25 ">
+                <h3 className="text-4xl font-semibold text-trackaro-text dark:text-trackaro-text mb-6">
                   Standalone Platform
                 </h3>
-                <div className="w-12 h-1 bg-trackaro-accent bg-opacity-30 mx-auto mb-4 rounded-full"></div>
-                <p className="text-trackaro-accent dark:text-on-dark text-center text-sm">
-                  A dedicated, secure platform for your financial data,
-                  providing a single source of truth for all your expenses.
+                <p className="text-xl text-trackaro-accent dark:text-trackaro-accent leading-relaxed opacity-80">
+                  A dedicated and secure platform designed to manage all your
+                  financial data, offering a unified and reliable single source
+                  of truth for tracking, analyzing, and understanding your
+                  expenses.
                 </p>
               </div>
+              <div className="flex-1 flex justify-center">
+                <motion.img
+                  src="/feature_pic/Secure Standalone Platform.png"
+                  alt="Standalone Platform"
+                  className="max-w-sm h-xs rounded-2xl shadow-lg mr-25"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                  viewport={{ once: true }}
+                />
+              </div>
+            </motion.div>
 
-              <div className="feature-card bg-trackaro-card dark:bg-trackaro-card p-6 border border-trackaro-border dark:border-trackaro-border rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
-                <div className="text-trackaro-accent dark:text-trackaro-accent text-4xl mb-4 flex justify-center">
-                  💬
-                </div>
-                <h3 className="text-xl font-semibold text-trackaro-text dark:text-trackaro-text mb-3 text-center">
+            {/* Feature 2: Intuitive Integration */}
+            <motion.div
+              className="flex flex-col lg:flex-row-reverse items-center gap-12 mb-20 ml-25"
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              viewport={{ once: true }}
+            >
+              <div className="flex-1 text-center mr-25">
+                <h3 className="text-4xl font-semibold text-trackaro-text dark:text-trackaro-text mb-6">
                   Intuitive Integration
                 </h3>
-                <div className="w-12 h-1 bg-trackaro-accent bg-opacity-30 mx-auto mb-4 rounded-full"></div>
-                <p className="text-trackaro-accent dark:text-trackaro-accent text-center text-sm">
+                <p className="text-xl text-trackaro-accent dark:text-trackaro-accent leading-relaxed opacity-80">
                   Experience the full power of the platform via a Telegram bot.
                   This allows for effortless, conversational data entry without
                   the need for a separate app.
                 </p>
               </div>
+              <div className="flex-1 flex justify-center">
+                <motion.img
+                  src="/feature_pic/Intuitive Integration.png"
+                  alt="Intuitive Integration"
+                  className="max-w-sm h-xs rounded-2xl shadow-lg mr-25"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                  viewport={{ once: true }}
+                />
+              </div>
+            </motion.div>
 
-              <div className="feature-card bg-trackaro-card dark:bg-trackaro-card p-6 border border-trackaro-border dark:border-trackaro-border rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
-                <div className="text-trackaro-accent dark:text-trackaro-accent text-4xl mb-4 flex justify-center">
-                  🧠
-                </div>
-                <h3 className="text-xl font-semibold text-trackaro-text dark:text-trackaro-text mb-3 text-center">
+            {/* Feature 3: Natural Language Processing */}
+            <motion.div
+              className="flex flex-col lg:flex-row items-center gap-12 mb-20"
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              viewport={{ once: true }}
+            >
+              <div className="flex-1 text-center ml-25">
+                <h3 className="text-4xl font-semibold text-trackaro-text dark:text-trackaro-text mb-6">
                   Natural Language Processing
                 </h3>
-                <div className="w-12 h-1 bg-trackaro-accent bg-opacity-30 mx-auto mb-4 rounded-full"></div>
-                <p className="text-trackaro-accent dark:text-trackaro-accent text-center text-sm">
+                <p className="text-xl text-trackaro-accent dark:text-trackaro-accent leading-relaxed opacity-80">
                   Our core technology understands human-like conversation,
                   allowing you to add expenses and access complex analytics by
                   simply asking questions.
                 </p>
               </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
-              <div className="feature-card bg-trackaro-card dark:bg-trackaro-card p-6 border border-trackaro-border dark:border-trackaro-border rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
-                <div className="text-trackaro-accent dark:text-trackaro-accent text-4xl mb-4 flex justify-center">
-                  📊
-                </div>
-                <h3 className="text-xl font-semibold text-trackaro-text dark:text-trackaro-text mb-3 text-center">
-                  Actionable Insights
-                </h3>
-                <div className="w-12 h-1 bg-trackaro-accent bg-opacity-30 mx-auto mb-4 rounded-full"></div>
-                <p className="text-trackaro-accent dark:text-trackaro-accent text-center text-sm">
-                  Get real-time, personalized financial summaries and reports
-                  directly in your chat, turning raw data into clear, actionable
-                  information.
-                </p>
+              <div className="flex-1 flex justify-center">
+                <motion.img
+                  src="/feature_pic/nlp.png"
+                  alt="Natural Language Processing"
+                  className="max-w-sm h-xs rounded-2xl shadow-lg mr-25"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                  viewport={{ once: true }}
+                />
               </div>
+            </motion.div>
 
-              <div className="feature-card bg-trackaro-card dark:bg-trackaro-card p-6 border border-trackaro-border dark:border-trackaro-border rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
-                <div className="text-trackaro-accent dark:text-trackaro-accent text-4xl mb-4 flex justify-center">
-                  🎤
-                </div>
-                <h3 className="text-xl font-semibold text-trackaro-text dark:text-trackaro-text mb-3 text-center">
-                  Voice Command Integration
-                </h3>
-                <div className="w-12 h-1 bg-trackaro-accent bg-opacity-30 mx-auto mb-4 rounded-full"></div>
-                <p className="text-trackaro-accent dark:text-trackaro-accent text-center text-sm">
-                  Log expenses by simply speaking to TracKARO, adding another
-                  layer of intuitive, hands-free convenience.
-                </p>
-              </div>
-
-              <div className="feature-card bg-trackaro-card dark:bg-trackaro-card p-6 border border-trackaro-border dark:border-trackaro-border rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
-                <div className="text-trackaro-accent dark:text-trackaro-accent text-4xl mb-4 flex justify-center">
-                  👥
-                </div>
-                <h3 className="text-xl font-semibold text-trackaro-text dark:text-trackaro-text mb-3 text-center">
-                  Smart Expense Splitting
-                </h3>
-                <div className="w-12 h-1 bg-trackaro-accent bg-opacity-30 mx-auto mb-4 rounded-full"></div>
-                <p className="text-trackaro-accent dark:text-trackaro-accent text-center text-sm">
-                  With a single message like &quot;Dinner with Rahul and
-                  Meera,&quot; TracKARO automatically logs the expense and
-                  intelligently divides it among the specified group.
-                </p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
-              <div className="feature-card bg-trackaro-card dark:bg-trackaro-card p-6 border border-trackaro-border dark:border-trackaro-border rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
-                <div className="text-trackaro-accent dark:text-trackaro-accent text-4xl mb-4 flex justify-center">
-                  🏷️
-                </div>
-                <h3 className="text-xl font-semibold text-trackaro-text dark:text-trackaro-text mb-3 text-center">
-                  Category Auto-Detection
-                </h3>
-                <div className="w-12 h-1 bg-trackaro-accent bg-opacity-30 mx-auto mb-4 rounded-full"></div>
-                <p className="text-trackaro-accent dark:text-trackaro-accent text-center text-sm">
-                  The system intelligently identifies vendors and automatically
-                  tags the expense. For example, any transaction from Swiggy is
-                  logged under &quot;Food,&quot; while Uber is tagged as
-                  &quot;Travel.&quot;
-                </p>
-              </div>
-
-              <div className="feature-card bg-trackaro-card dark:bg-trackaro-card p-6 border border-trackaro-border dark:border-trackaro-border rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
-                <div className="text-trackaro-accent dark:text-trackaro-accent text-4xl mb-4 flex justify-center">
-                  📈
-                </div>
-                <h3 className="text-xl font-semibold text-trackaro-text dark:text-trackaro-text mb-3 text-center">
+            {/* Feature 4: Actionable Insights */}
+            <motion.div
+              className="flex flex-col lg:flex-row-reverse items-center gap-12 mb-20 ml-25"
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              viewport={{ once: true }}
+            >
+              <div className="flex-1 text-center mr-25">
+                <h3 className="text-4xl font-semibold text-trackaro-text dark:text-trackaro-text mb-6">
                   Visual Interactive Dashboards
                 </h3>
-                <div className="w-12 h-1 bg-trackaro-accent bg-opacity-30 mx-auto mb-4 rounded-full"></div>
-                <p className="text-trackaro-accent dark:text-trackaro-accent text-center text-sm">
+                <p className="text-xl text-trackaro-accent dark:text-trackaro-accent leading-relaxed opacity-80">
                   Get a holistic view of your financial health with clean,
                   interactive dashboards that provide a deep dive into your
                   spending habits over time.
                 </p>
               </div>
+              <div className="flex-1 flex justify-center">
+                <motion.img
+                  src="/feature_pic/visual interactive dashboard.png"
+                  alt="Actionable Insights"
+                  className="max-w-sm h-xs rounded-2xl shadow-lg mr-25"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                  viewport={{ once: true }}
+                />
+              </div>
+            </motion.div>
 
-              <div className="feature-card bg-trackaro-card dark:bg-trackaro-card p-6 border border-trackaro-border dark:border-trackaro-border rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
-                <div className="text-trackaro-accent dark:text-trackaro-accent text-4xl mb-4 flex justify-center">
-                  📷
-                </div>
-                <h3 className="text-xl font-semibold text-trackaro-text dark:text-trackaro-text mb-3 text-center">
+            {/* Feature 5: Voice Command Integration */}
+            <motion.div
+              className="flex flex-col lg:flex-row items-center gap-12 mb-20"
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              viewport={{ once: true }}
+            >
+              <div className="flex-1 text-center ml-25">
+                <h3 className="text-4xl font-semibold text-trackaro-text dark:text-trackaro-text mb-6">
+                  Voice Command Integration
+                </h3>
+                <p className="text-xl text-trackaro-accent dark:text-trackaro-accent leading-relaxed opacity-80">
+                  Log expenses by simply speaking to TracKaro, adding another
+                  layer of intuitive, hands-free convenience.
+                </p>
+              </div>
+              <div className="flex-1 flex justify-center">
+                <motion.img
+                  src="/feature_pic/voice command integration.png"
+                  alt="Voice Command Integration"
+                  className="max-w-sm h-xs rounded-2xl shadow-lg mr-25"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                  viewport={{ once: true }}
+                />
+              </div>
+            </motion.div>
+
+            {/* Feature 6: Receipt Scanning */}
+            <motion.div
+              className="flex flex-col lg:flex-row-reverse items-center gap-12 mb-20 ml-25"
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              viewport={{ once: true }}
+            >
+              <div className="flex-1 text-center mr-25">
+                <h3 className="text-4xl font-semibold text-trackaro-text dark:text-trackaro-text mb-6">
                   Receipt Scanning
                 </h3>
-                <div className="w-12 h-1 bg-trackaro-accent bg-opacity-30 mx-auto mb-4 rounded-full"></div>
-                <p className="text-trackaro-accent dark:text-trackaro-accent text-center text-sm">
+                <p className="text-xl text-trackaro-accent dark:text-trackaro-accent leading-relaxed opacity-80">
                   Simply upload a photo of your receipt. Our AI uses Optical
                   Character Recognition (OCR) to automatically extract and
                   populate key details like the vendor, date, and total.
                 </p>
               </div>
-            </div>
+              <div className="flex-1 flex justify-center">
+                <motion.img
+                  src="/feature_pic/Receipt Scanning.png"
+                  alt="Receipt Scanning"
+                  className="max-w-sm h-xs rounded-2xl shadow-lg mr-25"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                  viewport={{ once: true }}
+                />
+              </div>
+            </motion.div>
           </section>
 
           {/* Dashboard Preview Section */}
@@ -963,50 +1009,19 @@ const LandingPage: React.FC = () => {
           </section>
 
           {/* Final Call to Action */}
-          <section
-            id="about"
-            className="bg-trackaro-accent text-black dark:text-white py-10"
-          >
-            <div className="container mx-auto px-6 text-center">
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">
-                Ready to Simplify Your Finances?
-              </h2>
-              <p className="text-xl max-w-2xl mx-auto mb-10 opacity-90">
-                Join thousands of users who have transformed how they track,
-                split, and manage expenses with TracKARO.
-              </p>
 
-              <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-                <button
-                  onClick={handleStartChatting}
-                  className="group bg-white text-black text-trackaro-accent px-8 py-3 text-lg font-medium 
-                border-2 border-white hover:bg-trackaro-border hover:bg-opacity-10 transform transition-all 
-                hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white
-                flex items-center space-x-2 rounded-md shadow-lg hover:shadow-xl min-w-[200px]"
-                >
-                  <span>Get Started</span>
-                  <span className="transform translate-x-0 group-hover:translate-x-2 transition-transform duration-300 ease-in-out">
-                    →
-                  </span>
-                </button>
-
-                <button
-                  className="group bg-transparent text-black dark:text-white dark:hover:text-black px-8 py-3 text-lg font-medium 
-                border-2 border-white hover:bg-white hover:bg-opacity-10 transform transition-all 
-                hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white
-                flex items-center space-x-2 rounded-md min-w-[200px]"
-                >
-                  <span>Watch Demo</span>
-                  <span className="transform translate-x-0 group-hover:translate-x-2 transition-transform duration-300 ease-in-out">
-                    ▶
-                  </span>
-                </button>
-              </div>
-            </div>
-          </section>
           <div id="teams" className="bg-trackaro-card py-10">
             <Teams />
           </div>
+
+          {/* Footer */}
+          <footer className="bg-black dark:bg-gray-900 py-4 border-t border-gray-800 dark:border-gray-700">
+            <div className="container mx-auto px-6 text-center">
+              <p className="text-gray-400 dark:text-gray-500 text-sm">
+                © 2024 Copyright Reserved - Team Pie-Rates
+              </p>
+            </div>
+          </footer>
         </>
       )}
     </div>
