@@ -285,7 +285,7 @@ export function Teams() {
       <div className="flex items-center justify-center mb-10 w-full">
         <div
           ref={teamWrapperRef}
-          className="flex flex-row flex-wrap justify-center items-center gap-5 team-photo-wrapper"
+          className="flex flex-row flex-wrap justify-center items-center gap-5 team-photo-wrapper shadow-none bg-none"
         >
           <AnimatedTooltip items={people} />
         </div>

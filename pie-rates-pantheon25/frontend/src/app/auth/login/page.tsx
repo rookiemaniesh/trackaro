@@ -67,25 +67,19 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <main className="min-h-screen w-full bg-trackaro-bg dark:bg-[#0f0f0f] text-trackaro-text dark:text-white">
-      <div className="mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-2">
+     <main className="fixed inset-0 w-full h-full bg-trackaro-bg dark:bg-[#0f0f0f] text-trackaro-text dark:text-white overflow-hidden">
+      <div className="mx-auto w-full h-full grid grid-cols-1 lg:grid-cols-2">
         {/* Left: CTA + Auth */}
         <section
           ref={leftRef}
-          className="px-6 sm:px-10 py-12 sm:py-16 lg:py-24"
+          className="px-6 sm:px-10 py-12 sm:py-16 lg:py-24 flex flex-col items-center overflow-hidden relative"
         >
-          <div className="max-w-xl mx-auto lg:mx-0">
-            <div className="mb-8 flex items-center justify-center lg:justify-start">
-              <div className="h-10 w-10 rounded-full border border-white/20 dark:border-white/20 flex items-center justify-center">
-                <div className="h-3 w-3 rounded-full bg-white/70 dark:bg-white" />
-              </div>
-            </div>
-
-            <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight">
+          <div className="max-w-md w-full mx-auto">
+            <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight text-center">
               Get started with Trackaro
             </h1>
 
-            <div className="mt-8 sm:mt-10 space-y-3 sm:space-y-4 flex flex-col items-center lg:items-start">
+            <div className="mt-8 sm:mt-10 space-y-3 sm:space-y-4 flex flex-col items-center">
               <button
                 onClick={handleGoogle}
                 disabled={isLoading || submitting}
@@ -95,21 +89,41 @@ const LoginPage: React.FC = () => {
                 Continue with Google
               </button>
 
-              <button
+              <div className="w-full flex items-center justify-center gap-3 mt-2">
+                <div className="bg-black/20 dark:bg-white/20 h-px flex-grow"></div>
+                <span className="text-sm text-black/50 dark:text-white/50">
+                  or continue with email
+                </span>
+                <div className="bg-black/20 dark:bg-white/20 h-px flex-grow"></div>
+              </div>
+
+              {/* <button
                 onClick={() => setShowEmailForm((s) => !s)}
-                className="w-full max-w-md h-10 rounded-full bg-[#222] text-white text-sm flex items-center justify-center hover:bg-[#1a1a1a] transition border border-white/10"
+                className={`w-full max-w-md h-10 rounded-full text-sm flex items-center justify-center  transition border ${
+                  showEmailForm
+                    ? "bg-trackaro-accent/90 text-black border-transparent hover:bg-trackaro-accent"
+                    : "bg-[#222] text-white border-white/10 hover:bg-[#1a1a1a]"
+                }`}
               >
-                Continue with email
-              </button>
+                {/* Continue with email {showEmailForm ? "↑" : "↓"} */}
+              {/* Continue with email */}
+              {/* </button> */}
             </div>
 
             {/* Email form (collapsible) */}
             <div
-              className={`overflow-hidden transition-[max-height,opacity] duration-500 ${
+              className={`overflow-hidden transition-all duration-500 ${
                 showEmailForm
-                  ? "max-h-[400px] opacity-100 mt-6"
-                  : "max-h-0 opacity-0"
+                  ? "max-h-[450px] opacity-100 mt-6 visible"
+                  : "max-h-0 opacity-0 invisible absolute pointer-events-none"
               }`}
+              style={{
+                transform: showEmailForm
+                  ? "translateY(0)"
+                  : "translateY(-20px)",
+                position: showEmailForm ? "relative" : "absolute",
+                width: "100%",
+              }}
             >
               <form
                 onSubmit={handleEmailSubmit}
@@ -151,24 +165,27 @@ const LoginPage: React.FC = () => {
                   >
                     Forgot password?
                   </Link>
-                  <Link
-                    href="/auth/signup"
-                    className="opacity-70 hover:opacity-100"
-                  >
-                    Create account
-                  </Link>
                 </div>
                 <button
                   type="submit"
                   disabled={submitting || isLoading}
-                  className="w-full h-10 rounded-md bg-black text-white dark:bg-white dark:text-black hover:opacity-90 transition disabled:opacity-60 text-sm"
+                  className="w-full h-10 rounded-md bg-primary text-white dark:bg-white dark:text-black hover:opacity-90 transition disabled:opacity-60 text-sm"
                 >
                   {submitting ? "Signing in..." : "Sign in"}
                 </button>
+                <div className="text-center text-sm opacity-80 pt-2">
+                  Don't have an account?{" "}
+                  <Link
+                    href="/auth/signup"
+                    className="text-trackaro-accent dark:text-blue-400 hover:underline hover:text-blue-600"
+                  >
+                    Sign up
+                  </Link>
+                </div>
               </form>
             </div>
 
-            <p className="mt-8 max-w-md text-sm opacity-70">
+            <p className="mt-8 max-w-md text-sm opacity-70 text-center">
               By signing in you agree to the{" "}
               <Link
                 href="/privacy"
@@ -191,10 +208,10 @@ const LoginPage: React.FC = () => {
         {/* Right: dark product mock */}
         <aside
           ref={rightRef}
-          className="relative hidden lg:block px-6 sm:px-10 py-16 lg:py-24 bg-[#0b0b0b] text-white"
+          className="relative hidden lg:flex items-center justify-center px-6 sm:px-10 py-16 lg:py-24 bg-[#0b0b0b] text-white"
         >
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.06),transparent_60%)]" />
-          <div className="relative max-w-xl ml-auto">
+          <div className="relative max-w-xl mx-auto">
             {/* Mock frame */}
             <div className="rounded-2xl border border-white/10 bg-[#121212]/80 backdrop-blur p-4 shadow-[0_20px_80px_rgba(0,0,0,0.45)]">
               <div className="flex items-center justify-between px-2 py-1 border-b border-white/10 text-sm opacity-80">

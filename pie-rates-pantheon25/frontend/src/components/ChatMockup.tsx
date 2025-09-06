@@ -32,7 +32,7 @@ export default function ChatMockup() {
         setVisibleMessages(0);
         setTypedContent([]);
         setTypingComplete([]);
-      }, 2000); // Wait 8 seconds before restarting the sequence
+      }, 5000); // Wait 5 seconds before restarting the sequence (increased from 2000)
       return () => clearTimeout(resetTimer);
     }
   }, [visibleMessages, typingComplete]);
@@ -182,7 +182,7 @@ export default function ChatMockup() {
 
       {/* Chat messages container - positioned absolutely over the white box */}
       <div className="absolute inset-0 mt-[70px] px-4 flex flex-col space-y-6 pointer-events-none">
-        <AnimatePresence>
+        <AnimatePresence mode="wait">
           {messages.map(
             (message, index) =>
               message.isVisible && (
@@ -190,10 +190,13 @@ export default function ChatMockup() {
                   key={index}
                   initial={{ opacity: 0, y: 20, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, transition: { duration: 0.2 } }}
                   transition={{
-                    duration: index === 0 ? 1.0 : 0.5, // Longer animation for first message
-                    ease: index === 0 ? "easeInOut" : "easeOut",
-                    delay: index === 0 ? 0.3 : 0, // Add delay to first message
+                    type: "spring",
+                    stiffness: 120,
+                    damping: 20,
+                    mass: 1,
+                    delay: index === 0 ? 0.3 : 0.1, // Slightly delayed for smoother appearance
                   }}
                   className={`flex ${
                     message.type === "user" ? "justify-end" : "justify-start"
