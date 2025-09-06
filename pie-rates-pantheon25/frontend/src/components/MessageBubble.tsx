@@ -34,6 +34,11 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
 
   // Convert markdown-style formatting to HTML
   const formatMessage = (text: string) => {
+    // Handle null/undefined text
+    if (!text || typeof text !== 'string') {
+      return '';
+    }
+    
     // Bold text (wrapped in *)
     let formattedText = text.replace(/\*(.*?)\*/g, "<strong>$1</strong>");
 
@@ -47,11 +52,11 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   const [displayed, setDisplayed] = useState<string>(message);
   useEffect(() => {
     if (!animateTypewriter || isUser) {
-      setDisplayed(message);
+      setDisplayed(message || '');
       return;
     }
     setDisplayed("");
-    const chars = message.split("");
+    const chars = (message || '').split("");
     let i = 0;
     const speed = 14; // ms per char
     const timer = setInterval(() => {
@@ -88,7 +93,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
           {formattedTime}
         </div>
         {/* Cursor for typing */}
-        {animateTypewriter && !isUser && displayed.length < message.length && (
+        {animateTypewriter && !isUser && (displayed || '').length < (message || '').length && (
           <motion.span
             className="inline-block w-3 h-4 align-[-2px] ml-0.5 bg-trackaro-accent/70"
             animate={{ opacity: [0, 1, 0] }}

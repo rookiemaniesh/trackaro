@@ -80,21 +80,23 @@ const ChatBox: React.FC = () => {
     try {
       setIsFetchingMessages(true);
       const response = await api.get<{
-        messages?: Array<{
-          id: number;
-          text: string;
-          sender: "user" | "bot";
-          timestamp: string;
-        }>;
-      }>("/api/message");
+        data?: {
+          messages?: Array<{
+            id: number;
+            content: string;
+            sender: "user" | "bot";
+            createdAt: string;
+          }>;
+        };
+      }>("/api/messages"); // Changed from /api/message to /api/messages
 
-      if (response.messages && response.messages.length > 0) {
+      if (response.data?.messages && response.data.messages.length > 0) {
         // Transform messages from API to match our interface
-        const formattedMessages: Message[] = response.messages.map((msg) => ({
+        const formattedMessages: Message[] = response.data.messages.map((msg) => ({
           id: msg.id,
-          text: msg.text,
+          text: msg.content, // Changed from msg.text to msg.content
           sender: msg.sender,
-          timestamp: new Date(msg.timestamp),
+          timestamp: new Date(msg.createdAt), // Changed from msg.timestamp to msg.createdAt
         }));
         setMessages(formattedMessages);
       } else {
@@ -109,6 +111,7 @@ const ChatBox: React.FC = () => {
       setIsFetchingMessages(false);
     }
   };
+
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -215,87 +218,13 @@ const ChatBox: React.FC = () => {
     }, 1500);
   };
 
-  // Handle file upload
+  // Handle file upload - DISABLED until backend endpoint is implemented
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    // Check file type
-    if (!file.type.match("image/*")) {
-      alert("Please upload an image file (receipt, invoice, or screenshot)");
-      return;
-    }
-
-    // Check file size (limit to 10MB)
-    const maxSize = 10 * 1024 * 1024; // 10MB in bytes
-    if (file.size > maxSize) {
-      alert("File is too large. Please upload an image smaller than 10MB.");
-      return;
-    }
-
-    setIsFileUploading(true);
-
-    try {
-      // Add a user message showing the file is being uploaded
-      const userMessage: Message = {
-        id: messages.length,
-        text: `📎 Uploading image: ${file.name}`,
-        sender: "user",
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, userMessage]);
-
-      // Upload file to the server
-      const response = await api.uploadFile<{
-        text: string;
-        result: string;
-        response: string;
-      }>("/api/upload", file, {
-        type: "receipt", // Indicate the type of file being uploaded
-      });
-
-      // Process the response
-      if (response.text) {
-        // Set the extracted text as input value
-        setInputValue(response.text);
-      }
-
-      // If there's a direct response from the server, add it as a bot message
-      if (response.response) {
-        const botMessage: Message = {
-          id: messages.length + 1,
-          text: response.response,
-          sender: "bot",
-          timestamp: new Date(),
-          animate: true,
-        };
-        setMessages((prev) => [...prev, botMessage]);
-      }
-    } catch (error) {
-      console.error("Error uploading file:", error);
-
-      // Add error message
-      const errorMessage: Message = {
-        id: messages.length + 1,
-        text:
-          error instanceof Error
-            ? `Error uploading file: ${error.message}`
-            : "Error uploading file. Please try again.",
-        sender: "bot",
-        timestamp: new Date(),
-        animate: true,
-      };
-      setMessages((prev) => [...prev, errorMessage]);
-    } finally {
-      setIsFileUploading(false);
-
-      // Clear the file input so the same file can be uploaded again if needed
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
-    }
+    // Temporarily disabled until backend upload endpoint is implemented
+    alert("File upload feature is coming soon!");
+    return;
   };
 
   // Trigger file input click
@@ -321,41 +250,24 @@ const ChatBox: React.FC = () => {
     setIsLoading(true);
 
     try {
-      let response;
-
-      // Check if this is related to an uploaded receipt or general expense
-      if (
-        inputValue.toLowerCase().includes("receipt") ||
-        inputValue.toLowerCase().includes("upload") ||
-        inputValue.toLowerCase().includes("image") ||
-        inputValue.toLowerCase().includes("photo")
-      ) {
-        // Receipt-related query
-        response = await api.post<{ response: string }>("/api/receipt/query", {
-          message: inputValue,
-        });
-      } else if (inputValue.toLowerCase().includes("spent")) {
-        // Process as an expense
-        response = await api.post<{ expense: unknown; response: string }>(
-          "/api/expense",
-          {
-            message: inputValue,
-          }
-        );
-      } else {
-        // Process as a query/analytics
-        response = await api.post<{ result: unknown; response: string }>(
-          "/api/analytics",
-          {
-            message: inputValue,
-          }
-        );
-      }
+      // Send message to the backend using the correct endpoint
+      const response = await api.post<{ 
+        success: boolean;
+        message: string;
+        data?: {
+          messageId: number;
+          expenseId?: number;
+          queryData?: any;
+          requiresPaymentMethod?: boolean;
+        };
+      }>("/api/messages", {
+        content: inputValue, // Use 'content' field as expected by backend
+      });
 
       // Add bot response to UI
       const botMessage: Message = {
         id: messages.length + 1,
-        text: response.response,
+        text: response.message, // Use 'message' field from response
         sender: "bot",
         timestamp: new Date(),
         animate: true,
@@ -416,7 +328,7 @@ const ChatBox: React.FC = () => {
                 confirm("Are you sure you want to clear your chat history?")
               ) {
                 try {
-                  await api.delete("/api/message");
+                  await api.delete("/api/messages/state");
                   setMessages([initialMessage]);
                 } catch (error) {
                   console.error("Error clearing chat history:", error);
