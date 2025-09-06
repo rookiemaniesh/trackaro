@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import ChatBox from "../../components/ChatBox";
+import GlassChatBox from "./GlassChatBox";
 import { motion, AnimatePresence } from "framer-motion";
-import { Html5Qrcode } from "html5-qrcode";
 
 // Icons
 const HomeIcon = ({ className }: { className?: string }) => (
@@ -157,12 +157,12 @@ const PaymentIcon = ({ className }: { className?: string }) => (
 export default function ChatPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
-  const [isScanning, setIsScanning] = useState(false);
-  const [scannedQR, setScannedQR] = useState("");
+  const [upiId, setUpiId] = useState("");
+  const [payeeName, setPayeeName] = useState("");
   const [paymentAmount, setPaymentAmount] = useState("");
   const [paymentNote, setPaymentNote] = useState("");
-  const [qrScanner, setQrScanner] = useState<Html5Qrcode | null>(null);
-  const [scanningStatus, setScanningStatus] = useState<string>("");
+  const [generatedUpiUrl, setGeneratedUpiUrl] = useState("");
+  const [showCopyButton, setShowCopyButton] = useState(false);
   const router = useRouter();
 
   const handleNavigation = (
@@ -173,210 +173,138 @@ export default function ChatPage() {
     router.push(path);
   };
 
-  const startQRScan = async () => {
-    // First set scanning state to true to render the qr-reader element
-    setIsScanning(true);
-    setScanningStatus("Initializing camera...");
-
-    // Wait for the DOM to update
-    setTimeout(async () => {
-      try {
-        // Check if the element exists
-        const qrReaderElement = document.getElementById("qr-reader");
-        if (!qrReaderElement) {
-          throw new Error("QR reader element not found in DOM");
-        }
-
-        // Check if camera is available
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-          throw new Error("Camera not available on this device");
-        }
-
-        // Request camera permission first
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-          // Stop the test stream immediately
-          stream.getTracks().forEach(track => track.stop());
-          console.log("Camera permission granted");
-        } catch (permissionError) {
-          throw new Error("Camera permission denied. Please allow camera access and try again.");
-        }
-
-        // Create a new QR Code scanner
-        const scanner = new Html5Qrcode("qr-reader");
-        setQrScanner(scanner);
-
-        // Start scanning using camera with better configuration
-        const qrScannerConfig = {
-          fps: 10,
-          qrbox: { width: 250, height: 250 },
-          aspectRatio: 1.0,
-          disableFlip: false,
-          experimentalFeatures: {
-            useBarCodeDetectorIfSupported: true
-          }
-        };
-
-        // Try different camera configurations for better compatibility
-        const cameraConfigs = [
-          { facingMode: "environment" }, // Back camera
-          { facingMode: "user" }, // Front camera
-          "environment", // Direct string
-          "user" // Direct string
-        ];
-
-        let scannerStarted = false;
-        for (const config of cameraConfigs) {
-          try {
-            console.log(`Trying camera config:`, config);
-            await scanner.start(
-              config,
-              qrScannerConfig,
-              (decodedText) => {
-                // On successful scan
-                console.log(`QR Code detected: ${decodedText}`);
-                setScannedQR(decodedText);
-                setIsScanning(false);
-
-                // Stop scanning
-                scanner
-                  .stop()
-                  .then(() => {
-                    console.log("QR Code scanning stopped");
-                    setQrScanner(null);
-                  })
-                  .catch((err) => {
-                    console.error("Error stopping QR scanner:", err);
-                    setQrScanner(null);
-                  });
-              },
-              (errorMessage) => {
-                // Categorize errors - NotFoundException is normal when no QR code is detected
-                if (errorMessage.includes("NotFoundException")) {
-                  // This is normal - just means no QR code is currently visible
-                  // Update status to show it's actively scanning
-                  setScanningStatus("Looking for QR code...");
-                  return;
-                } else if (errorMessage.includes("NotAllowedError") || errorMessage.includes("Permission denied")) {
-                  console.error(`QR scan permission error: ${errorMessage}`);
-                  setIsScanning(false);
-                  setQrScanner(null);
-                  setScanningStatus("");
-                  alert("Camera permission denied. Please allow camera access and try again.");
-                } else if (errorMessage.includes("NotReadableError") || errorMessage.includes("OverconstrainedError")) {
-                  console.error(`QR scan camera error: ${errorMessage}`);
-                  setIsScanning(false);
-                  setQrScanner(null);
-                  setScanningStatus("");
-                  alert("Camera error. Please ensure no other app is using the camera and try again.");
-                } else {
-                  // Other errors - log but don't stop scanning
-                  console.log(`QR scan info: ${errorMessage}`);
-                  setScanningStatus("Scanning...");
-                }
-              }
-            );
-            scannerStarted = true;
-            setScanningStatus("Ready to scan QR code");
-            console.log("QR scanner started successfully");
-            break;
-          } catch (configError) {
-            console.log(`Camera config failed:`, configError);
-            continue;
-          }
-        }
-
-        if (!scannerStarted) {
-          throw new Error("Unable to access camera. Please check camera permissions.");
-        }
-
-      } catch (err) {
-        console.error("Error with QR scanning:", err);
-        setIsScanning(false);
-        setQrScanner(null);
-        
-        // Show user-friendly error message
-        const errorMessage = err instanceof Error ? err.message : "Failed to start camera";
-        alert(`QR Scanner Error: ${errorMessage}\n\nPlease ensure:\n1. Camera permissions are granted\n2. Camera is not being used by another app\n3. You're using a device with a camera`);
-      }
-    }, 500); // Give the DOM 500ms to update
+  const validateUpiId = (upi: string) => {
+    // Basic UPI ID validation - should contain @ and be in format like user@paytm, user@phonepe, etc.
+    const upiRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+$/;
+    return upiRegex.test(upi);
   };
 
-  const stopCamera = () => {
-    if (qrScanner) {
-      qrScanner
-        .stop()
-        .then(() => {
-          console.log("QR scanner stopped successfully");
-          setQrScanner(null);
-          setIsScanning(false);
-          setScanningStatus("");
-        })
-        .catch((err) => {
-          console.error("Error stopping QR scanner:", err);
-          // Force cleanup even if stop fails
-          setQrScanner(null);
-          setIsScanning(false);
-          setScanningStatus("");
-        });
-    } else {
-      setIsScanning(false);
-      setScanningStatus("");
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      alert("UPI link copied to clipboard!");
+    } catch (err) {
+      console.error("Failed to copy: ", err);
+      // Fallback for older browsers
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+      alert("UPI link copied to clipboard!");
     }
   };
 
-  // Cleanup scanner on component unmount
-  useEffect(() => {
-    return () => {
-      if (qrScanner) {
-        qrScanner.stop().catch(console.error);
-      }
-    };
-  }, [qrScanner]);
-
   const handlePaymentContinue = () => {
-    if (paymentAmount && scannedQR) {
-      // Redirect to Google Pay or payment processor
-      // In a real app, you'd integrate with a payment gateway
-      window.open(`https://pay.google.com/`, "_blank");
-      setIsPaymentModalOpen(false);
-      setScannedQR("");
-      setPaymentAmount("");
-      setPaymentNote("");
+    if (paymentAmount && upiId && validateUpiId(upiId)) {
+      // Create UPI payment URL with proper format for Google Pay
+      const upiUrl = `upi://pay?pa=${encodeURIComponent(
+        upiId
+      )}&pn=${encodeURIComponent(payeeName || "Payee")}&am=${encodeURIComponent(
+        paymentAmount
+      )}&cu=INR&tn=${encodeURIComponent(paymentNote || "Payment")}`;
+
+      console.log("Generated UPI URL:", upiUrl);
+      console.log("Payment Details:", {
+        upiId,
+        payeeName: payeeName || "Payee",
+        amount: paymentAmount,
+        note: paymentNote || "Payment",
+      });
+
+      // Store the generated URL and show copy button
+      setGeneratedUpiUrl(upiUrl);
+      setShowCopyButton(true);
+
+      // Create a more user-friendly payment initiation
+      const paymentDetails = {
+        upiId,
+        payeeName: payeeName || "Payee",
+        amount: paymentAmount,
+        note: paymentNote || "Payment",
+        upiUrl,
+      };
+
+      // Store payment details in sessionStorage for debugging
+      sessionStorage.setItem(
+        "lastPaymentDetails",
+        JSON.stringify(paymentDetails)
+      );
+
+      // Try to open UPI payment
+      try {
+        // Create a hidden link and click it
+        const link = document.createElement("a");
+        link.href = upiUrl;
+        link.style.display = "none";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        // Show success message
+        alert(`Payment initiated! 
+        
+UPI ID: ${upiId}
+Amount: ₹${paymentAmount}
+Note: ${paymentNote || "Payment"}
+
+If Google Pay didn't open automatically, please:
+1. Open Google Pay manually
+2. Tap "Send Money" 
+3. Enter UPI ID: ${upiId}
+4. Enter Amount: ₹${paymentAmount}`);
+      } catch (error) {
+        console.error("Error opening UPI payment:", error);
+
+        // Show fallback instructions
+        alert(`Unable to open Google Pay automatically.
+
+Please manually open Google Pay and use these details:
+UPI ID: ${upiId}
+Amount: ₹${paymentAmount}
+Note: ${paymentNote || "Payment"}
+
+Or copy this UPI link: ${upiUrl}`);
+      }
+
+      // Don't close modal immediately, let user copy the link if needed
+      // setIsPaymentModalOpen(false);
+      // setUpiId("");
+      // setPayeeName("");
+      // setPaymentAmount("");
+      // setPaymentNote("");
     }
   };
 
   const closePaymentModal = () => {
     setIsPaymentModalOpen(false);
-    setIsScanning(false);
-    stopCamera();
-    setScannedQR("");
+    setUpiId("");
+    setPayeeName("");
     setPaymentAmount("");
     setPaymentNote("");
+    setGeneratedUpiUrl("");
+    setShowCopyButton(false);
   };
-
-  // Cleanup effect to ensure the scanner is stopped when component unmounts
-  useEffect(() => {
-    return () => {
-      if (qrScanner) {
-        qrScanner.stop().catch((err) => {
-          console.error("Error stopping QR scanner during cleanup:", err);
-        });
-      }
-    };
-  }, [qrScanner]);
 
   return (
     <motion.div
-      className="flex flex-col min-h-screen"
+      className="flex flex-col min-h-screen bg-gradient-to-br from-trackaro-bg to-trackaro-card overflow-hidden"
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
     >
+      {/* Background decoration elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[10%] left-[15%] w-72 h-72 bg-trackaro-accent/10 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+        <div className="absolute top-[40%] right-[15%] w-96 h-96 bg-trackaro-accent/10 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+        <div className="absolute bottom-[10%] left-[35%] w-80 h-80 bg-trackaro-accent/10 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
+      </div>
+
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
         <motion.aside
-          className={`bg-secondary dark:bg-trackaro-bg border-r border-trackaro-border dark:border-trackaro-border fixed h-full z-10`}
+          className={`backdrop-blur-lg bg-trackaro-card/50 border-r border-trackaro-border/30 fixed h-full z-10 shadow-lg`}
           animate={{ width: isSidebarOpen ? 200 : 45 }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
           style={{ willChange: "width" }}
@@ -435,6 +363,35 @@ export default function ChatPage() {
                 )}
               </motion.button>
             </div>
+
+            {/* User Profile Bar */}
+            <AnimatePresence>
+              {isSidebarOpen && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="px-3 mb-4 overflow-hidden"
+                >
+                  <div className="p-3 rounded-lg backdrop-blur-sm bg-trackaro-card/30 border border-trackaro-border/30 shadow-sm">
+                    <div className="flex items-center space-x-3">
+                      <div className="h-9 w-9 rounded-full bg-trackaro-accent/10 flex items-center justify-center">
+                        <UserIcon className="h-5 w-5 text-trackaro-text" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-trackaro-text truncate">
+                          John Doe
+                        </p>
+                        <p className="text-xs text-trackaro-text/70 truncate">
+                          john.doe@example.com
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Sidebar Navigation */}
             <nav className="flex-1 space-y-1 px-2">
@@ -502,7 +459,7 @@ export default function ChatPage() {
                       transition={{ duration: 0.2 }}
                       className="font-inter"
                     >
-                      profile
+                      Profile
                     </motion.span>
                   )}
                 </AnimatePresence>
@@ -631,7 +588,7 @@ export default function ChatPage() {
 
         {/* Main content */}
         <motion.main
-          className="flex-1 flex flex-col items-center justify-between p-4 md:p-8 overflow-hidden ml-[45px]"
+          className="flex-1 flex flex-col items-center justify-center p-4 md:p-8 overflow-hidden ml-[45px]"
           style={{
             marginLeft: isSidebarOpen ? "200px" : "45px",
             transition: "margin-left 0.3s",
@@ -641,13 +598,15 @@ export default function ChatPage() {
           transition={{ duration: 0.5, ease: "easeOut" }}
         >
           <motion.div
-            className="w-full h-full max-w-6xl"
+            className="w-full h-full max-w-4xl flex items-center justify-center"
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: "easeOut", delay: 0.1 }}
             layout
           >
-            <ChatBox />
+            <div className="w-full h-[85vh] overflow-hidden rounded-2xl shadow-lg">
+              <GlassChatBox />
+            </div>
           </motion.div>
         </motion.main>
       </div>
@@ -669,108 +628,111 @@ export default function ChatPage() {
               exit={{ scale: 0.9, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
             >
-              <h2 className="text-xl font-semibold mb-4 font-poppins">
-                Payment
+              <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200 font-poppins">
+                💳 UPI Payment
               </h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 font-inter">
+                Fill in the details below and click "Open Google Pay" to
+                initiate payment with pre-filled information.
+              </p>
 
-              {isScanning ? (
-                <div className="mb-4">
-                  <p className="text-sm mb-3 font-inter text-center">
-                    📷 {scanningStatus || "Scanning QR code..."}
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300 font-inter">
+                  UPI ID *
+                </label>
+                <input
+                  type="text"
+                  value={upiId}
+                  onChange={(e) => setUpiId(e.target.value)}
+                  placeholder="Enter UPI ID (e.g., user@paytm, user@phonepe)"
+                  className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md font-inter bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                {upiId && !validateUpiId(upiId) && (
+                  <p className="text-red-500 text-xs mt-1 font-inter">
+                    Please enter a valid UPI ID format
                   </p>
-                  <div className="relative">
-                    <div
-                      id="qr-reader"
-                      className="w-full aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden mb-4 border-2 border-dashed border-gray-300 dark:border-gray-600"
-                    ></div>
-                    <div className="absolute top-2 left-2 right-2 bg-black/50 text-white text-xs p-2 rounded">
-                      <p>• Point camera at QR code</p>
-                      <p>• Ensure good lighting</p>
-                      <p>• Keep steady</p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setIsScanning(false);
-                      stopCamera();
-                    }}
-                    className="w-full py-2 px-4 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium font-inter transition-colors"
-                  >
-                    Cancel Scan
-                  </button>
-                </div>
-              ) : (
-                <>
-                  {scannedQR ? (
-                    <div className="mb-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <p className="text-sm font-inter text-green-600">
-                          ✅ QR code scanned successfully!
-                        </p>
-                        <button
-                          onClick={() => {
-                            setScannedQR("");
-                            startQRScan();
-                          }}
-                          className="text-xs bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded transition-colors"
-                        >
-                          Scan Again
-                        </button>
-                      </div>
-                      <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded text-xs font-mono break-all">
-                        {scannedQR}
-                      </div>
-                      <div className="mb-4">
-                        <label className="block text-sm font-medium mb-1 font-inter">
-                          Enter Amount
-                        </label>
-                        <input
-                          type="number"
-                          value={paymentAmount}
-                          onChange={(e) => setPaymentAmount(e.target.value)}
-                          placeholder="Enter amount"
-                          className="w-full p-2 border border-gray-300 rounded-md font-inter"
-                        />
-                      </div>
+                )}
+              </div>
 
-                      <div className="mb-4">
-                        <label className="block text-sm font-medium mb-1 font-inter">
-                          Note (Optional)
-                        </label>
-                        <textarea
-                          value={paymentNote}
-                          onChange={(e) => setPaymentNote(e.target.value)}
-                          placeholder="Add a note about this payment"
-                          className="w-full p-2 border border-gray-300 rounded-md font-inter resize-none h-20"
-                        />
-                      </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300 font-inter">
+                  Payee Name (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={payeeName}
+                  onChange={(e) => setPayeeName(e.target.value)}
+                  placeholder="Enter payee name (e.g., John Doe, Store Name)"
+                  className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md font-inter bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
 
-                      <button
-                        onClick={handlePaymentContinue}
-                        disabled={!paymentAmount}
-                        className={`w-full py-2 px-4 rounded-lg font-medium ${
-                          paymentAmount
-                            ? "bg-green-600 text-white"
-                            : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                        } font-inter`}
-                      >
-                        Continue to Google Pay
-                      </button>
-                    </div>
-                  ) : (
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300 font-inter">
+                  Amount *
+                </label>
+                <input
+                  type="number"
+                  value={paymentAmount}
+                  onChange={(e) => setPaymentAmount(e.target.value)}
+                  placeholder="Enter amount (e.g., 100)"
+                  className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md font-inter bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300 font-inter">
+                  Note (Optional)
+                </label>
+                <textarea
+                  value={paymentNote}
+                  onChange={(e) => setPaymentNote(e.target.value)}
+                  placeholder="Add a note about this payment (e.g., Dinner, Groceries)"
+                  className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md font-inter bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none h-20"
+                />
+              </div>
+
+              <button
+                onClick={handlePaymentContinue}
+                disabled={!paymentAmount || !upiId || !validateUpiId(upiId)}
+                className={`w-full py-3 px-4 rounded-lg font-medium mb-4 ${
+                  paymentAmount && upiId && validateUpiId(upiId)
+                    ? "bg-green-600 text-white hover:bg-green-700 shadow-lg"
+                    : "bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                } font-inter transition-all duration-200`}
+              >
+                💰 Open Google Pay
+              </button>
+
+              {showCopyButton && generatedUpiUrl && (
+                <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 font-inter">
+                    UPI Payment Link:
+                  </p>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="text"
+                      value={generatedUpiUrl}
+                      readOnly
+                      className="flex-1 p-2 text-xs bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded font-mono"
+                    />
                     <button
-                      onClick={startQRScan}
-                      className="w-full py-3 px-4 bg-blue-600 text-white rounded-lg font-medium mb-4 font-inter"
+                      onClick={() => copyToClipboard(generatedUpiUrl)}
+                      className="px-3 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors"
                     >
-                      Scan QR Code
+                      Copy
                     </button>
-                  )}
-                </>
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 font-inter">
+                    Copy this link and paste it in your browser or share it with
+                    others
+                  </p>
+                </div>
               )}
 
               <button
                 onClick={closePaymentModal}
-                className="w-full py-2 px-4 border border-gray-300 rounded-lg font-medium font-inter"
+                className="w-full py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-lg font-medium font-inter text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
                 Close
               </button>
