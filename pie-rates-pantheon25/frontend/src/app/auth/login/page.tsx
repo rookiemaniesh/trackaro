@@ -83,6 +83,7 @@ const LoginPage: React.FC = () => {
 
   const handleGoogle = async () => {
     try {
+      window.location.href = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/auth/google`;
       // await googleLogin();
       // No need to navigate here as NextAuth will handle the redirect
     } catch (err: unknown) {
@@ -97,10 +98,10 @@ const LoginPage: React.FC = () => {
         {/* Left: CTA + Auth */}
         <section
           ref={leftRef}
-          className="px-6 sm:px-10 py-12 sm:py-16 lg:py-24 flex flex-col items-center overflow-hidden relative"
+          className="px-6 sm:px-10 py-5 sm:py-16 lg:py-10 flex flex-col items-center overflow-hidden relative"
         >
           <div className="max-w-md w-full mx-auto">
-            <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight text-center">
+            <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-center">
               Get started with Trackaro
             </h1>
 
@@ -121,18 +122,6 @@ const LoginPage: React.FC = () => {
                 </span>
                 <div className="bg-black/20 dark:bg-white/20 h-px flex-grow"></div>
               </div>
-
-              {/* <button
-                onClick={() => setShowEmailForm((s) => !s)}
-                className={`w-full max-w-md h-10 rounded-full text-sm flex items-center justify-center  transition border ${
-                  showEmailForm
-                    ? "bg-trackaro-accent/90 text-black border-transparent hover:bg-trackaro-accent"
-                    : "bg-[#222] text-white border-white/10 hover:bg-[#1a1a1a]"
-                }`}
-              >
-                {/* Continue with email {showEmailForm ? "↑" : "↓"} */}
-              {/* Continue with email */}
-              {/* </button> */}
             </div>
 
             {/* Email form (collapsible) */}
