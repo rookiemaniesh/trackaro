@@ -15,7 +15,7 @@ interface ButtonProps {
   size?: "small" | "medium" | "large";
 }
 
-export default function Button({
+function Button({
   text,
   onClick,
   className = "",
@@ -79,12 +79,13 @@ export default function Button({
     <motion.span
       animate={{ x: [0, 5, 0] }}
       transition={{
-        duration: 1.5,
+        duration: 2,
         repeat: Infinity,
         repeatType: "loop",
         ease: "easeInOut",
         times: [0, 0.5, 1],
       }}
+      className="inline-block"
     >
       →
     </motion.span>
@@ -120,8 +121,14 @@ export default function Button({
       }}
       transition={{
         type: "spring",
-        stiffness: 500,
-        damping: 30,
+        stiffness: 400, // Reduced stiffness for smoother motion
+        damping: 35, // Increased damping for less oscillation
+        mass: 1.2, // Added mass for more natural physics
+        velocity: 0.5, // Control initial velocity
+      }}
+      whileHover={{
+        scale: 1.05,
+        boxShadow: "0 10px 25px rgba(0, 0, 0, 0.1)",
       }}
     >
       <AnimatePresence mode="wait">
@@ -129,22 +136,49 @@ export default function Button({
           <motion.div
             key="expanded"
             className="flex items-center justify-center gap-2"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{
+              duration: 0.4,
+              ease: [0.22, 1, 0.36, 1], // Custom ease curve for smooth motion
+              staggerChildren: 0.1,
+            }}
           >
-            <span>{text}</span>
-            {expandedIcon || defaultExpandedIcon}
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{
+                delay: 0.1,
+                duration: 0.5,
+                ease: "easeInOut",
+              }}
+            >
+              {text}
+            </motion.span>
+            <motion.span
+              initial={{ opacity: 0, x: -5 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{
+                delay: 0.2,
+                duration: 0.3,
+                ease: "easeOut",
+              }}
+            >
+              {expandedIcon || defaultExpandedIcon}
+            </motion.span>
           </motion.div>
         ) : (
           <motion.div
             key="circle"
             className="flex items-center justify-center"
-            initial={{ opacity: 0, rotate: -45 }}
-            animate={{ opacity: 1, rotate: 0 }}
-            exit={{ opacity: 0, rotate: 45 }}
-            transition={{ duration: 0.3 }}
+            initial={{ opacity: 0, rotate: -45, scale: 0.8 }}
+            animate={{ opacity: 1, rotate: 0, scale: 1 }}
+            exit={{ opacity: 0, rotate: 45, scale: 0.8 }}
+            transition={{
+              duration: 0.4,
+              ease: [0.175, 0.885, 0.32, 1.275], // Custom ease curve (ease-out-back)
+            }}
           >
             {icon || defaultIcon}
           </motion.div>
@@ -153,3 +187,10 @@ export default function Button({
     </motion.button>
   );
 }
+
+// Named export
+export { Button };
+// Default export
+export default Button;
+// Export the ButtonProps type as well
+export type { ButtonProps };

@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 
 interface MessageBubbleProps {
   message: string;
-  sender: "user" | "ai";
+  sender: "user" | "bot";
   timestamp: Date;
   animateTypewriter?: boolean;
 }

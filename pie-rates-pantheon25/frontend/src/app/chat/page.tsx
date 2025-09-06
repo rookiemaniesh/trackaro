@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ChatBox from "../../components/ChatBox";
 import { motion, AnimatePresence } from "framer-motion";
-import { useAuth } from "../../context/AuthContext";
 
 // Icons
 const HomeIcon = ({ className }: { className?: string }) => (
@@ -118,42 +117,9 @@ const LogoutIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const TelegramIcon = ({ className }: { className?: string }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="currentColor"
-    className={className}
-  >
-    <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
-  </svg>
-);
-
 export default function ChatPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [showTelegramModal, setShowTelegramModal] = useState(false);
-  const [telegramCode, setTelegramCode] = useState<string | null>(null);
-  const [telegramLoading, setTelegramLoading] = useState(false);
-  const [telegramError, setTelegramError] = useState<string | null>(null);
-  const [telegramStatus, setTelegramStatus] = useState<{
-    isLinked: boolean;
-    hasActiveCode: boolean;
-    linkCode: string | null;
-    expiry: string | null;
-    botUsername: string;
-  } | null>(null);
-  
   const router = useRouter();
-  const { generateTelegramCode, getTelegramStatus, unlinkTelegram, isAuthenticated, isLoading } = useAuth();
-
-  // Redirect to login if not authenticated
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.push('/auth/login');
-    }
-  }, [isAuthenticated, isLoading, router]);
 
   const handleNavigation = (
     e: React.MouseEvent<HTMLAnchorElement>,
@@ -162,116 +128,6 @@ export default function ChatPage() {
     e.preventDefault();
     router.push(path);
   };
-
-  // Load Telegram status on component mount
-  useEffect(() => {
-    const loadTelegramStatus = async () => {
-      try {
-        // Only load status if user is authenticated
-        if (isAuthenticated) {
-          // First check if backend is accessible
-          const healthCheck = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/health`);
-          if (!healthCheck.ok) {
-            throw new Error("Backend server is not accessible");
-          }
-          
-          const status = await getTelegramStatus();
-          setTelegramStatus(status);
-        }
-      } catch (error) {
-        console.error("Failed to load Telegram status:", error);
-        // Set default status if Telegram is not available
-        setTelegramStatus({
-          isLinked: false,
-          hasActiveCode: false,
-          linkCode: null,
-          expiry: null,
-          botUsername: 'your_bot'
-        });
-        
-        // Show error in UI if it's a connection issue
-        if (error instanceof Error && error.message.includes('connect to server')) {
-          setTelegramError("Backend server is not running. Please start the backend server.");
-        }
-      }
-    };
-
-    loadTelegramStatus();
-  }, [getTelegramStatus, isAuthenticated]);
-
-  const handleTelegramConnect = async () => {
-    if (!isAuthenticated) {
-      setTelegramError("Please log in to connect Telegram");
-      return;
-    }
-
-    setTelegramLoading(true);
-    setTelegramError(null);
-    
-    try {
-      const data = await generateTelegramCode();
-      setTelegramCode(data.code);
-      setShowTelegramModal(true);
-      
-      // Refresh status after generating code
-      const status = await getTelegramStatus();
-      setTelegramStatus(status);
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err);
-      console.error("Telegram connect error:", err);
-      setTelegramError(msg || "Failed to generate Telegram code. Please make sure the backend server is running.");
-    } finally {
-      setTelegramLoading(false);
-    }
-  };
-
-  const handleTelegramUnlink = async () => {
-    if (!isAuthenticated) {
-      setTelegramError("Please log in to disconnect Telegram");
-      return;
-    }
-
-    setTelegramLoading(true);
-    setTelegramError(null);
-    
-    try {
-      await unlinkTelegram();
-      const status = await getTelegramStatus();
-      setTelegramStatus(status);
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err);
-      setTelegramError(msg || "Failed to unlink Telegram");
-    } finally {
-      setTelegramLoading(false);
-    }
-  };
-
-  const copyTelegramCode = () => {
-    if (telegramCode) {
-      navigator.clipboard.writeText(telegramCode);
-      // You could add a toast notification here
-    }
-  };
-
-  const closeTelegramModal = () => {
-    setShowTelegramModal(false);
-    setTelegramCode(null);
-    setTelegramError(null);
-  };
-
-  // Show loading while checking authentication
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
-
-  // Don't render if not authenticated (will redirect)
-  if (!isAuthenticated) {
-    return null;
-  }
 
   return (
     <motion.div
@@ -301,7 +157,7 @@ export default function ChatPage() {
                     exit={{ opacity: 0, x: -8 }}
                     transition={{ duration: 0.2 }}
                   >
-                    Trackaro
+                    TracKARO
                   </motion.span>
                 )}
               </AnimatePresence>
@@ -347,7 +203,7 @@ export default function ChatPage() {
             <nav className="flex-1 space-y-1 px-2">
               <motion.a
                 href="/"
-                onClick={(e) => handleNavigation(e, "/chat")}
+                onClick={(e) => handleNavigation(e, "/")}
                 className="flex items-center space-x-2 p-1.5 rounded-lg text-sm text-trackaro-text dark:text-trackaro-text hover:bg-trackaro-accent/10 dark:hover:bg-trackaro-accent/10"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
@@ -363,28 +219,6 @@ export default function ChatPage() {
                       transition={{ duration: 0.2 }}
                     >
                       Home
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-              </motion.a>
-              <motion.a
-                href="/dashboard"
-                onClick={(e) => handleNavigation(e, "/dashboard")}
-                className="flex items-center space-x-2 p-1.5 rounded-lg text-sm text-trackaro-text dark:text-trackaro-text hover:bg-trackaro-accent/10 dark:hover:bg-trackaro-accent/10"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <DashboardIcon className="h-4 w-4" />
-                <AnimatePresence initial={false}>
-                  {isSidebarOpen && (
-                    <motion.span
-                      key="dashboard-label"
-                      initial={{ opacity: 0, x: -8 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -8 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      Dashboard
                     </motion.span>
                   )}
                 </AnimatePresence>
@@ -428,53 +262,33 @@ export default function ChatPage() {
                       exit={{ opacity: 0, x: -8 }}
                       transition={{ duration: 0.2 }}
                     >
-                      Profile
+                      profile
                     </motion.span>
                   )}
                 </AnimatePresence>
               </motion.a>
-             
-
-              {/* Telegram Connection Button */}
-              <motion.button
-                onClick={telegramStatus?.isLinked ? handleTelegramUnlink : handleTelegramConnect}
-                disabled={telegramLoading || !isAuthenticated}
-                className={`flex items-center space-x-2 p-1.5 rounded-lg text-sm w-full ${
-                  !isAuthenticated
-                    ? "text-gray-400 cursor-not-allowed"
-                    : telegramError && telegramError.includes('Backend server')
-                      ? "text-orange-500 hover:bg-orange-500/10"
-                      : telegramStatus?.isLinked 
-                        ? "text-red-500 hover:bg-red-500/10" 
-                        : "text-[#0088cc] hover:bg-[#0088cc]/10"
-                }`}
-                whileHover={{ scale: isAuthenticated ? 1.02 : 1 }}
-                whileTap={{ scale: isAuthenticated ? 0.98 : 1 }}
+              <motion.a
+                href="/dashboard"
+                onClick={(e) => handleNavigation(e, "/dashboard")}
+                className="flex items-center space-x-2 p-1.5 rounded-lg text-sm text-trackaro-text dark:text-trackaro-text hover:bg-trackaro-accent/10 dark:hover:bg-trackaro-accent/10"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
-                <TelegramIcon className="h-4 w-4" />
+                <DashboardIcon className="h-4 w-4" />
                 <AnimatePresence initial={false}>
                   {isSidebarOpen && (
                     <motion.span
-                      key="telegram-label"
+                      key="dashboard-label"
                       initial={{ opacity: 0, x: -8 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -8 }}
                       transition={{ duration: 0.2 }}
                     >
-                      {!isAuthenticated
-                        ? "Login Required"
-                        : telegramError && telegramError.includes('Backend server')
-                          ? "Server Offline"
-                        : telegramLoading 
-                          ? "Loading..." 
-                          : telegramStatus?.isLinked 
-                            ? "Disconnect Telegram" 
-                            : "Connect Telegram"
-                      }
+                      Dashboard
                     </motion.span>
                   )}
                 </AnimatePresence>
-              </motion.button>
+              </motion.a>
             </nav>
 
             {/* Logout button at bottom */}
@@ -545,97 +359,6 @@ export default function ChatPage() {
           </motion.div>
         </motion.main>
       </div>
-
-      {/* Telegram Connection Modal */}
-      <AnimatePresence>
-        {showTelegramModal && (
-          <motion.div
-            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={closeTelegramModal}
-          >
-            <motion.div
-              className="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-md w-full mx-4"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
-                  <TelegramIcon className="h-6 w-6 text-[#0088cc] mr-2" />
-                  Connect to Telegram
-                </h3>
-                <button
-                  onClick={closeTelegramModal}
-                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                >
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-
-              {telegramError && (
-                <div className="mb-4 p-3 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-lg">
-                  <p className="text-red-700 dark:text-red-300 text-sm">{telegramError}</p>
-                </div>
-              )}
-
-              {telegramCode && (
-                <div className="space-y-4">
-                  <div className="text-center">
-                    <p className="text-gray-600 dark:text-gray-300 mb-4">
-                      Send this code to your Telegram bot to connect your account:
-                    </p>
-                    
-                    <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 mb-4">
-                      <div className="flex items-center justify-center mb-2">
-                        <code className="text-3xl font-mono font-bold text-gray-900 dark:text-white tracking-wider">
-                          {telegramCode}
-                        </code>
-                      </div>
-                      <button
-                        onClick={copyTelegramCode}
-                        className="text-sm text-[#0088cc] hover:text-[#0077b3] font-medium"
-                      >
-                        Click to copy code
-                      </button>
-                    </div>
-
-                    <div className="text-sm text-gray-500 dark:text-gray-400 space-y-1">
-                      <p>1. Open Telegram</p>
-                      <p>2. Find @{telegramStatus?.botUsername || 'your_bot'}</p>
-                      <p>3. Send the code: <span className="font-mono font-bold">{telegramCode}</span></p>
-                      <p>4. Your account will be linked automatically</p>
-                    </div>
-                  </div>
-
-                  <div className="flex space-x-3">
-                    <button
-                      onClick={closeTelegramModal}
-                      className="flex-1 px-4 py-2 text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                    >
-                      Close
-                    </button>
-                    <button
-                      onClick={() => {
-                        // Refresh status to check if linked
-                        getTelegramStatus().then(setTelegramStatus);
-                      }}
-                      className="flex-1 px-4 py-2 bg-[#0088cc] text-white rounded-lg hover:bg-[#0077b3] transition-colors"
-                    >
-                      Check Status
-                    </button>
-                  </div>
-                </div>
-              )}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </motion.div>
   );
 }
