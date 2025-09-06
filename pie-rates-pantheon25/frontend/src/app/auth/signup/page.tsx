@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
+import { gsap } from "gsap";
 import "../auth.css"; // Import auth.css to access scrollbar-hide utility
 
 class ErrorBoundary extends React.Component<

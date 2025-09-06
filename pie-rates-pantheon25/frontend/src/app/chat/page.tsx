@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import ChatBox from "../../components/ChatBox";
 import { motion, AnimatePresence } from "framer-motion";
+import { Html5Qrcode } from "html5-qrcode";
 
 // Icons
 const HomeIcon = ({ className }: { className?: string }) => (
@@ -117,8 +118,50 @@ const LogoutIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+const TelegramIcon = ({ className }: { className?: string }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <path d="M21.73 2.27a3.63 3.63 0 0 0-3.06-.2L4.5 8.5h-.03a1.95 1.95 0 0 0 .21 3.61L7.5 13.14v5.53a2.17 2.17 0 0 0 3.46 1.7l2.5-2 3.82 2.9a2.05 2.05 0 0 0 3.35-1.1l3.72-16.29a3.65 3.65 0 0 0-2.62-1.62Z"></path>
+    <path d="M8 13.5 16 8"></path>
+  </svg>
+);
+
+const PaymentIcon = ({ className }: { className?: string }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <rect width="20" height="14" x="2" y="5" rx="2"></rect>
+    <line x1="2" x2="22" y1="10" y2="10"></line>
+  </svg>
+);
+
 export default function ChatPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
+  const [scannedQR, setScannedQR] = useState("");
+  const [paymentAmount, setPaymentAmount] = useState("");
+  const [paymentNote, setPaymentNote] = useState("");
+  const [qrScanner, setQrScanner] = useState<Html5Qrcode | null>(null);
   const router = useRouter();
 
   const handleNavigation = (
@@ -128,6 +171,108 @@ export default function ChatPage() {
     e.preventDefault();
     router.push(path);
   };
+
+  const startQRScan = async () => {
+    // First set scanning state to true to render the qr-reader element
+    setIsScanning(true);
+
+    // Wait for the DOM to update
+    setTimeout(async () => {
+      try {
+        // Check if the element exists
+        const qrReaderElement = document.getElementById("qr-reader");
+        if (!qrReaderElement) {
+          throw new Error("QR reader element not found in DOM");
+        }
+
+        // Create a new QR Code scanner
+        const scanner = new Html5Qrcode("qr-reader");
+        setQrScanner(scanner);
+
+        // Start scanning using camera
+        const qrScannerConfig = {
+          fps: 10,
+          qrbox: { width: 250, height: 250 },
+          aspectRatio: 1.0,
+        };
+
+        // Start scanning
+        await scanner.start(
+          { facingMode: "environment" }, // Use back camera
+          qrScannerConfig,
+          (decodedText) => {
+            // On successful scan
+            console.log(`QR Code detected: ${decodedText}`);
+            setScannedQR(decodedText);
+            setIsScanning(false);
+
+            // Stop scanning
+            scanner
+              .stop()
+              .then(() => {
+                console.log("QR Code scanning stopped");
+              })
+              .catch((err) => {
+                console.error("Error stopping QR scanner:", err);
+              });
+          },
+          (errorMessage) => {
+            // On error - we don't need to show this to the user
+            console.log(`QR scan error: ${errorMessage}`);
+          }
+        );
+      } catch (err) {
+        console.error("Error with QR scanning:", err);
+        setIsScanning(false);
+      }
+    }, 500); // Give the DOM 500ms to update
+  };
+
+  const stopCamera = () => {
+    if (qrScanner) {
+      qrScanner
+        .stop()
+        .then(() => {
+          console.log("QR scanner stopped successfully");
+          setQrScanner(null);
+        })
+        .catch((err) => {
+          console.error("Error stopping QR scanner:", err);
+        });
+    }
+  };
+
+  const handlePaymentContinue = () => {
+    if (paymentAmount && scannedQR) {
+      // Redirect to Google Pay or payment processor
+      // In a real app, you'd integrate with a payment gateway
+      window.open(`https://pay.google.com/`, "_blank");
+      setIsPaymentModalOpen(false);
+      setScannedQR("");
+      setPaymentAmount("");
+      setPaymentNote("");
+    }
+  };
+
+  const closePaymentModal = () => {
+    setIsPaymentModalOpen(false);
+    setIsScanning(false);
+    stopCamera();
+    setScannedQR("");
+    setPaymentAmount("");
+    setPaymentNote("");
+  };
+
+  // Cleanup effect to ensure the scanner is stopped when component unmounts
+  useEffect(() => {
+    return () => {
+      if (qrScanner) {
+        qrScanner.stop().catch((err) => {
+          console.error("Error stopping QR scanner during cleanup:", err);
+        });
+      }
+    };
+  }, [qrScanner]);
 
   return (
     <motion.div
@@ -139,7 +284,7 @@ export default function ChatPage() {
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
         <motion.aside
-          className={`bg-secondary dark:bg-trackaro-bg border-r border-trackaro-border dark:border-trackaro-border`}
+          className={`bg-secondary dark:bg-trackaro-bg border-r border-trackaro-border dark:border-trackaro-border fixed h-full z-10`}
           animate={{ width: isSidebarOpen ? 200 : 45 }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
           style={{ willChange: "width" }}
@@ -151,7 +296,7 @@ export default function ChatPage() {
                 {isSidebarOpen && (
                   <motion.span
                     key="brand"
-                    className="text-sm text-center font-semibold tracking-wide text-trackaro-text dark:text-trackaro-text"
+                    className="text-sm text-center font-semibold tracking-wide text-trackaro-text dark:text-trackaro-text font-poppins"
                     initial={{ opacity: 0, x: -8 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -8 }}
@@ -217,6 +362,7 @@ export default function ChatPage() {
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -8 }}
                       transition={{ duration: 0.2 }}
+                      className="font-inter"
                     >
                       Home
                     </motion.span>
@@ -239,6 +385,7 @@ export default function ChatPage() {
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -8 }}
                       transition={{ duration: 0.2 }}
+                      className="font-inter"
                     >
                       Notifications
                     </motion.span>
@@ -261,6 +408,7 @@ export default function ChatPage() {
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -8 }}
                       transition={{ duration: 0.2 }}
+                      className="font-inter"
                     >
                       profile
                     </motion.span>
@@ -283,12 +431,58 @@ export default function ChatPage() {
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -8 }}
                       transition={{ duration: 0.2 }}
+                      className="font-inter"
                     >
                       Dashboard
                     </motion.span>
                   )}
                 </AnimatePresence>
               </motion.a>
+              <motion.a
+                href="/telegram"
+                onClick={(e) => handleNavigation(e, "/telegram")}
+                className="flex items-center space-x-2 p-1.5 rounded-lg text-sm text-trackaro-text dark:text-trackaro-text hover:bg-trackaro-accent/10 dark:hover:bg-trackaro-accent/10"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <TelegramIcon className="h-4 w-4" />
+                <AnimatePresence initial={false}>
+                  {isSidebarOpen && (
+                    <motion.span
+                      key="telegram-label"
+                      initial={{ opacity: 0, x: -8 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -8 }}
+                      transition={{ duration: 0.2 }}
+                      className="font-inter"
+                    >
+                      Telegram
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </motion.a>
+              <motion.button
+                onClick={() => setIsPaymentModalOpen(true)}
+                className="flex w-full items-center space-x-2 p-1.5 rounded-lg text-sm text-trackaro-text dark:text-trackaro-text hover:bg-trackaro-accent/10 dark:hover:bg-trackaro-accent/10"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <PaymentIcon className="h-4 w-4" />
+                <AnimatePresence initial={false}>
+                  {isSidebarOpen && (
+                    <motion.span
+                      key="payment-label"
+                      initial={{ opacity: 0, x: -8 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -8 }}
+                      transition={{ duration: 0.2 }}
+                      className="font-inter"
+                    >
+                      Payment
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </motion.button>
             </nav>
 
             {/* Logout button at bottom */}
@@ -309,6 +503,7 @@ export default function ChatPage() {
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -8 }}
                       transition={{ duration: 0.2 }}
+                      className="font-inter"
                     >
                       Settings
                     </motion.span>
@@ -331,6 +526,7 @@ export default function ChatPage() {
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -8 }}
                       transition={{ duration: 0.2 }}
+                      className="font-inter"
                     >
                       Logout
                     </motion.span>
@@ -343,7 +539,11 @@ export default function ChatPage() {
 
         {/* Main content */}
         <motion.main
-          className="flex-1 flex flex-col items-center justify-between p-4 md:p-8 overflow-hidden"
+          className="flex-1 flex flex-col items-center justify-between p-4 md:p-8 overflow-hidden ml-[45px]"
+          style={{
+            marginLeft: isSidebarOpen ? "200px" : "45px",
+            transition: "margin-left 0.3s",
+          }}
           initial={{ opacity: 0, x: 16 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
@@ -359,6 +559,110 @@ export default function ChatPage() {
           </motion.div>
         </motion.main>
       </div>
+
+      {/* Payment Modal */}
+      <AnimatePresence>
+        {isPaymentModalOpen && (
+          <motion.div
+            className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={closePaymentModal}
+          >
+            <motion.div
+              className="bg-white dark:bg-trackaro-bg rounded-xl shadow-xl max-w-md w-full p-6"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2 className="text-xl font-semibold mb-4 font-poppins">
+                Payment
+              </h2>
+
+              {isScanning ? (
+                <div className="mb-4">
+                  <p className="text-sm mb-3 font-inter">Scanning QR code...</p>
+                  <div
+                    id="qr-reader"
+                    className="w-full aspect-square bg-gray-100 rounded-lg overflow-hidden mb-4"
+                  ></div>
+                  <button
+                    onClick={() => {
+                      setIsScanning(false);
+                      stopCamera();
+                    }}
+                    className="w-full py-2 px-4 bg-red-500 text-white rounded-lg font-medium font-inter"
+                  >
+                    Cancel Scan
+                  </button>
+                </div>
+              ) : (
+                <>
+                  {scannedQR ? (
+                    <div className="mb-4">
+                      <p className="text-sm mb-2 font-inter">
+                        QR code scanned successfully!
+                      </p>
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium mb-1 font-inter">
+                          Enter Amount
+                        </label>
+                        <input
+                          type="number"
+                          value={paymentAmount}
+                          onChange={(e) => setPaymentAmount(e.target.value)}
+                          placeholder="Enter amount"
+                          className="w-full p-2 border border-gray-300 rounded-md font-inter"
+                        />
+                      </div>
+
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium mb-1 font-inter">
+                          Note (Optional)
+                        </label>
+                        <textarea
+                          value={paymentNote}
+                          onChange={(e) => setPaymentNote(e.target.value)}
+                          placeholder="Add a note about this payment"
+                          className="w-full p-2 border border-gray-300 rounded-md font-inter resize-none h-20"
+                        />
+                      </div>
+
+                      <button
+                        onClick={handlePaymentContinue}
+                        disabled={!paymentAmount}
+                        className={`w-full py-2 px-4 rounded-lg font-medium ${
+                          paymentAmount
+                            ? "bg-green-600 text-white"
+                            : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        } font-inter`}
+                      >
+                        Continue to Google Pay
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={startQRScan}
+                      className="w-full py-3 px-4 bg-blue-600 text-white rounded-lg font-medium mb-4 font-inter"
+                    >
+                      Scan QR Code
+                    </button>
+                  )}
+                </>
+              )}
+
+              <button
+                onClick={closePaymentModal}
+                className="w-full py-2 px-4 border border-gray-300 rounded-lg font-medium font-inter"
+              >
+                Close
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
