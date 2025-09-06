@@ -28,10 +28,30 @@ const GoogleIcon = () => (
 );
 
 const LoginPage: React.FC = () => {
-  const { user, login, isLoading } = useAuth();
+  const { user, login, googleLogin, isLoading } = useAuth();
   const router = useRouter();
+  const [isMounted, setIsMounted] = useState(false);
 
-  const [showEmailForm, setShowEmailForm] = useState(false);
+  const [showEmailForm, setShowEmailForm] = useState(true); // Set to true to keep email form open by default
+
+  // Prevent scrollbars when page loads
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      // Apply custom scrollbar styling to hide scrollbars but allow scrolling
+      document.body.classList.add("scrollbar-hide");
+      document.body.style.overflow = "auto";
+
+      // Use requestAnimationFrame to ensure we're fully on the client
+      requestAnimationFrame(() => {
+        setIsMounted(true);
+      });
+
+      return () => {
+        document.body.classList.remove("scrollbar-hide");
+        document.body.style.overflow = "";
+      };
+    }
+  }, []);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -62,11 +82,16 @@ const LoginPage: React.FC = () => {
   };
 
   const handleGoogle = async () => {
-    // Redirect to Google OAuth endpoint on backend
-    window.location.href = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/auth/google`;
+    try {
+      await googleLogin();
+      // No need to navigate here as NextAuth will handle the redirect
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(msg || "Google login failed. Please try again.");
+    }
   };
 
-   return (
+  return (
     <main className="fixed inset-0 w-full h-full bg-trackaro-bg dark:bg-[#0f0f0f] text-trackaro-text dark:text-white overflow-hidden">
       <div className="mx-auto w-full h-full grid grid-cols-1 lg:grid-cols-2">
         {/* Left: CTA + Auth */}
