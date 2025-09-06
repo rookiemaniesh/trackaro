@@ -4,6 +4,10 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  /* Font families */
+  --font-family-primary: var(--font-poppins), 'Poppins', ui-sans-serif, system-ui, sans-serif;
+  --font-family-secondary: var(--font-inter), 'Inter', ui-sans-serif, system-ui, sans-serif;
+
   --primary: #333333;
   --primary-hover: #4a4a4a;
   --secondary: #f6f5f3;
@@ -297,6 +301,40 @@ body {
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* Typography setup */
+html {
+  font-family: var(--font-family-primary);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.heading {
+  font-family: var(--font-family-primary);
+}
+
+p,
+span,
+div,
+button,
+input,
+select,
+textarea,
+a {
+  font-family: var(--font-family-secondary);
+}
+
+.font-poppins {
+  font-family: var(--font-family-primary);
+}
+
+.font-inter {
+  font-family: var(--font-family-secondary);
+}
+
 .dark {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
@@ -424,9 +462,17 @@ body {
 }
 
 @keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-15px); }
-  100% { transform: translateY(0px); }
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-15px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
 }
 
 .animate-float {
@@ -434,8 +480,17 @@ body {
 }
 
 @keyframes pulse-slow {
-  0%, 100% { opacity: 0.2; transform: scale(1); }
-  50% { opacity: 0.35; transform: scale(1.1); }
+
+  0%,
+  100% {
+    opacity: 0.2;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.35;
+    transform: scale(1.1);
+  }
 }
 
 .animate-pulse-slow {
@@ -443,9 +498,17 @@ body {
 }
 
 @keyframes gradient {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .animate-gradient {
