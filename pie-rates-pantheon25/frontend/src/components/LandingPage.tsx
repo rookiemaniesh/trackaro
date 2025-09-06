@@ -479,16 +479,17 @@ const LandingPage: React.FC = () => {
             </div>
 
             {/* Animated Button */}
-            <div className="flex justify-center">
+            <div className="flex justify-center z-10 relative mb-8">
               <Button
-                text="Start New Chat"
-                onClick={() => console.log("Starting new chat")}
-                className="font-semibold"
+                text="Start Chat"
+                onClick={handleStartChatting}
+                className="font-semibold shadow-xl"
                 size="large"
+                initiallyExpanded={false}
                 icon={
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    width="24"
+                    width="90"
                     height="24"
                     viewBox="0 0 24 24"
                     fill="none"
@@ -504,9 +505,19 @@ const LandingPage: React.FC = () => {
             </div>
 
             {/* Floating Chat Mockup Below */}
-            <div className="mt-15 w-full max-w-2xl mx-auto">
+            <motion.div
+              className="m-15 w-full max-w-2xl mx-auto"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                type: "spring",
+                stiffness: 100,
+                damping: 15,
+                delay: 0.2,
+              }}
+            >
               <ChatMockup />
-            </div>
+            </motion.div>
           </section>
 
           <section id="technology" className="m-0">

@@ -7,28 +7,18 @@ import { useAuth } from "../context/AuthContext";
 import { useApi } from "../app/utils/api";
 
 interface Message {
-  id: string;
-  content: string;
-  sender: "user" | "ai";
-  source: "web" | "telegram";
-  createdAt: string;
-  expenseId?: string | null;
-  expense?: {
-    id: string;
-    amount: number;
-    category: string;
-    companions: string[];
-    description: string;
-  } | null;
+  id: number;
+  text: string;
+  sender: "user" | "bot";
+  timestamp: Date;
   animate?: boolean; // whether to animate typewriter on mount (bot only)
 }
 
 const initialMessage: Message = {
-  id: "initial",
-  content: "👋 Hi there! I'm your expense assistant. You can tell me about expenses like 'I spent ₹200 on dinner yesterday' or ask me questions like 'How much did I spend on food this month?'",
-  sender: "ai",
-  source: "web",
-  createdAt: new Date().toISOString(),
+  id: 0,
+  text: "👋 Hi there! I'm your expense assistant. You can tell me about expenses like 'I spent ₹200 on dinner yesterday' or ask me questions like 'How much did I spend on food this month?'",
+  sender: "bot",
+  timestamp: new Date(),
 };
 
 const ChatBox: React.FC = () => {
@@ -90,35 +80,23 @@ const ChatBox: React.FC = () => {
     try {
       setIsFetchingMessages(true);
       const response = await api.get<{
-        success: boolean;
-        data: {
-          messages: Array<{
-            id: string;
-            content: string;
-            sender: "user" | "ai";
-            source: "web" | "telegram";
-            createdAt: string;
-            expenseId?: string | null;
-            expense?: {
-              id: string;
-              amount: number;
-              category: string;
-              companions: string[];
-              description: string;
-            } | null;
-          }>;
-          pagination: {
-            total: number;
-            limit: number;
-            offset: number;
-            hasMore: boolean;
-          };
-        };
-      }>("/api/messages");
+        messages?: Array<{
+          id: number;
+          text: string;
+          sender: "user" | "bot";
+          timestamp: string;
+        }>;
+      }>("/api/message");
 
-      if (response.success && response.data?.messages && response.data.messages.length > 0) {
-        // Use messages directly from API response
-        setMessages(response.data.messages);
+      if (response.messages && response.messages.length > 0) {
+        // Transform messages from API to match our interface
+        const formattedMessages: Message[] = response.messages.map((msg) => ({
+          id: msg.id,
+          text: msg.text,
+          sender: msg.sender,
+          timestamp: new Date(msg.timestamp),
+        }));
+        setMessages(formattedMessages);
       } else {
         // If no messages in history, show the initial greeting
         setMessages([initialMessage]);
@@ -238,26 +216,86 @@ const ChatBox: React.FC = () => {
   };
 
   // Handle file upload
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Check if file is an image
+    // Check file type
     if (!file.type.match("image/*")) {
-      alert("Please upload an image file (receipt or screenshot)");
+      alert("Please upload an image file (receipt, invoice, or screenshot)");
+      return;
+    }
+
+    // Check file size (limit to 10MB)
+    const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+    if (file.size > maxSize) {
+      alert("File is too large. Please upload an image smaller than 10MB.");
       return;
     }
 
     setIsFileUploading(true);
 
-    // In a real app, you would upload the file to your server or analyze it directly
-    // For now, we'll simulate processing the image
-    setTimeout(() => {
-      // Simulating an extracted text from receipt
-      const extractedText = "Receipt from Grocery Store: Total $58.75";
-      setInputValue(extractedText);
+    try {
+      // Add a user message showing the file is being uploaded
+      const userMessage: Message = {
+        id: messages.length,
+        text: `📎 Uploading image: ${file.name}`,
+        sender: "user",
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, userMessage]);
+
+      // Upload file to the server
+      const response = await api.uploadFile<{
+        text: string;
+        result: string;
+        response: string;
+      }>("/api/upload", file, {
+        type: "receipt", // Indicate the type of file being uploaded
+      });
+
+      // Process the response
+      if (response.text) {
+        // Set the extracted text as input value
+        setInputValue(response.text);
+      }
+
+      // If there's a direct response from the server, add it as a bot message
+      if (response.response) {
+        const botMessage: Message = {
+          id: messages.length + 1,
+          text: response.response,
+          sender: "bot",
+          timestamp: new Date(),
+          animate: true,
+        };
+        setMessages((prev) => [...prev, botMessage]);
+      }
+    } catch (error) {
+      console.error("Error uploading file:", error);
+
+      // Add error message
+      const errorMessage: Message = {
+        id: messages.length + 1,
+        text:
+          error instanceof Error
+            ? `Error uploading file: ${error.message}`
+            : "Error uploading file. Please try again.",
+        sender: "bot",
+        timestamp: new Date(),
+        animate: true,
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
       setIsFileUploading(false);
-    }, 2000);
+
+      // Clear the file input so the same file can be uploaded again if needed
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
   };
 
   // Trigger file input click
@@ -270,51 +308,69 @@ const ChatBox: React.FC = () => {
 
     if (!inputValue.trim()) return;
 
-    const userInput = inputValue.trim();
+    // Add user message to UI immediately
+    const userMessage: Message = {
+      id: messages.length,
+      text: inputValue,
+      sender: "user",
+      timestamp: new Date(),
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
     setInputValue("");
     setIsLoading(true);
 
     try {
-      // Send message to backend
-      const response = await api.post<{
-        success: boolean;
-        message: string;
-        data?: {
-          messageId: string;
-          expenseId?: string;
-          queryData?: unknown;
-          requiresPaymentMethod?: boolean;
-        };
-      }>("/api/messages", {
-        content: userInput,
-      });
+      let response;
 
-      if (response.success) {
-        // Refresh messages to get the complete conversation from backend
-        await fetchMessages();
+      // Check if this is related to an uploaded receipt or general expense
+      if (
+        inputValue.toLowerCase().includes("receipt") ||
+        inputValue.toLowerCase().includes("upload") ||
+        inputValue.toLowerCase().includes("image") ||
+        inputValue.toLowerCase().includes("photo")
+      ) {
+        // Receipt-related query
+        response = await api.post<{ response: string }>("/api/receipt/query", {
+          message: inputValue,
+        });
+      } else if (inputValue.toLowerCase().includes("spent")) {
+        // Process as an expense
+        response = await api.post<{ expense: unknown; response: string }>(
+          "/api/expense",
+          {
+            message: inputValue,
+          }
+        );
       } else {
-        // Add error message if backend returned error
-        const errorMessage: Message = {
-          id: `error-${Date.now()}`,
-          content: response.message || "Sorry, I couldn't process that. Please try again with a different message.",
-          sender: "ai",
-          source: "web",
-          createdAt: new Date().toISOString(),
-          animate: true,
-        };
-
-        setMessages((prev) => [...prev, errorMessage]);
+        // Process as a query/analytics
+        response = await api.post<{ result: unknown; response: string }>(
+          "/api/analytics",
+          {
+            message: inputValue,
+          }
+        );
       }
+
+      // Add bot response to UI
+      const botMessage: Message = {
+        id: messages.length + 1,
+        text: response.response,
+        sender: "bot",
+        timestamp: new Date(),
+        animate: true,
+      };
+
+      setMessages((prev) => [...prev, botMessage]);
     } catch (error) {
       console.error("Error processing message:", error);
 
       // Add error message
       const errorMessage: Message = {
-        id: `error-${Date.now()}`,
-        content: "Sorry, I couldn't process that. Please try again with a different message.",
-        sender: "ai",
-        source: "web",
-        createdAt: new Date().toISOString(),
+        id: messages.length + 1,
+        text: "Sorry, I couldn't process that. Please try again with a different message.",
+        sender: "bot",
+        timestamp: new Date(),
         animate: true,
       };
 
@@ -360,7 +416,7 @@ const ChatBox: React.FC = () => {
                 confirm("Are you sure you want to clear your chat history?")
               ) {
                 try {
-                  await api.delete("/api/messages/state");
+                  await api.delete("/api/message");
                   setMessages([initialMessage]);
                 } catch (error) {
                   console.error("Error clearing chat history:", error);
@@ -393,11 +449,11 @@ const ChatBox: React.FC = () => {
                   transition={{ duration: 0.35, ease: "easeOut" }}
                 >
                   <MessageBubble
-                    message={message.content}
+                    message={message.text}
                     sender={message.sender}
-                    timestamp={new Date(message.createdAt)}
+                    timestamp={message.timestamp}
                     animateTypewriter={
-                      message.animate && message.sender === "ai"
+                      message.animate && message.sender === "bot"
                     }
                   />
                 </motion.div>
@@ -468,41 +524,65 @@ const ChatBox: React.FC = () => {
             aria-label="Upload receipt or screenshot"
             whileTap={{ scale: 0.75 }}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M5 12h14" />
-              <path d="M12 5v14" />
-            </svg>
+            {isFileUploading ? (
+              <svg
+                className="animate-spin h-5 w-5"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+            ) : (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" y1="3" x2="12" y2="15" />
+              </svg>
+            )}
           </motion.button>
 
           {/* Text input */}
-            <motion.div 
+          <motion.div
             className="flex border rounded-full w-full"
             whileTap={{ borderWidth: "2px" }}
-            >
+          >
             <motion.input
               type="text"
               value={inputValue}
               onChange={handleInputChange}
               placeholder={
-              isRecording
-                ? speechSupported
-                ? "Listening... tap mic to stop"
-                : "Recording... release to stop"
-                : isFileUploading
-                ? "Processing file..."
-                : speechSupported
-                ? "Tap mic to speak, or type..."
-                : "Hold mic to record, or type..."
+                isRecording
+                  ? speechSupported
+                    ? "Listening... tap mic to stop"
+                    : "Recording... release to stop"
+                  : isFileUploading
+                  ? "Processing file..."
+                  : speechSupported
+                  ? "Tap mic to speak, or type..."
+                  : "Hold mic to record, or type..."
               }
               className="flex-1 px-3 sm:px-4 py-2 border-none border-trackaro-border dark:border-trackaro-border rounded-full focus:outline-none dark:focus:ring-trackaro-accent bg-white dark:bg-secondary text-trackaro-text dark:text-trackaro-text text-sm sm:text-base min-w-0"
               spellCheck="false"
