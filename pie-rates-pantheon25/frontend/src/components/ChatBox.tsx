@@ -29,6 +29,7 @@ const ChatBox: React.FC = () => {
   const [isFileUploading, setIsFileUploading] = useState(false);
   const [isFetchingMessages, setIsFetchingMessages] = useState(true);
   const [speechSupported, setSpeechSupported] = useState(false);
+  const [speechErrorCount, setSpeechErrorCount] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingIndicatorRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -54,23 +55,39 @@ const ChatBox: React.FC = () => {
   // Detect browser speech recognition support and init
   useEffect(() => {
     if (typeof window === "undefined") return;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const SR: any =
-      (window as any).SpeechRecognition ||
-      (window as any).webkitSpeechRecognition;
-    if (SR) {
-      setSpeechSupported(true);
-      recognitionRef.current = new SR();
-      recognitionRef.current.continuous = false;
-      recognitionRef.current.interimResults = true;
-      recognitionRef.current.lang = "en-IN"; // adjust as needed
+    
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const SR: any =
+        (window as any).SpeechRecognition ||
+        (window as any).webkitSpeechRecognition;
+        
+      if (SR) {
+        setSpeechSupported(true);
+        recognitionRef.current = new SR();
+        recognitionRef.current.continuous = false;
+        recognitionRef.current.interimResults = true;
+        recognitionRef.current.lang = "en-US";
+        recognitionRef.current.maxAlternatives = 1;
+        
+        console.log("Speech recognition initialized successfully");
+      } else {
+        console.log("Speech recognition not supported in this browser");
+        setSpeechSupported(false);
+      }
+    } catch (error) {
+      console.error("Error initializing speech recognition:", error);
+      setSpeechSupported(false);
     }
 
     return () => {
       try {
-        if (recognitionRef.current) recognitionRef.current.stop();
-      } catch {
-        // ignore
+        if (recognitionRef.current) {
+          recognitionRef.current.stop();
+          recognitionRef.current = null;
+        }
+      } catch (error) {
+        console.error("Error cleaning up speech recognition:", error);
       }
     };
   }, []);
@@ -120,6 +137,7 @@ const ChatBox: React.FC = () => {
 
   // Start voice recording
   const startRecording = async () => {
+    console.log("Starting voice recording (MediaRecorder)...");
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mediaRecorder = new MediaRecorder(stream);
@@ -166,41 +184,164 @@ const ChatBox: React.FC = () => {
 
   // Start browser speech recognition (preferred when supported)
   const startListening = () => {
-    if (!recognitionRef.current) return;
+    console.log("Starting browser speech recognition...");
+    
+    if (!speechSupported) {
+      console.log("Speech recognition has been disabled due to errors");
+      alert("Speech recognition is not available. Please use typing instead.");
+      return;
+    }
+    
+    if (!recognitionRef.current) {
+      console.error("Speech recognition not available");
+      alert("Speech recognition is not available. Please use typing instead.");
+      return;
+    }
+    
+    // Check if already recording
+    if (isRecording) {
+      console.log("Already recording, stopping current session");
+      stopListening();
+      return;
+    }
+    
+    // Add a fallback timeout in case the error handler doesn't fire
+    const fallbackTimeout = setTimeout(() => {
+      if (isRecording) {
+        console.log("Speech recognition fallback timeout triggered");
+        setIsRecording(false);
+        alert("Speech recognition timed out. Please try typing instead.");
+      }
+    }, 20000); // 20 second fallback timeout
+    
     let finalTranscript = "";
+    
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     recognitionRef.current.onresult = (event: any) => {
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const result = event.results[i];
-        const transcript = result[0]?.transcript ?? "";
-        if (result.isFinal) {
-          finalTranscript += transcript + " ";
+      try {
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const result = event.results[i];
+          const transcript = result[0]?.transcript ?? "";
+          if (result.isFinal) {
+            finalTranscript += transcript + " ";
+          }
         }
+      } catch (error) {
+        console.error("Error processing speech result:", error);
       }
     };
-    recognitionRef.current.onstart = () => setIsRecording(true);
+    
+    recognitionRef.current.onstart = () => {
+      console.log("Speech recognition started");
+      setIsRecording(true);
+    };
+    
     recognitionRef.current.onend = () => {
+      console.log("Speech recognition ended");
+      clearTimeout(fallbackTimeout);
       setIsRecording(false);
-      if (finalTranscript.trim()) setInputValue(finalTranscript.trim());
+      if (finalTranscript.trim()) {
+        console.log("Final transcript:", finalTranscript.trim());
+        setInputValue(finalTranscript.trim());
+      }
     };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     recognitionRef.current.onerror = (e: any) => {
       console.error("Speech recognition error:", e);
+      clearTimeout(fallbackTimeout);
       setIsRecording(false);
-      alert("Speech recognition error. Please try again or use typing.");
+      
+      // Handle empty error object - this is a common issue with speech recognition APIs
+      if (!e || Object.keys(e).length === 0) {
+        console.log("Empty error object detected - speech recognition API issue");
+        const newErrorCount = speechErrorCount + 1;
+        setSpeechErrorCount(newErrorCount);
+        
+        // Disable speech recognition after 3 empty error objects
+        if (newErrorCount >= 3) {
+          setSpeechSupported(false);
+          alert("Speech recognition is not working properly. Please use typing instead.");
+        } else {
+          console.log(`Speech recognition error count: ${newErrorCount}/3`);
+        }
+        return;
+      }
+      
+      // Try to get error information
+      const errorType = e.error || e.type || e.message || e.name || 'unknown';
+      console.log("Speech recognition error type:", errorType);
+      
+      // Handle specific error types
+      switch (errorType) {
+        case 'no-speech':
+          // Don't show alert for no-speech, it's normal
+          console.log("No speech detected - this is normal");
+          return;
+        case 'audio-capture':
+          alert("Microphone not accessible. Please check your microphone permissions.");
+          break;
+        case 'not-allowed':
+          alert("Microphone permission denied. Please allow microphone access and try again.");
+          break;
+        case 'network':
+          alert("Network error. Please check your internet connection and try again.");
+          break;
+        case 'service-not-allowed':
+          alert("Speech recognition service not available. Please try typing instead.");
+          setSpeechSupported(false);
+          break;
+        case 'bad-grammar':
+          alert("Speech recognition grammar error. Please try again.");
+          break;
+        case 'language-not-supported':
+          alert("Language not supported. Please try typing instead.");
+          setSpeechSupported(false);
+          break;
+        default:
+          console.log("Unknown speech recognition error:", errorType);
+          alert("Speech recognition failed. Please try typing instead.");
+          setSpeechSupported(false);
+      }
     };
     try {
       recognitionRef.current.start();
+      
+      // Add timeout to prevent hanging
+      setTimeout(() => {
+        if (isRecording) {
+          console.log("Speech recognition timeout, stopping");
+          stopListening();
+        }
+      }, 15000); // 15 second timeout
+      
     } catch (e) {
       console.error("Failed to start recognition:", e);
+      setIsRecording(false);
+      
+      // Provide specific error message
+      if (e instanceof Error) {
+        if (e.message.includes("not-allowed")) {
+          alert("Microphone permission denied. Please allow microphone access and try again.");
+        } else if (e.message.includes("no-speech")) {
+          // Don't show alert for no-speech, it's common
+          console.log("No speech detected");
+        } else {
+          alert(`Speech recognition error: ${e.message}. Please try typing instead.`);
+        }
+      }
     }
   };
 
   const stopListening = () => {
     try {
-      if (recognitionRef.current) recognitionRef.current.stop();
+      if (recognitionRef.current && isRecording) {
+        console.log("Stopping speech recognition");
+        recognitionRef.current.stop();
+        setIsRecording(false);
+      }
     } catch (e) {
       console.error("Failed to stop recognition:", e);
+      setIsRecording(false);
     }
   };
 
@@ -211,8 +352,8 @@ const ChatBox: React.FC = () => {
 
     // In a real app, you would send the audio to a service like Google Speech-to-Text
     setTimeout(() => {
-      // Simulated transcription result
-      const transcription = "I spent $45 on groceries yesterday";
+      // For now, just show a placeholder message since we're using browser speech recognition
+      const transcription = "Voice input processed (use browser speech recognition for better results)";
       setInputValue(transcription);
       setIsLoading(false);
     }, 1500);
@@ -508,12 +649,8 @@ const ChatBox: React.FC = () => {
               onClick={
                 speechSupported
                   ? () => (isRecording ? stopListening() : startListening())
-                  : undefined
+                  : () => (isRecording ? stopRecording() : startRecording())
               }
-              onMouseDown={speechSupported ? undefined : startRecording}
-              onMouseUp={speechSupported ? undefined : stopRecording}
-              onTouchStart={speechSupported ? undefined : startRecording}
-              onTouchEnd={speechSupported ? undefined : stopRecording}
               disabled={isLoading || isFileUploading}
               className={`p-3 rounded-full focus:outline-none flex-shrink-0 ${
                 isRecording

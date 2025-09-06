@@ -30,9 +30,46 @@ const GoogleIcon = () => (
 const LoginPage: React.FC = () => {
   const { user, login, isLoading } = useAuth();
   const router = useRouter();
+  const [isMobile, setIsMobile] = useState(false);
+  const [networkInfo, setNetworkInfo] = useState<string>("");
   const [isMounted, setIsMounted] = useState(false);
+  const [showEmailForm, setShowEmailForm] = useState(true);
+  const [connectivityStatus, setConnectivityStatus] = useState<string>("");
 
-  const [showEmailForm, setShowEmailForm] = useState(true); // Set to true to keep email form open by default
+  // Test connectivity function
+  const testConnectivity = async () => {
+    setConnectivityStatus("Testing...");
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+      const response = await fetch(`${apiUrl}/health`, {
+        method: 'GET',
+        signal: AbortSignal.timeout(5000),
+      });
+      
+      if (response.ok) {
+        setConnectivityStatus("✅ Backend server is reachable");
+      } else {
+        setConnectivityStatus(`❌ Backend responded with status: ${response.status}`);
+      }
+    } catch (error) {
+      setConnectivityStatus(`❌ Cannot reach backend: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  };
+
+  // Detect mobile device and network info
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+      const isMobileDevice = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
+      setIsMobile(isMobileDevice);
+      
+      if (isMobileDevice) {
+        // Get network information for debugging
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+        setNetworkInfo(`API: ${apiUrl}`);
+      }
+    }
+  }, []);
 
   // Prevent scrollbars when page loads
   useEffect(() => {
@@ -83,8 +120,9 @@ const LoginPage: React.FC = () => {
 
   const handleGoogle = async () => {
     try {
-      // await googleLogin();
-      // No need to navigate here as NextAuth will handle the redirect
+      // Redirect to backend Google OAuth endpoint
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+      window.location.href = `${API_URL}/api/auth/google`;
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       setError(msg || "Google login failed. Please try again.");
@@ -227,6 +265,36 @@ const LoginPage: React.FC = () => {
               </Link>
               .
             </p>
+
+            {/* Mobile debugging info */}
+            {isMobile && (
+              <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                <p className="text-xs text-blue-600 dark:text-blue-400 font-medium mb-1">
+                  Mobile Device Detected
+                </p>
+                <p className="text-xs text-blue-500 dark:text-blue-300">
+                  {networkInfo}
+                </p>
+                <p className="text-xs text-blue-500 dark:text-blue-300 mt-1">
+                  If login fails, check that your backend server is running and accessible from this device.
+                </p>
+                
+                {/* Connectivity Test */}
+                <div className="mt-2 pt-2 border-t border-blue-200 dark:border-blue-700">
+                  <button
+                    onClick={testConnectivity}
+                    className="text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 transition-colors"
+                  >
+                    Test Backend Connection
+                  </button>
+                  {connectivityStatus && (
+                    <p className="text-xs mt-1 text-blue-600 dark:text-blue-400">
+                      {connectivityStatus}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </section>
 

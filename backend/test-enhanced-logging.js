@@ -46,3 +46,7 @@ console.log('5. Check the backend console for detailed AI response logging\n');
 // Uncomment the line below to run the test
 // testEnhancedLogging().catch(console.error);
 
+
+
+
+

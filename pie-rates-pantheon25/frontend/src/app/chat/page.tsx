@@ -162,6 +162,7 @@ export default function ChatPage() {
   const [paymentAmount, setPaymentAmount] = useState("");
   const [paymentNote, setPaymentNote] = useState("");
   const [qrScanner, setQrScanner] = useState<Html5Qrcode | null>(null);
+  const [scanningStatus, setScanningStatus] = useState<string>("");
   const router = useRouter();
 
   const handleNavigation = (
@@ -175,6 +176,7 @@ export default function ChatPage() {
   const startQRScan = async () => {
     // First set scanning state to true to render the qr-reader element
     setIsScanning(true);
+    setScanningStatus("Initializing camera...");
 
     // Wait for the DOM to update
     setTimeout(async () => {
@@ -185,45 +187,117 @@ export default function ChatPage() {
           throw new Error("QR reader element not found in DOM");
         }
 
+        // Check if camera is available
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          throw new Error("Camera not available on this device");
+        }
+
+        // Request camera permission first
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+          // Stop the test stream immediately
+          stream.getTracks().forEach(track => track.stop());
+          console.log("Camera permission granted");
+        } catch (permissionError) {
+          throw new Error("Camera permission denied. Please allow camera access and try again.");
+        }
+
         // Create a new QR Code scanner
         const scanner = new Html5Qrcode("qr-reader");
         setQrScanner(scanner);
 
-        // Start scanning using camera
+        // Start scanning using camera with better configuration
         const qrScannerConfig = {
           fps: 10,
           qrbox: { width: 250, height: 250 },
           aspectRatio: 1.0,
+          disableFlip: false,
+          experimentalFeatures: {
+            useBarCodeDetectorIfSupported: true
+          }
         };
 
-        // Start scanning
-        await scanner.start(
-          { facingMode: "environment" }, // Use back camera
-          qrScannerConfig,
-          (decodedText) => {
-            // On successful scan
-            console.log(`QR Code detected: ${decodedText}`);
-            setScannedQR(decodedText);
-            setIsScanning(false);
+        // Try different camera configurations for better compatibility
+        const cameraConfigs = [
+          { facingMode: "environment" }, // Back camera
+          { facingMode: "user" }, // Front camera
+          "environment", // Direct string
+          "user" // Direct string
+        ];
 
-            // Stop scanning
-            scanner
-              .stop()
-              .then(() => {
-                console.log("QR Code scanning stopped");
-              })
-              .catch((err) => {
-                console.error("Error stopping QR scanner:", err);
-              });
-          },
-          (errorMessage) => {
-            // On error - we don't need to show this to the user
-            console.log(`QR scan error: ${errorMessage}`);
+        let scannerStarted = false;
+        for (const config of cameraConfigs) {
+          try {
+            console.log(`Trying camera config:`, config);
+            await scanner.start(
+              config,
+              qrScannerConfig,
+              (decodedText) => {
+                // On successful scan
+                console.log(`QR Code detected: ${decodedText}`);
+                setScannedQR(decodedText);
+                setIsScanning(false);
+
+                // Stop scanning
+                scanner
+                  .stop()
+                  .then(() => {
+                    console.log("QR Code scanning stopped");
+                    setQrScanner(null);
+                  })
+                  .catch((err) => {
+                    console.error("Error stopping QR scanner:", err);
+                    setQrScanner(null);
+                  });
+              },
+              (errorMessage) => {
+                // Categorize errors - NotFoundException is normal when no QR code is detected
+                if (errorMessage.includes("NotFoundException")) {
+                  // This is normal - just means no QR code is currently visible
+                  // Update status to show it's actively scanning
+                  setScanningStatus("Looking for QR code...");
+                  return;
+                } else if (errorMessage.includes("NotAllowedError") || errorMessage.includes("Permission denied")) {
+                  console.error(`QR scan permission error: ${errorMessage}`);
+                  setIsScanning(false);
+                  setQrScanner(null);
+                  setScanningStatus("");
+                  alert("Camera permission denied. Please allow camera access and try again.");
+                } else if (errorMessage.includes("NotReadableError") || errorMessage.includes("OverconstrainedError")) {
+                  console.error(`QR scan camera error: ${errorMessage}`);
+                  setIsScanning(false);
+                  setQrScanner(null);
+                  setScanningStatus("");
+                  alert("Camera error. Please ensure no other app is using the camera and try again.");
+                } else {
+                  // Other errors - log but don't stop scanning
+                  console.log(`QR scan info: ${errorMessage}`);
+                  setScanningStatus("Scanning...");
+                }
+              }
+            );
+            scannerStarted = true;
+            setScanningStatus("Ready to scan QR code");
+            console.log("QR scanner started successfully");
+            break;
+          } catch (configError) {
+            console.log(`Camera config failed:`, configError);
+            continue;
           }
-        );
+        }
+
+        if (!scannerStarted) {
+          throw new Error("Unable to access camera. Please check camera permissions.");
+        }
+
       } catch (err) {
         console.error("Error with QR scanning:", err);
         setIsScanning(false);
+        setQrScanner(null);
+        
+        // Show user-friendly error message
+        const errorMessage = err instanceof Error ? err.message : "Failed to start camera";
+        alert(`QR Scanner Error: ${errorMessage}\n\nPlease ensure:\n1. Camera permissions are granted\n2. Camera is not being used by another app\n3. You're using a device with a camera`);
       }
     }, 500); // Give the DOM 500ms to update
   };
@@ -235,12 +309,30 @@ export default function ChatPage() {
         .then(() => {
           console.log("QR scanner stopped successfully");
           setQrScanner(null);
+          setIsScanning(false);
+          setScanningStatus("");
         })
         .catch((err) => {
           console.error("Error stopping QR scanner:", err);
+          // Force cleanup even if stop fails
+          setQrScanner(null);
+          setIsScanning(false);
+          setScanningStatus("");
         });
+    } else {
+      setIsScanning(false);
+      setScanningStatus("");
     }
   };
+
+  // Cleanup scanner on component unmount
+  useEffect(() => {
+    return () => {
+      if (qrScanner) {
+        qrScanner.stop().catch(console.error);
+      }
+    };
+  }, [qrScanner]);
 
   const handlePaymentContinue = () => {
     if (paymentAmount && scannedQR) {
@@ -583,17 +675,26 @@ export default function ChatPage() {
 
               {isScanning ? (
                 <div className="mb-4">
-                  <p className="text-sm mb-3 font-inter">Scanning QR code...</p>
-                  <div
-                    id="qr-reader"
-                    className="w-full aspect-square bg-gray-100 rounded-lg overflow-hidden mb-4"
-                  ></div>
+                  <p className="text-sm mb-3 font-inter text-center">
+                    📷 {scanningStatus || "Scanning QR code..."}
+                  </p>
+                  <div className="relative">
+                    <div
+                      id="qr-reader"
+                      className="w-full aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden mb-4 border-2 border-dashed border-gray-300 dark:border-gray-600"
+                    ></div>
+                    <div className="absolute top-2 left-2 right-2 bg-black/50 text-white text-xs p-2 rounded">
+                      <p>• Point camera at QR code</p>
+                      <p>• Ensure good lighting</p>
+                      <p>• Keep steady</p>
+                    </div>
+                  </div>
                   <button
                     onClick={() => {
                       setIsScanning(false);
                       stopCamera();
                     }}
-                    className="w-full py-2 px-4 bg-red-500 text-white rounded-lg font-medium font-inter"
+                    className="w-full py-2 px-4 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium font-inter transition-colors"
                   >
                     Cancel Scan
                   </button>
@@ -602,9 +703,23 @@ export default function ChatPage() {
                 <>
                   {scannedQR ? (
                     <div className="mb-4">
-                      <p className="text-sm mb-2 font-inter">
-                        QR code scanned successfully!
-                      </p>
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-sm font-inter text-green-600">
+                          ✅ QR code scanned successfully!
+                        </p>
+                        <button
+                          onClick={() => {
+                            setScannedQR("");
+                            startQRScan();
+                          }}
+                          className="text-xs bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded transition-colors"
+                        >
+                          Scan Again
+                        </button>
+                      </div>
+                      <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded text-xs font-mono break-all">
+                        {scannedQR}
+                      </div>
                       <div className="mb-4">
                         <label className="block text-sm font-medium mb-1 font-inter">
                           Enter Amount

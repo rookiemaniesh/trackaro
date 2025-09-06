@@ -109,13 +109,81 @@ router.get('/callback',
   (req, res) => {
     try {
       const user = req.user;
-      const token = generateToken(user);
-
-      // Redirect to frontend with token
-      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-      const redirectUrl = `${frontendUrl}/auth/callback?token=${token}&success=true`;
+      console.log('Google OAuth callback - User received:', user);
       
-      res.redirect(redirectUrl);
+      const token = generateToken(user);
+      console.log('Google OAuth callback - Token generated:', token ? 'Success' : 'Failed');
+
+      // Check if this is a mobile device
+      const userAgent = req.headers['user-agent'] || '';
+      const isMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
+      
+      console.log('Google OAuth callback - Device type:', isMobile ? 'Mobile' : 'Desktop');
+
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      
+      if (isMobile) {
+        // For mobile devices, use a POST-based callback to avoid URL length issues
+        console.log('Google OAuth callback - Using mobile-friendly POST callback');
+        res.send(`
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>Signing in...</title>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+              body { 
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                display: flex; 
+                justify-content: center; 
+                align-items: center; 
+                height: 100vh; 
+                margin: 0; 
+                background: #f5f5f5;
+              }
+              .container { 
+                text-align: center; 
+                padding: 2rem; 
+                background: white; 
+                border-radius: 8px; 
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                max-width: 300px;
+                width: 90%;
+              }
+              .spinner { 
+                width: 40px; 
+                height: 40px; 
+                border: 3px solid #f3f3f3; 
+                border-top: 3px solid #3498db; 
+                border-radius: 50%; 
+                animation: spin 1s linear infinite; 
+                margin: 0 auto 1rem;
+              }
+              @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <div class="spinner"></div>
+              <h2>Completing Sign-In...</h2>
+              <p>Please wait while we finish setting up your account.</p>
+            </div>
+            <script>
+              // Store token and redirect
+              localStorage.setItem('accessToken', '${token}');
+              setTimeout(() => {
+                window.location.href = '${frontendUrl}/chat';
+              }, 1000);
+            </script>
+          </body>
+          </html>
+        `);
+      } else {
+        // For desktop, use the original URL-based redirect
+        const redirectUrl = `${frontendUrl}/auth/callback?token=${token}&success=true`;
+        console.log('Google OAuth callback - Redirecting to:', redirectUrl);
+        res.redirect(redirectUrl);
+      }
     } catch (error) {
       console.error('Google callback error:', error);
       const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
