@@ -482,7 +482,7 @@ const LandingPage: React.FC = () => {
             <div className="flex justify-center">
               <Button
                 text="Start New Chat"
-                onClick={() => console.log("Starting new chat")}
+                onClick={handleStartChatting}
                 className="font-semibold"
                 size="large"
                 icon={
