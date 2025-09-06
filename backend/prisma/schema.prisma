@@ -1,0 +1,96 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+model User {
+  id                 String    @id @default(uuid())
+  email              String    @unique
+  password           String?
+  googleId           String?   @unique
+  profilePicture     String?
+  telegramChatId     String?   @unique
+  telegramLinkCode   String?
+  telegramLinkExpiry DateTime?
+  createdAt          DateTime  @default(now())
+
+  expenses  Expense[]
+  messages  Message[]
+  conversationStates ConversationState[]
+}
+enum Sender { 
+  user 
+  ai 
+}
+
+enum Source { 
+  web 
+  telegram 
+}
+
+
+model Expense {
+  id            String    @id @default(uuid())
+  user          User      @relation(fields: [user_id], references: [id])
+  user_id       String
+  
+
+  amount        Decimal   @db.Decimal(14,2)
+  category      String
+  subcategory   String?
+  companions    String[]
+  
+  date          DateTime  // when the expense happened
+  paymentMethod String?   // e.g., "cash", "upi", "card", etc.
+  description   String?
+  
+  createdAt     DateTime  @default(now())
+
+  // Optional: one-to-one Receipt if you add OCR later
+  // receipt       Receipt?
+  
+  // Relation to messages that created/confirmed this expense
+  messages Message[]
+}
+
+model Message {
+  id         String   @id @default(uuid())
+  user       User     @relation(fields: [user_id], references: [id])
+  user_id    String
+  sender     Sender
+  source     Source
+  content    String
+  createdAt  DateTime @default(now())
+
+  // dedupe external messages (Telegram updates) if you want
+  extMessageId String?   // Telegram message_id or client ID
+  extChatId    String?
+
+  // tie a message to an expense if it created/confirmed one
+  expenseId  String?
+  expense    Expense? @relation(fields: [expenseId], references: [id])
+
+  @@index([user_id, createdAt])
+  @@unique([source, extChatId, extMessageId]) // prevents duplicates (optional but useful)
+}
+
+model ConversationState {
+  id      Int     @id @default(autoincrement())
+  user_id String
+  type    String
+  payload Json
+  user    User    @relation(fields: [user_id], references: [id])
+
+  @@unique([user_id, type])
+}
+

@@ -1,0 +1,182 @@
+{
+  "query_response_examples": {
+    "description": "These are the exact response formats your AI model should return for different types of queries",
+    "examples": [
+      {
+        "user_query": "How much did I spend last month?",
+        "expected_response": {
+          "type": "query",
+          "data": {
+            "total": 24083,
+            "period": "last month"
+          },
+          "message": "You spent ₹24,083 last month across 24 expenses."
+        }
+      },
+      {
+        "user_query": "What is my total spending?",
+        "expected_response": {
+          "type": "query",
+          "data": {
+            "total": 105154,
+            "count": 100
+          },
+          "message": "Your total spending is ₹1,05,154 across 100 expenses."
+        }
+      },
+      {
+        "user_query": "Show me my food expenses",
+        "expected_response": {
+          "type": "query",
+          "data": {
+            "category": "food",
+            "total": 15154,
+            "count": 17
+          },
+          "message": "You spent ₹15,154 on food across 17 expenses."
+        }
+      },
+      {
+        "user_query": "How much did I spend on transport?",
+        "expected_response": {
+          "type": "query",
+          "data": {
+            "category": "transport",
+            "total": 13040,
+            "count": 10
+          },
+          "message": "You spent ₹13,040 on transport across 10 expenses."
+        }
+      },
+      {
+        "user_query": "What are my biggest expense categories?",
+        "expected_response": {
+          "type": "query",
+          "data": {
+            "topExpenses": [
+              {
+                "category": "utilities",
+                "amount": 17301
+              },
+              {
+                "category": "food",
+                "amount": 15154
+              },
+              {
+                "category": "health",
+                "amount": 14670
+              }
+            ]
+          },
+          "message": "Your biggest expense categories are: Utilities (₹17,301), Food (₹15,154), and Health (₹14,670)."
+        }
+      },
+      {
+        "user_query": "How much did I spend with Anjali?",
+        "expected_response": {
+          "type": "query",
+          "data": {
+            "companion": "Anjali",
+            "total": 8500,
+            "count": 8
+          },
+          "message": "You spent ₹8,500 with Anjali across 8 shared expenses."
+        }
+      },
+      {
+        "user_query": "What is my entertainment spending?",
+        "expected_response": {
+          "type": "query",
+          "data": {
+            "category": "entertainment",
+            "total": 14131,
+            "count": 12
+          },
+          "message": "You spent ₹14,131 on entertainment across 12 expenses."
+        }
+      },
+      {
+        "user_query": "Show me my health expenses",
+        "expected_response": {
+          "type": "query",
+          "data": {
+            "category": "health",
+            "total": 14670,
+            "count": 15
+          },
+          "message": "You spent ₹14,670 on health across 15 expenses."
+        }
+      }
+    ]
+  },
+  "expense_response_examples": {
+    "description": "These are the exact response formats your AI model should return for expense logging",
+    "examples": [
+      {
+        "user_query": "I spent 500 on dinner with UPI",
+        "expected_response": {
+          "type": "expense",
+          "data": {
+            "amount": 500,
+            "date": "2024-01-15T19:30:00.000Z",
+            "companions": ["friend"],
+            "description": "Dinner",
+            "category": "food",
+            "sub_category": "dinner",
+            "paymentMethod": "upi"
+          },
+          "message": "Logged ₹500 for dinner via UPI."
+        }
+      },
+      {
+        "user_query": "I spent 1200 on groceries",
+        "expected_response": {
+          "type": "expense",
+          "data": {
+            "amount": 1200,
+            "date": "2024-01-15T10:00:00.000Z",
+            "companions": [],
+            "description": "Groceries",
+            "category": "food",
+            "sub_category": "groceries",
+            "paymentMethod": null
+          },
+          "message": "Logged ₹1,200 for groceries. What's the payment method?"
+        }
+      }
+    ]
+  },
+  "api_endpoint_info": {
+    "description": "How to integrate with the backend",
+    "endpoint": "POST /api/process",
+    "headers": {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer YOUR_AI_SERVICE_KEY"
+    },
+    "request_format": {
+      "user_prompt": "User's message/query",
+      "user_id": "User's unique identifier"
+    },
+    "response_format": {
+      "type": "query|expense",
+      "data": "Object containing relevant data",
+      "message": "Human-readable response message"
+    }
+  },
+  "validation_rules": {
+    "description": "Response validation rules",
+    "required_fields": ["type", "message"],
+    "type_values": ["query", "expense"],
+    "query_data_requirements": {
+      "description": "For query responses, data object should contain relevant query results"
+    },
+    "expense_data_requirements": {
+      "required_fields": ["amount", "date", "category"],
+      "optional_fields": ["sub_category", "companions", "description", "paymentMethod"],
+      "amount_type": "number",
+      "date_format": "ISO 8601 string",
+      "companions_type": "array of strings",
+      "paymentMethod_values": ["upi", "cash", "card", "netbanking", "wallet", null]
+    }
+  }
+}

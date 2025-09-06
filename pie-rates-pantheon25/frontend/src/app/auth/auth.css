@@ -1,0 +1,68 @@
+/* Auth pages specific styles */
+
+.auth-input {
+  @apply appearance-none rounded-md relative block w-full px-3 py-3 border border-trackaro-border placeholder-trackaro-accent text-trackaro-text focus:outline-none focus:ring-trackaro-accent focus:border-trackaro-accent focus:z-10 sm:text-sm bg-trackaro-bg;
+}
+
+.auth-btn-primary {
+  @apply w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-trackaro-accent hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-trackaro-accent transition-all duration-300 shadow-md hover:shadow-lg;
+}
+
+.auth-btn-secondary {
+  @apply w-full flex items-center justify-center px-4 py-3 border border-trackaro-border rounded-md shadow-sm text-sm font-medium text-trackaro-text bg-trackaro-bg hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-trackaro-accent transition-all duration-300;
+}
+
+/* Animated background pattern for auth pages */
+.auth-bg-pattern {
+  background-color: transparent;
+  background-image: radial-gradient(var(--trackaro-border) 1px, transparent 0);
+  background-size: 30px 30px;
+  background-position: 0 0, 15px 15px;
+  opacity: 0.2;
+}
+
+/* Form input focus animation */
+.auth-input:focus {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) 1;
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(var(--trackaro-accent-rgb), 0.4);
+  }
+
+  50% {
+    box-shadow: 0 0 0 4px rgba(var(--trackaro-accent-rgb), 0.1);
+  }
+}
+
+/* Error message animation */
+.auth-error-message {
+  animation: shake 0.5s cubic-bezier(.36, .07, .19, .97) both;
+}
+
+@keyframes shake {
+
+  10%,
+  90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+
+  20%,
+  80% {
+    transform: translate3d(2px, 0, 0);
+  }
+
+  30%,
+  50%,
+  70% {
+    transform: translate3d(-2px, 0, 0);
+  }
+
+  40%,
+  60% {
+    transform: translate3d(2px, 0, 0);
+  }
+}
