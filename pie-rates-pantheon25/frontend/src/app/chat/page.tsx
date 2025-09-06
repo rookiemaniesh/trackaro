@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ChatBox from "../../components/ChatBox";
+import GlassChatBox from "./GlassChatBox";
 import { motion, AnimatePresence } from "framer-motion";
 
 // Icons
@@ -288,15 +289,22 @@ Or copy this UPI link: ${upiUrl}`);
 
   return (
     <motion.div
-      className="flex flex-col min-h-screen"
+      className="flex flex-col min-h-screen bg-gradient-to-br from-trackaro-bg to-trackaro-card overflow-hidden"
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
     >
+      {/* Background decoration elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[10%] left-[15%] w-72 h-72 bg-trackaro-accent/10 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+        <div className="absolute top-[40%] right-[15%] w-96 h-96 bg-trackaro-accent/10 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+        <div className="absolute bottom-[10%] left-[35%] w-80 h-80 bg-trackaro-accent/10 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
+      </div>
+
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
         <motion.aside
-          className={`bg-secondary dark:bg-trackaro-bg border-r border-trackaro-border dark:border-trackaro-border fixed h-full z-10`}
+          className={`backdrop-blur-lg bg-trackaro-card/50 border-r border-trackaro-border/30 fixed h-full z-10 shadow-lg`}
           animate={{ width: isSidebarOpen ? 200 : 45 }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
           style={{ willChange: "width" }}
@@ -355,6 +363,35 @@ Or copy this UPI link: ${upiUrl}`);
                 )}
               </motion.button>
             </div>
+
+            {/* User Profile Bar */}
+            <AnimatePresence>
+              {isSidebarOpen && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="px-3 mb-4 overflow-hidden"
+                >
+                  <div className="p-3 rounded-lg backdrop-blur-sm bg-trackaro-card/30 border border-trackaro-border/30 shadow-sm">
+                    <div className="flex items-center space-x-3">
+                      <div className="h-9 w-9 rounded-full bg-trackaro-accent/10 flex items-center justify-center">
+                        <UserIcon className="h-5 w-5 text-trackaro-text" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-trackaro-text truncate">
+                          John Doe
+                        </p>
+                        <p className="text-xs text-trackaro-text/70 truncate">
+                          john.doe@example.com
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Sidebar Navigation */}
             <nav className="flex-1 space-y-1 px-2">
@@ -422,7 +459,7 @@ Or copy this UPI link: ${upiUrl}`);
                       transition={{ duration: 0.2 }}
                       className="font-inter"
                     >
-                      profile
+                      Profile
                     </motion.span>
                   )}
                 </AnimatePresence>
@@ -551,7 +588,7 @@ Or copy this UPI link: ${upiUrl}`);
 
         {/* Main content */}
         <motion.main
-          className="flex-1 flex flex-col items-center justify-between p-4 md:p-8 overflow-hidden ml-[45px]"
+          className="flex-1 flex flex-col items-center justify-center p-4 md:p-8 overflow-hidden ml-[45px]"
           style={{
             marginLeft: isSidebarOpen ? "200px" : "45px",
             transition: "margin-left 0.3s",
@@ -561,13 +598,15 @@ Or copy this UPI link: ${upiUrl}`);
           transition={{ duration: 0.5, ease: "easeOut" }}
         >
           <motion.div
-            className="w-full h-full max-w-6xl"
+            className="w-full h-full max-w-4xl flex items-center justify-center"
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: "easeOut", delay: 0.1 }}
             layout
           >
-            <ChatBox />
+            <div className="w-full h-[85vh] overflow-hidden rounded-2xl shadow-lg">
+              <GlassChatBox />
+            </div>
           </motion.div>
         </motion.main>
       </div>

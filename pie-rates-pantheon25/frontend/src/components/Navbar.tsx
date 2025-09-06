@@ -196,10 +196,6 @@ const Navbar = () => {
     { href: "/#teams", label: "Teams" },
   ];
 
-  const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
-  };
-
   // Function to handle navigation with smooth scrolling for anchor links
   const handleNavigation = (
     e: React.MouseEvent<HTMLAnchorElement>,
@@ -413,43 +409,6 @@ const Navbar = () => {
               </div>
             )}
 
-            {/* Theme Toggle Button */}
-            <div className="relative group">
-              <button
-                onClick={toggleTheme}
-                className="relative p-1 w-12 h-6 rounded-full bg-gradient-to-r from-blue-300 to-purple-300 dark:from-blue-900 dark:to-purple-900 flex items-center transition-all duration-300 focus:outline-none"
-                aria-label="Toggle theme"
-              >
-                {/* Toggle background icons */}
-                <div className="absolute inset-0 flex justify-between items-center px-1 opacity-40">
-                  <SunIcon className="h-3 w-3 text-yellow-500" />
-                  <MoonIcon className="h-3 w-3 text-blue-200" />
-                </div>
-
-                {/* Toggle knob */}
-                <span
-                  className={`absolute transform transition-transform duration-500 ease-in-out ${
-                    theme === "dark" ? "translate-x-6" : "translate-x-0.5"
-                  }`}
-                >
-                  <span className="flex h-4 w-4 rounded-full bg-white dark:bg-trackaro-text shadow-md items-center justify-center">
-                    {theme === "dark" ? (
-                      <MoonIcon className="h-2 w-2 text-blue-300" />
-                    ) : (
-                      <SunIcon className="h-2 w-2 text-yellow-500" />
-                    )}
-                  </span>
-                </span>
-              </button>
-
-              {/* Tooltip */}
-              <div className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="bg-trackaro-card dark:bg-trackaro-card px-2 py-1 rounded-md shadow-md text-xs text-trackaro-text dark:text-on-dark whitespace-nowrap border border-trackaro-border">
-                  Switch to {theme === "dark" ? "light" : "dark"} mode
-                </div>
-              </div>
-            </div>
-
             {/* Mobile Menu Button */}
             <div className="md:hidden">
               <button
@@ -547,37 +506,6 @@ const Navbar = () => {
                 </button>
               </>
             )}
-            <div className="flex items-center justify-between mt-4 px-3 py-2 border-t border-trackaro-border dark:border-trackaro-border">
-              <span className="text-trackaro-accent dark:text-on-dark text-sm font-medium">
-                {theme === "dark" ? "Dark" : "Light"} Mode
-              </span>
-              <button
-                onClick={toggleTheme}
-                className="relative p-1 w-12 h-6 rounded-full bg-gradient-to-r from-blue-300 to-purple-300 dark:from-blue-900 dark:to-purple-900 flex items-center transition-all duration-300 focus:outline-none"
-                aria-label="Toggle theme"
-              >
-                {/* Toggle background icons */}
-                <div className="absolute inset-0 flex justify-between items-center px-1 opacity-40">
-                  <SunIcon className="h-3 w-3 text-yellow-500" />
-                  <MoonIcon className="h-3 w-3 text-blue-200" />
-                </div>
-
-                {/* Toggle knob */}
-                <span
-                  className={`absolute transform transition-transform duration-500 ease-in-out ${
-                    theme === "dark" ? "translate-x-6" : "translate-x-0.5"
-                  }`}
-                >
-                  <span className="flex h-4 w-4 rounded-full bg-white dark:bg-trackaro-text shadow-md items-center justify-center">
-                    {theme === "dark" ? (
-                      <MoonIcon className="h-2 w-2 text-blue-300" />
-                    ) : (
-                      <SunIcon className="h-2 w-2 text-yellow-500" />
-                    )}
-                  </span>
-                </span>
-              </button>
-            </div>
 
             {isChatPage && (
               <div className="mt-4 pt-4 border-t border-trackaro-border dark:border-trackaro-border">
