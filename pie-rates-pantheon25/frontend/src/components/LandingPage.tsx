@@ -483,7 +483,7 @@ const LandingPage: React.FC = () => {
               <Button
                 text="Start Chat"
                 onClick={handleStartChatting}
-                className="font-semibold shadow-xl"
+                className="font-semibold bg-black shadow-xl"
                 size="large"
                 initiallyExpanded={false}
                 icon={
