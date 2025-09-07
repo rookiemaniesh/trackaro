@@ -32,11 +32,11 @@ interface TechCardProps {
 
 const TechCard: React.FC<TechCardProps> = ({ icon, name, color, index }) => {
   return (
-    <div className="flex gap-2 items-center py-1 px-2 rounded-lg border-trackaro-border/20 transition-all group">
+    <div className="flex gap-2 items-center py-1 px-2 rounded-lg border-gray-600/20 transition-all group">
       <div className="w-4 h-4 flex items-center justify-center transition-transform group-hover:scale-110">
         {icon}
       </div>
-      <span className="text-base font-light whitespace-nowrap dark:text-white/90 group-hover:font-normal transition-all">
+      <span className="text-base font-light whitespace-nowrap text-white/90 group-hover:font-normal transition-all">
         {name}
       </span>
     </div>
@@ -110,26 +110,34 @@ export default function TechnologyPage() {
     // Create a GSAP timeline for coordinated animations
     const tl = gsap.timeline();
 
-    // GSAP typing animation for the main heading
+    // Set initial states
+    gsap.set([headingRef.current, subHeadingRef.current], {
+      opacity: 0,
+      y: 20
+    });
+
+    // Animate heading entrance
     tl.to(headingRef.current, {
-      duration: 2,
-      text: "Powered by Modern Technology",
-      ease: "none",
+      opacity: 1,
+      y: 0,
+      duration: 0.8,
+      ease: "power2.out",
       delay: 0.5,
     });
 
-    // GSAP typing animation for the sub-heading
+    // Animate sub-heading entrance
     tl.to(
       subHeadingRef.current,
       {
-        duration: 2,
-        text: "Built with cutting-edge tools for a seamless experience",
-        ease: "none",
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: "power2.out",
       },
-      "+=0.5"
+      "-=0.4"
     );
 
-    // Move the cursor to the end after typing is complete
+    // Hide cursor after animation
     tl.to(cursorRef.current, {
       opacity: 0,
       duration: 0.5,
@@ -278,35 +286,41 @@ export default function TechnologyPage() {
   return (
     <>
       {/* Technology Stack Section */}
-      <div className=" flex flex-col text-black mt-4 mb-5 w-full max-w-6xl mx-auto">
-        <div className="text-center mb-1">
-          <div className="flex items-center justify-center mb-2">
-            <h2
-              ref={headingRef}
-              className="text-2xl font-bold text-trackaro-text dark:text-on-dark inline"
-            ></h2>
-            <span
-              ref={cursorRef}
-              className="text-2xl font-bold text-trackaro-accent dark:text-trackaro-accent h-8 w-[3px] bg-trackaro-accent inline-block ml-1 animate-pulse"
-            ></span>
+      <div className="bg-black py-16">
+        <div className="flex flex-col text-white mt-4 mb-5 w-full max-w-6xl mx-auto px-6">
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center mb-4">
+              <h2
+                ref={headingRef}
+                className="text-3xl md:text-4xl font-bold text-white inline"
+              >
+                Powered by Modern Technology
+              </h2>
+              <span
+                ref={cursorRef}
+                className="text-3xl md:text-4xl font-bold text-white h-8 w-[3px] bg-white inline-block ml-1 animate-pulse"
+              ></span>
+            </div>
+            <p
+              ref={subHeadingRef}
+              className="text-gray-300 text-lg md:text-xl max-w-2xl mx-auto"
+            >
+              Built with cutting-edge tools for a seamless experience
+            </p>
           </div>
-          <p
-            ref={subHeadingRef}
-            className="text-trackaro-accent dark:text-trackaro-accent/80 text-lg max-w-2xl mx-auto"
-          ></p>
-        </div>
 
-        <div
-          ref={containerRef}
-          className="relative w-full overflow-hidden"
-          style={{
-            maskImage:
-              "linear-gradient(to right, transparent, black 5%, black 95%, transparent)",
-            WebkitMaskImage:
-              "linear-gradient(to right, transparent, black 5%, black 95%, transparent)",
-          }}
-        >
-          <InfiniteMovingCards techItems={techItems} />
+          <div
+            ref={containerRef}
+            className="relative w-full overflow-hidden"
+            style={{
+              maskImage:
+                "linear-gradient(to right, transparent, black 5%, black 95%, transparent)",
+              WebkitMaskImage:
+                "linear-gradient(to right, transparent, black 5%, black 95%, transparent)",
+            }}
+          >
+            <InfiniteMovingCards techItems={techItems} />
+          </div>
         </div>
       </div>
     </>
