@@ -6,32 +6,14 @@ import { BarChart3, TrendingUp, CreditCard, Calendar, AlertCircle } from "lucide
 interface CategoryAnalysisCardProps {
   data: {
     category: string;
-    period: {
-      type: string;
-      startDate: string;
-      endDate: string;
-    };
-    summary: {
-      totalSpent: number;
-      expenseCount: number;
-      averagePerExpense: number;
-    };
-    subcategoryBreakdown: Array<{
-      subcategory: string;
-      total: number;
-      count: number;
-      averagePerExpense: number;
-      percentageOfTotal: number;
-    }>;
-    recommendations: string[];
+    totalSpending: number;
+    transactionCount: number;
+    averageTransactionAmount: number;
     expenses: Array<{
       id: string;
       amount: number;
-      category: string;
-      subcategory: string;
-      date: string;
       description: string;
-      paymentMethod: string;
+      createdAt: string;
     }>;
   };
 }
@@ -102,7 +84,7 @@ export function CategoryAnalysisCard({ data }: CategoryAnalysisCardProps) {
               <div>
                 <p className="text-purple-600 dark:text-purple-400 text-sm font-medium">Total Spent</p>
                 <p className="text-2xl font-bold text-purple-700 dark:text-purple-300">
-                  {formatCurrency(data.summary.totalSpent)}
+                  {formatCurrency(data.totalSpending)}
                 </p>
               </div>
               <TrendingUp className="h-8 w-8 text-purple-500" />
@@ -119,7 +101,7 @@ export function CategoryAnalysisCard({ data }: CategoryAnalysisCardProps) {
               <div>
                 <p className="text-blue-600 dark:text-blue-400 text-sm font-medium">Transactions</p>
                 <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">
-                  {data.summary.expenseCount}
+                  {data.transactionCount}
                 </p>
               </div>
               <Calendar className="h-8 w-8 text-blue-500" />
@@ -136,7 +118,7 @@ export function CategoryAnalysisCard({ data }: CategoryAnalysisCardProps) {
               <div>
                 <p className="text-green-600 dark:text-green-400 text-sm font-medium">Avg per Transaction</p>
                 <p className="text-2xl font-bold text-green-700 dark:text-green-300">
-                  {formatCurrency(data.summary.averagePerExpense)}
+                  {formatCurrency(data.averageTransactionAmount)}
                 </p>
               </div>
               <div className="h-8 w-8 bg-green-500 rounded-full flex items-center justify-center">
@@ -150,7 +132,7 @@ export function CategoryAnalysisCard({ data }: CategoryAnalysisCardProps) {
         <div className="mb-6">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Subcategory Breakdown</h3>
           <div className="space-y-3">
-            {data.subcategoryBreakdown.map((subcategory, index) => (
+            {(data.subcategoryBreakdown || []).map((subcategory, index) => (
               <motion.div
                 key={subcategory.subcategory}
                 initial={{ opacity: 0, x: -20 }}
@@ -199,7 +181,7 @@ export function CategoryAnalysisCard({ data }: CategoryAnalysisCardProps) {
             Recommendations for {data.category.charAt(0).toUpperCase() + data.category.slice(1)}
           </h3>
           <div className="space-y-2">
-            {data.recommendations.map((recommendation, index) => (
+            {(data.recommendations || []).map((recommendation, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 10 }}
@@ -218,7 +200,7 @@ export function CategoryAnalysisCard({ data }: CategoryAnalysisCardProps) {
         <div>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Recent {data.category.charAt(0).toUpperCase() + data.category.slice(1)} Expenses</h3>
           <div className="space-y-2">
-            {data.expenses.slice(0, 5).map((expense, index) => (
+            {(data.expenses || []).slice(0, 5).map((expense, index) => (
               <motion.div
                 key={expense.id}
                 initial={{ opacity: 0, y: 10 }}

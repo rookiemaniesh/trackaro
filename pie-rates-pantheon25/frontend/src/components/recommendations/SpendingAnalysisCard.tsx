@@ -5,24 +5,13 @@ import { TrendingUp, TrendingDown, DollarSign, Calendar, PieChart } from "lucide
 
 interface SpendingAnalysisCardProps {
   data: {
-    period: {
-      type: string;
-      startDate: string;
-      endDate: string;
-      days: number;
-    };
-    summary: {
-      totalSpent: number;
-      expenseCount: number;
-      averageDailySpending: number;
-      spendingTrend: number;
-    };
+    totalSpending: number;
+    estimatedMonthlySpending: number;
+    averageDailySpending: number;
     categoryBreakdown: Array<{
       category: string;
-      total: number;
-      count: number;
-      averagePerExpense: number;
-      percentageOfTotal: number;
+      amount: number;
+      percentage: number;
     }>;
     sipProjections: Array<{
       reductionPercent: number;
@@ -77,13 +66,13 @@ export function SpendingAnalysisCard({ data }: SpendingAnalysisCardProps) {
             </div>
             <div>
               <h2 className="text-xl font-bold text-white">Spending Analysis</h2>
-              <p className="text-blue-100 text-sm">{getPeriodLabel(data.period.type)}</p>
+              <p className="text-blue-100 text-sm">{getPeriodLabel(data.period?.type || '30d')}</p>
             </div>
           </div>
           <div className="text-right">
             <p className="text-white text-sm">Period</p>
             <p className="text-blue-100 text-sm">
-              {formatDate(data.period.startDate)} - {formatDate(data.period.endDate)}
+              {formatDate(data.period?.startDate || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())} - {formatDate(data.period?.endDate || new Date().toISOString())}
             </p>
           </div>
         </div>
@@ -101,9 +90,9 @@ export function SpendingAnalysisCard({ data }: SpendingAnalysisCardProps) {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-green-600 dark:text-green-400 text-sm font-medium">Total Spent</p>
+                <p className="text-green-600 dark:text-green-400 text-sm font-medium">Monthly Spending</p>
                 <p className="text-2xl font-bold text-green-700 dark:text-green-300">
-                  {formatCurrency(data.summary.totalSpent)}
+                  {formatCurrency(data.estimatedMonthlySpending)}
                 </p>
               </div>
               <DollarSign className="h-8 w-8 text-green-500" />
@@ -120,7 +109,7 @@ export function SpendingAnalysisCard({ data }: SpendingAnalysisCardProps) {
               <div>
                 <p className="text-blue-600 dark:text-blue-400 text-sm font-medium">Daily Average</p>
                 <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">
-                  {formatCurrency(data.summary.averageDailySpending)}
+                  {formatCurrency(data.averageDailySpending)}
                 </p>
               </div>
               <Calendar className="h-8 w-8 text-blue-500" />
@@ -137,11 +126,11 @@ export function SpendingAnalysisCard({ data }: SpendingAnalysisCardProps) {
               <div>
                 <p className="text-purple-600 dark:text-purple-400 text-sm font-medium">Transactions</p>
                 <p className="text-2xl font-bold text-purple-700 dark:text-purple-300">
-                  {data.summary.expenseCount}
+                  {data.categoryBreakdown?.length || 0}
                 </p>
               </div>
               <div className="h-8 w-8 bg-purple-500 rounded-full flex items-center justify-center">
-                <span className="text-white text-sm font-bold">{data.summary.expenseCount}</span>
+                <span className="text-white text-sm font-bold">{data.categoryBreakdown?.length || 0}</span>
               </div>
             </div>
           </motion.div>
@@ -151,7 +140,7 @@ export function SpendingAnalysisCard({ data }: SpendingAnalysisCardProps) {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3, delay: 0.3 }}
             className={`p-4 rounded-lg border ${
-              data.summary.spendingTrend >= 0
+              (data.spendingTrend || 0) >= 0
                 ? 'bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 border-red-200 dark:border-red-700'
                 : 'bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-200 dark:border-green-700'
             }`}
@@ -159,21 +148,21 @@ export function SpendingAnalysisCard({ data }: SpendingAnalysisCardProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className={`text-sm font-medium ${
-                  data.summary.spendingTrend >= 0
+                  (data.spendingTrend || 0) >= 0
                     ? 'text-red-600 dark:text-red-400'
                     : 'text-green-600 dark:text-green-400'
                 }`}>
                   Trend
                 </p>
                 <p className={`text-2xl font-bold ${
-                  data.summary.spendingTrend >= 0
+                  (data.spendingTrend || 0) >= 0
                     ? 'text-red-700 dark:text-red-300'
                     : 'text-green-700 dark:text-green-300'
                 }`}>
-                  {data.summary.spendingTrend >= 0 ? '+' : ''}{data.summary.spendingTrend.toFixed(1)}%
+                  {(data.spendingTrend || 0) >= 0 ? '+' : ''}{(data.spendingTrend || 0).toFixed(1)}%
                 </p>
               </div>
-              {data.summary.spendingTrend >= 0 ? (
+              {(data.spendingTrend || 0) >= 0 ? (
                 <TrendingUp className="h-8 w-8 text-red-500" />
               ) : (
                 <TrendingDown className="h-8 w-8 text-green-500" />
@@ -201,16 +190,16 @@ export function SpendingAnalysisCard({ data }: SpendingAnalysisCardProps) {
                       {category.category}
                     </p>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {category.count} transactions
+                      {category.amount ? '1' : '0'} transactions
                     </p>
                   </div>
                 </div>
                 <div className="text-right">
                   <p className="font-semibold text-gray-900 dark:text-white">
-                    {formatCurrency(category.total)}
+                    {formatCurrency(category.amount)}
                   </p>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {category.percentageOfTotal.toFixed(1)}%
+                    {category.percentage.toFixed(1)}%
                   </p>
                 </div>
               </motion.div>

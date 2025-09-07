@@ -5,26 +5,14 @@ import { Target, TrendingUp, CheckCircle, AlertCircle, DollarSign, Calendar } fr
 
 interface SavingsGoalsCardProps {
   data: {
-    currentSpending: {
-      monthlyAverage: number;
-      totalSpent: number;
-    };
-    savingsGoals: Array<{
-      type: string;
-      reductionPercent?: number;
-      monthlySavings?: number;
-      yearlySavings?: number;
-      description?: string;
-      targetAmount?: number;
-      timeframe?: number;
-      monthlySavingsNeeded?: number;
-      achievable?: boolean;
-      recommendations?: Array<{
-        category: string;
-        currentSpending: number;
-        potentialSavings: number;
-        action: string;
-      }>;
+    currentMonthlySpending: number;
+    achievableGoals: Array<{
+      name: string;
+      targetAmount: number;
+      description: string;
+      monthlySavings: number;
+      monthsToAchieve: number;
+      isAchievable: boolean;
     }>;
   };
 }
@@ -72,7 +60,7 @@ export function SavingsGoalsCard({ data }: SavingsGoalsCardProps) {
                 <div>
                   <p className="text-blue-600 dark:text-blue-400 text-sm font-medium">Monthly Average</p>
                   <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">
-                    {formatCurrency(data.currentSpending.monthlyAverage)}
+                    {formatCurrency(data.currentMonthlySpending)}
                   </p>
                 </div>
                 <Calendar className="h-8 w-8 text-blue-500" />
@@ -89,7 +77,7 @@ export function SavingsGoalsCard({ data }: SavingsGoalsCardProps) {
                 <div>
                   <p className="text-green-600 dark:text-green-400 text-sm font-medium">Total Spent (3 months)</p>
                   <p className="text-2xl font-bold text-green-700 dark:text-green-300">
-                    {formatCurrency(data.currentSpending.totalSpent)}
+                    {formatCurrency(data.currentMonthlySpending)}
                   </p>
                 </div>
                 <TrendingUp className="h-8 w-8 text-green-500" />
@@ -105,102 +93,58 @@ export function SavingsGoalsCard({ data }: SavingsGoalsCardProps) {
             Recommended Savings Goals
           </h3>
           <div className="space-y-4">
-            {data.savingsGoals.map((goal, index) => (
+            {data.achievableGoals.map((goal, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.1 }}
                 className={`p-4 rounded-lg border-2 ${
-                  goal.type === 'target_based'
+                  true
                     ? 'border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-900/20'
                     : 'border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20'
                 }`}
               >
-                {goal.type === 'target_based' ? (
-                  <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <h4 className="font-semibold text-gray-900 dark:text-white flex items-center">
-                        <Target className="h-4 w-4 mr-2 text-indigo-500" />
-                        Target-Based Goal
-                      </h4>
-                      <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        goal.achievable
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-                          : 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300'
-                      }`}>
-                        {goal.achievable ? 'Achievable' : 'Challenging'}
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                      <div className="text-center">
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Target Amount</p>
-                        <p className="text-lg font-bold text-indigo-600 dark:text-indigo-400">
-                          {formatCurrency(goal.targetAmount || 0)}
-                        </p>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Timeframe</p>
-                        <p className="text-lg font-bold text-indigo-600 dark:text-indigo-400">
-                          {goal.timeframe} months
-                        </p>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Monthly Savings Needed</p>
-                        <p className="text-lg font-bold text-indigo-600 dark:text-indigo-400">
-                          {formatCurrency(goal.monthlySavingsNeeded || 0)}
-                        </p>
-                      </div>
-                    </div>
-                    {goal.recommendations && goal.recommendations.length > 0 && (
-                      <div className="mt-4">
-                        <h5 className="font-medium text-gray-900 dark:text-white mb-2">Action Plan:</h5>
-                        <div className="space-y-2">
-                          {goal.recommendations.map((rec, recIndex) => (
-                            <div key={recIndex} className="flex items-center justify-between p-2 bg-white dark:bg-gray-700 rounded">
-                              <span className="text-sm text-gray-700 dark:text-gray-300">{rec.action}</span>
-                              <span className="text-sm font-semibold text-green-600 dark:text-green-400">
-                                Save {formatCurrency(rec.potentialSavings)}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <h4 className="font-semibold text-gray-900 dark:text-white flex items-center">
-                        <TrendingUp className="h-4 w-4 mr-2 text-green-500" />
-                        {goal.reductionPercent}% Reduction Goal
-                      </h4>
-                      <div className="px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 rounded-full text-xs font-medium">
-                        Recommended
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="text-center">
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Monthly Savings</p>
-                        <p className="text-lg font-bold text-green-600 dark:text-green-400">
-                          {formatCurrency(goal.monthlySavings || 0)}
-                        </p>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Yearly Savings</p>
-                        <p className="text-lg font-bold text-green-600 dark:text-green-400">
-                          {formatCurrency(goal.yearlySavings || 0)}
-                        </p>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Description</p>
-                        <p className="text-sm text-gray-700 dark:text-gray-300">
-                          {goal.description}
-                        </p>
-                      </div>
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="font-semibold text-gray-900 dark:text-white flex items-center">
+                      <Target className="h-4 w-4 mr-2 text-indigo-500" />
+                      {goal.name}
+                    </h4>
+                    <div className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      goal.isAchievable
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                        : 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300'
+                    }`}>
+                      {goal.isAchievable ? 'Achievable' : 'Challenging'}
                     </div>
                   </div>
-                )}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div className="text-center">
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Target Amount</p>
+                      <p className="text-lg font-bold text-indigo-600 dark:text-indigo-400">
+                        {formatCurrency(goal.targetAmount)}
+                      </p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Timeframe</p>
+                      <p className="text-lg font-bold text-indigo-600 dark:text-indigo-400">
+                        {goal.monthsToAchieve} months
+                      </p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Monthly Savings Needed</p>
+                      <p className="text-lg font-bold text-indigo-600 dark:text-indigo-400">
+                        {formatCurrency(goal.monthlySavings)}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="mt-4">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {goal.description}
+                    </p>
+                  </div>
+                </div>
               </motion.div>
             ))}
           </div>

@@ -12,42 +12,23 @@ import { CategoryAnalysisCard } from "@/components/recommendations/CategoryAnaly
 import { SavingsGoalsCard } from "@/components/recommendations/SavingsGoalsCard";
 
 interface SpendingAnalysis {
-  period: {
-    type: string;
-    startDate: string;
-    endDate: string;
-    days: number;
-  };
-  summary: {
-    totalSpent: number;
-    expenseCount: number;
-    averageDailySpending: number;
-    spendingTrend: number;
-  };
+  totalSpending: number;
+  estimatedMonthlySpending: number;
+  averageDailySpending: number;
   categoryBreakdown: Array<{
     category: string;
-    total: number;
-    count: number;
-    averagePerExpense: number;
-    percentageOfTotal: number;
+    amount: number;
+    percentage: number;
   }>;
   savingsScenarios: Array<{
     reductionPercent: number;
     monthlySavings: number;
-    yearlySavings: number;
-    newMonthlySpending: number;
-    savingsDescription: string;
+    description: string;
   }>;
-    recommendations: Array<{
-      type: string;
-      category: string;
-      message: string;
-      potentialSavings: number;
-    }>;
-    sipProjections: Array<{
-      reductionPercent: number;
-      monthlyInvestment: number;
-      projections: Array<{
+  sipProjections: Array<{
+    reductionPercent: number;
+    monthlyInvestment: number;
+    projections: Array<{
         years: number;
         totalInvested: number;
         expectedValue: number;
@@ -60,56 +41,26 @@ interface SpendingAnalysis {
 
 interface CategoryAnalysis {
   category: string;
-  period: {
-    type: string;
-    startDate: string;
-    endDate: string;
-  };
-  summary: {
-    totalSpent: number;
-    expenseCount: number;
-    averagePerExpense: number;
-  };
-  subcategoryBreakdown: Array<{
-    subcategory: string;
-    total: number;
-    count: number;
-    averagePerExpense: number;
-    percentageOfTotal: number;
-  }>;
-  recommendations: string[];
+  totalSpending: number;
+  transactionCount: number;
+  averageTransactionAmount: number;
   expenses: Array<{
     id: string;
     amount: number;
-    category: string;
-    subcategory: string;
-    date: string;
     description: string;
-    paymentMethod: string;
+    createdAt: string;
   }>;
 }
 
 interface SavingsGoals {
-  currentSpending: {
-    monthlyAverage: number;
-    totalSpent: number;
-  };
-  savingsGoals: Array<{
-    type: string;
-    reductionPercent?: number;
-    monthlySavings?: number;
-    yearlySavings?: number;
-    description?: string;
-    targetAmount?: number;
-    timeframe?: number;
-    monthlySavingsNeeded?: number;
-    achievable?: boolean;
-    recommendations?: Array<{
-      category: string;
-      currentSpending: number;
-      potentialSavings: number;
-      action: string;
-    }>;
+  currentMonthlySpending: number;
+  achievableGoals: Array<{
+    name: string;
+    targetAmount: number;
+    description: string;
+    monthlySavings: number;
+    monthsToAchieve: number;
+    isAchievable: boolean;
   }>;
 }
 
@@ -145,7 +96,7 @@ export default function RecommendationsPage() {
   // Fetch category analysis
   const fetchCategoryAnalysis = async () => {
     try {
-      const response = await get(`/api/recommendations/category-analysis/${selectedCategory}?period=${selectedPeriod}`);
+      const response = await get(`/api/recommendations/category-analysis?category=${selectedCategory}&period=${selectedPeriod}`);
       setCategoryAnalysis(response.data);
     } catch (err: any) {
       console.error("Error fetching category analysis:", err);
@@ -321,7 +272,7 @@ export default function RecommendationsPage() {
                   >
                     <SavingsSuggestionsCard 
                       savingsScenarios={spendingAnalysis.savingsScenarios}
-                      recommendations={spendingAnalysis.recommendations}
+                      recommendations={[]}
                     />
                   </motion.div>
                 )}

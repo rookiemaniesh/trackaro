@@ -7,9 +7,7 @@ interface SavingsSuggestionsCardProps {
   savingsScenarios: Array<{
     reductionPercent: number;
     monthlySavings: number;
-    yearlySavings: number;
-    newMonthlySpending: number;
-    savingsDescription: string;
+    description: string;
   }>;
   recommendations: Array<{
     type: string;
@@ -78,7 +76,7 @@ export function SavingsSuggestionsCard({ savingsScenarios, recommendations }: Sa
             Potential Savings Scenarios
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {savingsScenarios.map((scenario, index) => (
+            {(savingsScenarios || []).map((scenario, index) => (
               <motion.div
                 key={scenario.reductionPercent}
                 initial={{ opacity: 0, y: 20 }}
@@ -115,18 +113,18 @@ export function SavingsSuggestionsCard({ savingsScenarios, recommendations }: Sa
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-600 dark:text-gray-400">Yearly Savings:</span>
                       <span className="font-semibold text-green-600 dark:text-green-400">
-                        {formatCurrency(scenario.yearlySavings)}
+                        {formatCurrency(scenario.monthlySavings * 12)}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-600 dark:text-gray-400">New Spending:</span>
                       <span className="font-semibold text-gray-900 dark:text-white">
-                        {formatCurrency(scenario.newMonthlySpending)}
+                        {formatCurrency(scenario.monthlySavings / (scenario.reductionPercent / 100))}
                       </span>
                     </div>
                   </div>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 italic">
-                    {scenario.savingsDescription}
+                    {scenario.description}
                   </p>
                 </div>
               </motion.div>
@@ -141,7 +139,7 @@ export function SavingsSuggestionsCard({ savingsScenarios, recommendations }: Sa
             Smart Recommendations
           </h3>
           <div className="space-y-3">
-            {recommendations.map((recommendation, index) => (
+            {(recommendations || []).map((recommendation, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, x: -20 }}
