@@ -1,7 +1,7 @@
 const express = require('express');
 const { PrismaClient } = require('../../generated/prisma');
 const { sendText } = require('../utils/telegram');
-const { handleIncomingMessage, handlePaymentMethodReply, getConversationState } = require('../services/messageHandler');
+const { handleIncomingMessage } = require('../services/messageHandler');
 const { validateLinkCode, linkTelegramAccount } = require('../utils/messageHandler');
 
 const router = express.Router();
@@ -44,29 +44,14 @@ router.post('/webhook', async (req, res) => {
       // Chat is already linked, process the message normally
       console.log(`Chat ${chatId} is linked to user ${existingUser.email}`);
       
-      // Check if there's a pending expense
-      const pendingExpense = await getConversationState(existingUser.id);
-      
-      let result;
-      if (pendingExpense) {
-        // Process as payment method reply
-        result = await handlePaymentMethodReply({
-          user_id: existingUser.id,
-          content: messageText,
-          source: 'telegram',
-          extMessageId: messageId.toString(),
-          extChatId: chatId
-        });
-      } else {
-        // Process as regular message
-        result = await handleIncomingMessage({
-          user_id: existingUser.id,
-          content: messageText,
-          source: 'telegram',
-          extMessageId: messageId.toString(),
-          extChatId: chatId
-        });
-      }
+      // Process as regular message (no more payment method checks)
+      const result = await handleIncomingMessage({
+        user_id: existingUser.id,
+        content: messageText,
+        source: 'telegram',
+        extMessageId: messageId.toString(),
+        extChatId: chatId
+      });
 
       // Send reply back to Telegram
       if (result.success) {

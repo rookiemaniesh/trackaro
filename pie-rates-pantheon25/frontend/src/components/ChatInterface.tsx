@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import ChatBox from "./ChatBox";
+import { useAuth } from "@/context/AuthContext";
 import {
   ThumbsUp,
   ThumbsDown,
@@ -141,6 +142,7 @@ const PaymentIcon = ({ className }: { className?: string }) => (
 );
 
 const ChatInterface = () => {
+  const { user } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [message, setMessage] = useState("");
   const router = useRouter();
@@ -250,7 +252,7 @@ const ChatInterface = () => {
                 </div>
                 <div className="flex flex-col">
                   <span className="text-xs font-semibold text-white">
-                    John Doe
+                    {user?.name || "User"}
                   </span>
                   <span className="text-xs text-white/70">Premium User</span>
                 </div>

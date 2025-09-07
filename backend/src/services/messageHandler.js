@@ -37,22 +37,6 @@ const handleIncomingMessage = async ({ user_id, content, source, extMessageId, e
 
     console.log(`💾 Saved user message: ${userMessage.id}`);
 
-    // Check if there's a pending expense for this user
-    const pendingExpense = await prisma.conversationState.findUnique({
-      where: {
-        user_id_type: {
-          user_id,
-          type: 'pending_expense'
-        }
-      }
-    });
-
-    // If there's a pending expense, this might be a payment method reply
-    if (pendingExpense) {
-      console.log(`🔄 Found pending expense, processing as payment method reply`);
-      return await handlePaymentMethodReply({ user_id, content, source, extMessageId, extChatId });
-    }
-
     // Send to AI service
     console.log(`🤖 Sending message to AI service: "${content}"`);
     const aiResponse = await aiClient.processMessage(content, user_id);
@@ -183,56 +167,8 @@ const handleExpenseResponse = async ({ user_id, aiData, source, extMessageId, ex
     
     console.log('📝 Final response message:', responseMessage);
 
-    // Check if payment method is missing
-    if (!expenseData.paymentMethod) {
-      console.log(`💰 Storing pending expense (missing payment method)`);
-      
-      // Ensure user_id is added to pending expense data
-      const pendingExpenseData = {
-        ...expenseData,
-        user_id: user_id
-      };
-      
-      console.log('💾 Pending expense data with user_id:', JSON.stringify(pendingExpenseData, null, 2));
-      
-      // Store partial expense in conversation state
-      await prisma.conversationState.upsert({
-        where: {
-          user_id_type: {
-            user_id,
-            type: 'pending_expense'
-          }
-        },
-        update: {
-          payload: pendingExpenseData
-        },
-        create: {
-          user_id,
-          type: 'pending_expense',
-          payload: pendingExpenseData
-        }
-      });
-
-      // Save AI response message
-      const aiMessage = await prisma.message.create({
-        data: {
-          user_id,
-          content: responseMessage,
-          source: source.toLowerCase() === 'web' ? 'web' : 'telegram',
-          sender: 'ai'
-        }
-      });
-
-      return {
-        success: true,
-        message: responseMessage,
-        messageId: aiMessage.id,
-        requiresPaymentMethod: true
-      };
-    }
-
-    // Payment method present - save the expense
-    console.log(`💰 Saving complete expense`);
+    // Always save the expense directly to database (no payment method check)
+    console.log(`💰 Saving expense directly to database`);
     
     // Ensure user_id is added to expense data
     const expenseDataWithUserId = {
@@ -250,7 +186,7 @@ const handleExpenseResponse = async ({ user_id, aiData, source, extMessageId, ex
         subcategory: expenseDataWithUserId.subcategory, // Save exact subcategory from AI model
         companions: expenseDataWithUserId.companions || [],
         date: new Date(expenseDataWithUserId.date),
-        paymentMethod: expenseDataWithUserId.paymentMethod,
+        paymentMethod: expenseDataWithUserId.paymentMethod || 'unknown', // Default to 'unknown' if not provided
         description: expenseDataWithUserId.description || null
       }
     });
@@ -325,159 +261,7 @@ const handleQueryResponse = async ({ user_id, aiData, source, extMessageId, extC
   }
 };
 
-/**
- * Handle payment method reply for pending expenses
- * @param {Object} params - Message parameters
- * @returns {Promise<Object>} Response object
- */
-const handlePaymentMethodReply = async ({ user_id, content, source, extMessageId, extChatId }) => {
-  try {
-    console.log(`💳 Processing payment method reply`);
 
-    // Get pending expense
-    const pendingExpense = await prisma.conversationState.findUnique({
-      where: {
-        user_id_type: {
-          user_id,
-          type: 'pending_expense'
-        }
-      }
-    });
-
-    if (!pendingExpense) {
-      // No pending expense, process as regular message
-      return await handleIncomingMessage({ user_id, content, source, extMessageId, extChatId });
-    }
-
-    // Extract payment method from user message
-    const paymentMethod = extractPaymentMethod(content);
-    
-    if (!paymentMethod) {
-      // Couldn't extract payment method, ask for clarification
-      const clarificationMessage = await prisma.message.create({
-        data: {
-          user_id,
-          content: "I couldn't identify the payment method. Please specify: cash, UPI, card, or other method.",
-          source: source.toLowerCase() === 'web' ? 'web' : 'telegram',
-          sender: 'ai'
-        }
-      });
-
-      return {
-        success: true,
-        message: clarificationMessage.content,
-        messageId: clarificationMessage.id,
-        requiresPaymentMethod: true
-      };
-    }
-
-    // Merge payment method with pending expense data
-    const expenseData = {
-      ...pendingExpense.payload,
-      paymentMethod,
-      user_id: user_id // Ensure user_id is present
-    };
-
-    console.log('💳 Complete expense data with payment method:', JSON.stringify(expenseData, null, 2));
-
-    // Save the complete expense
-    const expense = await prisma.expense.create({
-      data: {
-        user_id: expenseData.user_id,
-        amount: expenseData.amount,
-        category: expenseData.category, // Save exact category from AI model
-        subcategory: expenseData.subcategory, // Save exact subcategory from AI model
-        companions: expenseData.companions || [],
-        date: new Date(expenseData.date),
-        paymentMethod: expenseData.paymentMethod,
-        description: expenseData.description || null
-      }
-    });
-    
-    console.log('✅ Complete expense saved to database:', JSON.stringify(expense, null, 2));
-
-    // Delete the pending expense
-    await prisma.conversationState.delete({
-      where: {
-        user_id_type: {
-          user_id,
-          type: 'pending_expense'
-        }
-      }
-    });
-
-    // Save confirmation message
-    const confirmationMessage = await prisma.message.create({
-      data: {
-        user_id,
-        content: `✅ Expense logged! ${expenseData.description || expenseData.category} - ₹${expenseData.amount} via ${paymentMethod}`,
-        source: source.toLowerCase() === 'web' ? 'web' : 'telegram',
-        sender: 'ai',
-        expenseId: expense.id
-      }
-    });
-
-    return {
-      success: true,
-      message: confirmationMessage.content,
-      messageId: confirmationMessage.id,
-      expenseId: expense.id
-    };
-
-  } catch (error) {
-    console.error('❌ Error handling payment method reply:', error);
-    throw error;
-  }
-};
-
-/**
- * Extract payment method from user message
- * @param {string} content - User message content
- * @returns {string|null} Extracted payment method or null
- */
-const extractPaymentMethod = (content) => {
-  const lowerContent = content.toLowerCase();
-  
-  // Common payment method patterns
-  const patterns = [
-    { method: 'upi', keywords: ['upi', 'gpay', 'phonepe', 'paytm', 'bharatpe'] },
-    { method: 'cash', keywords: ['cash', 'money', 'notes', 'coins'] },
-    { method: 'card', keywords: ['card', 'credit', 'debit', 'visa', 'mastercard'] },
-    { method: 'netbanking', keywords: ['netbanking', 'net banking', 'bank transfer'] },
-    { method: 'wallet', keywords: ['wallet', 'digital wallet'] }
-  ];
-
-  for (const pattern of patterns) {
-    if (pattern.keywords.some(keyword => lowerContent.includes(keyword))) {
-      return pattern.method;
-    }
-  }
-
-  return null;
-};
-
-/**
- * Get conversation state for a user
- * @param {string} user_id - User ID
- * @returns {Promise<Object|null>} Conversation state or null
- */
-const getConversationState = async (user_id) => {
-  try {
-    const state = await prisma.conversationState.findUnique({
-      where: {
-        user_id_type: {
-          user_id,
-          type: 'pending_expense'
-        }
-      }
-    });
-
-    return state;
-  } catch (error) {
-    console.error('❌ Error getting conversation state:', error);
-    return null;
-  }
-};
 
 /**
  * Clear conversation state for a user
@@ -499,8 +283,5 @@ const clearConversationState = async (user_id) => {
 
 module.exports = {
   handleIncomingMessage,
-  handlePaymentMethodReply,
-  getConversationState,
-  clearConversationState,
-  extractPaymentMethod
+  clearConversationState
 };

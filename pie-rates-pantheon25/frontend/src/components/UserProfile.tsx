@@ -46,7 +46,7 @@ export default function UserProfile() {
     if (user) {
       setName(user.name || "");
       setEmail(user.email || "");
-      setProfileImage(user.profileImage);
+      setProfileImage(user.profilePicture);
     }
   }, [user]);
   
@@ -156,7 +156,7 @@ export default function UserProfile() {
       await updateProfile({
         name,
         email,
-        profileImage
+        profilePicture: profileImage
       });
       setEditMode(false);
       setError("");

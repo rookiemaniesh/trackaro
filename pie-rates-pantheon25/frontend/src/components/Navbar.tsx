@@ -516,10 +516,10 @@ const Navbar = () => {
                     </div>
                     <div>
                       <p className="text-sm font-medium text-trackaro-text dark:text-on-dark">
-                        John Doe
+                        {user?.name || "User"}
                       </p>
                       <p className="text-xs text-trackaro-text/70 dark:text-on-dark/70 truncate">
-                        john.doe@example.com
+                        {user?.email || "user@example.com"}
                       </p>
                     </div>
                   </div>

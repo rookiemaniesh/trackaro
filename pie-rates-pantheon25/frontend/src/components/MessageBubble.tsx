@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
+import LoadingDots from "./LoadingDots";
 
 interface MessageBubbleProps {
   message: string;
@@ -9,6 +10,8 @@ interface MessageBubbleProps {
   timestamp: Date;
   animateTypewriter?: boolean;
   requiresPaymentMethod?: boolean;
+  userProfilePicture?: string;
+  userName?: string;
 }
 
 const MessageBubble: React.FC<MessageBubbleProps> = ({
@@ -17,8 +20,16 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   timestamp,
   animateTypewriter = false,
   requiresPaymentMethod = false,
+  userProfilePicture,
+  userName,
 }) => {
   const isUser = sender === "user";
+  
+  // Check if this is a loading message
+  const isLoadingMessage = !isUser && (
+    message.includes("Generating response") || 
+    message.includes("Processing receipt with OCR")
+  );
 
   // Format the timestamp with explicit formatting to avoid hydration mismatch
   const formattedTime = formatTime(timestamp);
@@ -71,18 +82,53 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
 
   return (
     <div className={`flex ${isUser ? "justify-end" : "justify-start"} mb-4`}>
-      <motion.div
-        className={`message-bubble max-w-[80%] px-4 py-3 rounded-lg ${
-          isUser
-            ? "bg-blue-500 text-white rounded-br-none"
-            : requiresPaymentMethod
-            ? "bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-300 dark:border-yellow-600 text-trackaro-text dark:text-trackaro-text rounded-bl-none"
-            : "bg-secondary dark:bg-secondary text-trackaro-text dark:text-trackaro-text rounded-bl-none"
-        }`}
-        initial={{ opacity: 0, y: 12, scale: 0.98 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
-      >
+      <div className={`flex items-end space-x-2 max-w-[80%] ${isUser ? "flex-row-reverse space-x-reverse" : ""}`}>
+        {/* Profile Picture */}
+        <div className="flex-shrink-0">
+          <div className="h-8 w-8 rounded-full bg-trackaro-accent/10 flex items-center justify-center overflow-hidden border border-trackaro-border/30">
+            {isUser ? (
+              userProfilePicture ? (
+                <img
+                  src={userProfilePicture}
+                  alt={userName || "User"}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <svg
+                  className="h-5 w-5 text-trackaro-accent"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                    clipRule="evenodd"
+                  ></path>
+                </svg>
+              )
+            ) : (
+              // AI Logo placeholder - you can replace this with your logo
+              <div className="h-full w-full bg-gradient-to-br from-trackaro-accent to-blue-500 flex items-center justify-center">
+                <span className="text-white font-bold text-xs">AI</span>
+              </div>
+            )}
+          </div>
+        </div>
+        
+        {/* Message Bubble */}
+        <motion.div
+          className={`message-bubble px-4 py-3 rounded-lg ${
+            isUser
+              ? "bg-blue-500 text-white rounded-br-none"
+              : requiresPaymentMethod
+              ? "bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-300 dark:border-yellow-600 text-trackaro-text dark:text-trackaro-text rounded-bl-none"
+              : "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-bl-none"
+          }`}
+          initial={{ opacity: 0, y: 12, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+        >
         {requiresPaymentMethod && !isUser && (
           <div className="flex items-center mb-2">
             <div className="flex items-center space-x-2 text-yellow-600 dark:text-yellow-400">
@@ -99,10 +145,10 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
             </div>
           </div>
         )}
-        <div
-          className="text-sm"
-          dangerouslySetInnerHTML={{ __html: formatMessage(displayed) }}
-        />
+        <div className="text-sm flex items-center space-x-2">
+          <span dangerouslySetInnerHTML={{ __html: formatMessage(displayed) }} />
+          {isLoadingMessage && <LoadingDots />}
+        </div>
         <div
           className={`text-xs mt-1 text-right ${
             isUser
@@ -122,7 +168,8 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
               transition={{ duration: 0.8, repeat: Infinity }}
             />
           )}
-      </motion.div>
+        </motion.div>
+      </div>
     </div>
   );
 };

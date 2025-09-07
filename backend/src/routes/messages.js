@@ -1,6 +1,6 @@
 const express = require('express');
 const { PrismaClient } = require('../../generated/prisma');
-const { handleIncomingMessage, handlePaymentMethodReply, getConversationState } = require('../services/messageHandler');
+const { handleIncomingMessage } = require('../services/messageHandler');
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -30,29 +30,14 @@ router.post('/', async (req, res) => {
       });
     }
 
-    // Check if there's a pending expense
-    const pendingExpense = await getConversationState(user_id);
-    
-    let result;
-    if (pendingExpense) {
-      // Process as payment method reply
-      result = await handlePaymentMethodReply({
-        user_id,
-        content: content.trim(),
-        source: 'web',
-        extMessageId: null,
-        extChatId: null
-      });
-    } else {
-      // Process as regular message
-      result = await handleIncomingMessage({
-        user_id,
-        content: content.trim(),
-        source: 'web',
-        extMessageId: null,
-        extChatId: null
-      });
-    }
+    // Process as regular message (no more payment method checks)
+    const result = await handleIncomingMessage({
+      user_id,
+      content: content.trim(),
+      source: 'web',
+      extMessageId: null,
+      extChatId: null
+    });
 
     // Return response
     res.json({
@@ -61,8 +46,7 @@ router.post('/', async (req, res) => {
       data: {
         messageId: result.messageId,
         expenseId: result.expenseId || null,
-        queryData: result.queryData || null,
-        requiresPaymentMethod: result.requiresPaymentMethod || false
+        queryData: result.queryData || null
       }
     });
 
@@ -145,13 +129,12 @@ router.get('/', async (req, res) => {
 router.get('/state', async (req, res) => {
   try {
     const user_id = req.user.id;
-    const state = await getConversationState(user_id);
-
+    // No more pending expenses - always return false
     res.json({
       success: true,
       data: {
-        hasPendingExpense: !!state,
-        pendingExpense: state ? state.payload : null
+        hasPendingExpense: false,
+        pendingExpense: null
       }
     });
 

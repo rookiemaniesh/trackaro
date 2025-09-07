@@ -12,6 +12,9 @@ const authGoogleRoutes = require('./routes/auth.google');
 const authTelegramRoutes = require('./routes/auth.telegram');
 const telegramWebhookRoutes = require('./routes/telegram.webhook');
 const messagesRoutes = require('./routes/messages');
+const expensesRoutes = require('./routes/expenses');
+const ocrRoutes = require('./routes/ocr');
+const recommendationsRoutes = require('./routes/recommendations');
 
 // Import middleware
 const { authenticate } = require('./middleware/auth');
@@ -106,6 +109,15 @@ app.use('/api/telegram', telegramWebhookRoutes);
 
 // Messages routes (web UI)
 app.use('/api/messages', authenticate, messagesRoutes);
+
+// Expenses routes
+app.use('/api/expenses', authenticate, expensesRoutes);
+
+// Recommendations routes
+app.use('/api/recommendations', authenticate, recommendationsRoutes);
+
+// OCR routes
+app.use('/api/ocr', authenticate, ocrRoutes);
 
 // Protected route example
 app.get('/api/profile', authenticate, (req, res) => {

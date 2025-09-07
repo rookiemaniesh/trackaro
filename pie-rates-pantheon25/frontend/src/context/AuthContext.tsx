@@ -3,10 +3,12 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 
 type User = {
-  id: number;
-  name: string;
+  id: string;
   email: string;
-  profileImage?: string;
+  googleId?: string;
+  profilePicture?: string;
+  createdAt?: string;
+  name?: string; // Optional, will be derived from email if not provided
 };
 
 type TelegramStatus = {
@@ -57,11 +59,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             },
           });
 
-          if (response.ok) {
-            const data = await response.json();
-            setUser(data.data.user);
-            setAccessToken(storedToken);
-          } else {
+      if (response.ok) {
+        const data = await response.json();
+        const userData = data.data.user;
+        // Derive name from email if not provided
+        if (!userData.name) {
+          userData.name = userData.email.split("@")[0];
+        }
+        setUser(userData);
+        setAccessToken(storedToken);
+      } else {
             // If token is invalid or expired, try to refresh it
             await refreshToken();
           }
@@ -115,7 +122,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
       if (response.ok) {
         const data = await response.json();
-        setUser(data.data.user);
+        const userData = data.data.user;
+        // Derive name from email if not provided
+        if (!userData.name) {
+          userData.name = userData.email.split("@")[0];
+        }
+        setUser(userData);
       } else {
         throw new Error("Failed to fetch user data");
       }
@@ -153,7 +165,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       }
 
       const data = await response.json();
-      setUser(data.data.user);
+      const userData = data.data.user;
+      // Derive name from email if not provided
+      if (!userData.name) {
+        userData.name = userData.email.split("@")[0];
+      }
+      setUser(userData);
       setAccessToken(data.data.token);
       localStorage.setItem("accessToken", data.data.token);
     } catch (error) {
@@ -192,7 +209,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       }
 
       const data = await response.json();
-      setUser(data.data.user);
+      const userData = data.data.user;
+      // Derive name from email if not provided
+      if (!userData.name) {
+        userData.name = userData.email.split("@")[0];
+      }
+      setUser(userData);
       setAccessToken(data.data.token);
       localStorage.setItem("accessToken", data.data.token);
     } catch (error) {
