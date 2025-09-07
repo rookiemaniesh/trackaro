@@ -1,17 +1,12 @@
 ﻿"use client";
 
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  useCallback,
-  Suspense,
-} from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import MockupPage from "@/app/mockup/page";
 
 // Loading fallback component
 const LoadingSkeleton = () => (
@@ -32,15 +27,6 @@ const TechnologyPage = dynamic(() => import("./TechnologyPage"), {
   loading: () => <LoadingSkeleton />,
 });
 
-const ChatMockup = dynamic(() => import("./ChatMockup"), {
-  ssr: false,
-  loading: () => <LoadingSkeleton />,
-});
-
-const Button = dynamic(() => import("./Button"), {
-  ssr: false,
-});
-
 // Register ScrollTrigger plugin
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -48,8 +34,7 @@ if (typeof window !== "undefined") {
 
 const LandingPage: React.FC = () => {
   const router = useRouter();
-  const [isloggedIn, setLoggedIn] = useState(false);
-  const [buttonExpanded, setButtonExpanded] = useState(false);
+  const [isloggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   // Refs for animations
@@ -57,7 +42,6 @@ const LandingPage: React.FC = () => {
   const textRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const featuresRef = useRef<HTMLDivElement>(null);
-  const chatShowcaseRef = useRef<HTMLDivElement>(null);
   const dashboardRef = useRef<HTMLDivElement>(null);
   const dashboardHeaderRef = useRef<HTMLHeadingElement>(null);
   const dashboardContentRef = useRef<HTMLDivElement>(null);
@@ -82,55 +66,151 @@ const LandingPage: React.FC = () => {
     // Set loading state to false when animations start
     setIsLoading(false);
 
-    // Hero section animation
+    // Hero section animation with GSAP
     if (heroRef.current) {
-      const heroAnim = gsap.fromTo(
-        heroRef.current,
-        { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, duration: 1, ease: "power3.out" }
-      );
+      // Set initial states
+      gsap.set(heroRef.current, { opacity: 0, y: 50 });
+
+      // Animate hero container
+      const heroAnim = gsap.to(heroRef.current, {
+        opacity: 1,
+        y: 0,
+        duration: 1.2,
+        ease: "power3.out",
+        delay: 0.2,
+      });
       animations.push(heroAnim);
     }
 
-    // Text animation with stagger
+    // Enhanced text animation with GSAP
     if (textRef.current) {
-      const elements = textRef.current.querySelectorAll("h1, p");
-      const textAnim = gsap.fromTo(
-        elements,
-        { opacity: 0, y: 20 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.8,
-          stagger: 0.2,
-          ease: "power2.out",
-          delay: 0.3,
-        }
-      );
-      animations.push(textAnim);
+      // Set initial states for all text elements
+      const smallHeading = textRef.current.querySelector("div span");
+      const mainHeading = textRef.current.querySelector("h1");
+      const description = textRef.current.querySelector("p");
+      const button = textRef.current.querySelector("button");
+
+      // Set initial states
+      gsap.set([smallHeading, mainHeading, description, button], {
+        opacity: 0,
+        y: 30,
+      });
+
+      // Create timeline for sequential animations
+      const tl = gsap.timeline({ delay: 0.5 });
+
+      // Small heading animation
+      tl.to(smallHeading, {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: "power2.out",
+      })
+        // Main heading animation with word-by-word effect
+        .to(
+          mainHeading,
+          {
+            opacity: 1,
+            y: 0,
+            duration: 1,
+            ease: "power2.out",
+          },
+          "-=0.4"
+        )
+        // Description animation
+        .to(
+          description,
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: "power2.out",
+          },
+          "-=0.6"
+        )
+        // Button animation with bounce effect
+        .to(
+          button,
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.6,
+            ease: "back.out(1.7)",
+          },
+          "-=0.4"
+        );
+
+      // Store timeline for cleanup
+      animations.push(tl as any);
     }
 
-    // Button animation (initial appearance only)
+    // Button animation is now handled in the text timeline
+
+    // Add floating animation to hero elements
+    if (textRef.current) {
+      const floatingElements =
+        textRef.current.querySelectorAll("h1, p, button");
+
+      floatingElements.forEach((element, index) => {
+        gsap.to(element, {
+          y: "+=5",
+          duration: 2 + index * 0.5,
+          ease: "sine.inOut",
+          repeat: -1,
+          yoyo: true,
+          delay: 2 + index * 0.2,
+        });
+      });
+    }
+
+    // Add hover animations for button
     if (buttonRef.current) {
-      const buttonAnim = gsap.fromTo(
-        buttonRef.current,
-        { opacity: 0, scale: 0.9 },
-        {
-          opacity: 1,
+      const button = buttonRef.current;
+
+      button.addEventListener("mouseenter", () => {
+        gsap.to(button, {
+          scale: 1.05,
+          duration: 0.3,
+          ease: "power2.out",
+        });
+      });
+
+      button.addEventListener("mouseleave", () => {
+        gsap.to(button, {
           scale: 1,
-          duration: 0.5,
-          ease: "back.out(1.7)",
-          delay: 1,
-          onComplete: function () {
-            // Trigger the expand animation after a delay
-            const timer = setTimeout(() => {
-              setButtonExpanded(true);
-            }, 1000);
-            // This doesn't need to return anything
-          },
-        }
+          duration: 0.3,
+          ease: "power2.out",
+        });
+      });
+    }
+
+    // Animate background elements
+    if (heroRef.current) {
+      const bgElements = heroRef.current.querySelectorAll(
+        "div[class*='bg-blue-100'], div[class*='bg-orange-100'], div[class*='bg-purple-100']"
       );
-      animations.push(buttonAnim);
+
+      bgElements.forEach((element, index) => {
+        gsap.fromTo(
+          element,
+          {
+            scale: 0,
+            opacity: 0,
+            rotation: 0,
+          },
+          {
+            scale: 1,
+            opacity: 0.2,
+            rotation: 360,
+            duration: 3,
+            ease: "power2.out",
+            delay: 1 + index * 0.5,
+            repeat: -1,
+            yoyo: true,
+            repeatDelay: 2,
+          }
+        );
+      });
     }
 
     // Features animation
@@ -336,27 +416,6 @@ const LandingPage: React.FC = () => {
       }
     }
 
-    // Chat showcase animation
-    if (chatShowcaseRef.current) {
-      const messages = chatShowcaseRef.current.querySelectorAll(".message");
-      gsap.fromTo(
-        messages,
-        { opacity: 0, y: 20 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.5,
-          stagger: 0.2,
-          ease: "power2.out",
-          scrollTrigger: {
-            trigger: chatShowcaseRef.current,
-            start: "top bottom-=50",
-            toggleActions: "play none none none",
-          },
-        }
-      );
-    }
-
     // Cleanup function to kill all animations when component unmounts
     return () => {
       // Kill all scroll triggers
@@ -389,7 +448,6 @@ const LandingPage: React.FC = () => {
         dashboardCardRef.current,
         dashboardContentRef.current,
         budgetCircleRef.current,
-        chatShowcaseRef.current,
       ].filter(Boolean);
 
       gsap.killTweensOf(elements);
@@ -403,10 +461,6 @@ const LandingPage: React.FC = () => {
         gsap.killTweensOf(
           featuresRef.current.querySelectorAll(".feature-card")
         );
-      }
-
-      if (chatShowcaseRef.current) {
-        gsap.killTweensOf(chatShowcaseRef.current.querySelectorAll(".message"));
       }
 
       if (dashboardRef.current) {
@@ -449,48 +503,527 @@ const LandingPage: React.FC = () => {
           <section
             id="hero"
             ref={heroRef}
-            className="relative container mx-auto px-6 py-24 flex flex-col items-center justify-center "
+            className="relative min-h-screen flex flex-col items-center justify-start pt-15 dark:from-gray-900 dark:to-gray-800 overflow-hidden rounded-b-3xl border-t-2 border-gray-300 dark:border-gray-600"
+            style={{ backgroundColor: "rgb(250, 247, 240)" }}
           >
-            {/* Animated Background Glow */}
-            <div className="absolute inset-0 overflow-hidden -z-10">
-              <div className="absolute top-1/3 left-1/2 w-[500px] h-[500px] bg-trackaro-accent opacity-20 blur-3xl rounded-full animate-pulse-slow -translate-x-1/2"></div>
-            </div>
+            {/* Block Pattern Background */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              <svg
+                className="absolute inset-0 w-full h-full"
+                viewBox="0 0 1200 800"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                {/* Block pattern - various sized rectangles - faded for hero */}
+                <rect
+                  x="0"
+                  y="0"
+                  width="80"
+                  height="60"
+                  fill="#9ca3af"
+                  opacity="0.05"
+                />
+                <rect
+                  x="100"
+                  y="20"
+                  width="120"
+                  height="80"
+                  fill="#9ca3af"
+                  opacity="0.04"
+                />
+                <rect
+                  x="250"
+                  y="0"
+                  width="60"
+                  height="100"
+                  fill="#9ca3af"
+                  opacity="0.06"
+                />
+                <rect
+                  x="350"
+                  y="30"
+                  width="100"
+                  height="60"
+                  fill="#9ca3af"
+                  opacity="0.05"
+                />
+                <rect
+                  x="480"
+                  y="10"
+                  width="80"
+                  height="90"
+                  fill="#9ca3af"
+                  opacity="0.04"
+                />
+                <rect
+                  x="600"
+                  y="0"
+                  width="120"
+                  height="70"
+                  fill="#9ca3af"
+                  opacity="0.06"
+                />
+                <rect
+                  x="750"
+                  y="25"
+                  width="90"
+                  height="85"
+                  fill="#9ca3af"
+                  opacity="0.04"
+                />
+                <rect
+                  x="870"
+                  y="5"
+                  width="70"
+                  height="95"
+                  fill="#9ca3af"
+                  opacity="0.05"
+                />
+                <rect
+                  x="970"
+                  y="30"
+                  width="110"
+                  height="65"
+                  fill="#9ca3af"
+                  opacity="0.04"
+                />
+                <rect
+                  x="1100"
+                  y="0"
+                  width="100"
+                  height="80"
+                  fill="#9ca3af"
+                  opacity="0.06"
+                />
 
-            {/* Centered Text */}
-            <div ref={textRef} className="max-w-3xl text-center">
-              <h1 className="text-6xl font-extrabold text-trackaro-text dark:text-on-dark leading-tight tracking-tight">
-                TRAC
-                <span className="relative inline-block">
-                  <span className="text-black">KARO</span>
+                {/* Second row - faded for hero */}
+                <rect
+                  x="20"
+                  y="120"
+                  width="100"
+                  height="70"
+                  fill="#9ca3af"
+                  opacity="0.04"
+                />
+                <rect
+                  x="150"
+                  y="140"
+                  width="80"
+                  height="90"
+                  fill="#9ca3af"
+                  opacity="0.05"
+                />
+                <rect
+                  x="260"
+                  y="120"
+                  width="110"
+                  height="60"
+                  fill="#9ca3af"
+                  opacity="0.04"
+                />
+                <rect
+                  x="400"
+                  y="130"
+                  width="70"
+                  height="80"
+                  fill="#9ca3af"
+                  opacity="0.06"
+                />
+                <rect
+                  x="500"
+                  y="120"
+                  width="90"
+                  height="100"
+                  fill="#9ca3af"
+                  opacity="0.04"
+                />
+                <rect
+                  x="620"
+                  y="140"
+                  width="100"
+                  height="70"
+                  fill="#9ca3af"
+                  opacity="0.05"
+                />
+                <rect
+                  x="750"
+                  y="120"
+                  width="80"
+                  height="90"
+                  fill="#9ca3af"
+                  opacity="0.04"
+                />
+                <rect
+                  x="860"
+                  y="130"
+                  width="110"
+                  height="80"
+                  fill="#9ca3af"
+                  opacity="0.06"
+                />
+                <rect
+                  x="1000"
+                  y="120"
+                  width="90"
+                  height="70"
+                  fill="#9ca3af"
+                  opacity="0.04"
+                />
+
+                {/* Third row - faded for hero */}
+                <rect
+                  x="0"
+                  y="250"
+                  width="90"
+                  height="80"
+                  fill="#9ca3af"
+                  opacity="0.05"
+                />
+                <rect
+                  x="110"
+                  y="270"
+                  width="120"
+                  height="60"
+                  fill="#9ca3af"
+                  opacity="0.04"
+                />
+                <rect
+                  x="260"
+                  y="250"
+                  width="70"
+                  height="100"
+                  fill="#9ca3af"
+                  opacity="0.04"
+                />
+                <rect
+                  x="360"
+                  y="260"
+                  width="100"
+                  height="80"
+                  fill="#9ca3af"
+                  opacity="0.06"
+                />
+                <rect
+                  x="490"
+                  y="250"
+                  width="80"
+                  height="90"
+                  fill="#9ca3af"
+                  opacity="0.05"
+                />
+                <rect
+                  x="600"
+                  y="270"
+                  width="110"
+                  height="70"
+                  fill="#9ca3af"
+                  opacity="0.04"
+                />
+                <rect
+                  x="740"
+                  y="250"
+                  width="90"
+                  height="80"
+                  fill="#9ca3af"
+                  opacity="0.06"
+                />
+                <rect
+                  x="860"
+                  y="260"
+                  width="70"
+                  height="90"
+                  fill="#9ca3af"
+                  opacity="0.04"
+                />
+                <rect
+                  x="960"
+                  y="250"
+                  width="100"
+                  height="100"
+                  fill="#9ca3af"
+                  opacity="0.05"
+                />
+                <rect
+                  x="1090"
+                  y="270"
+                  width="110"
+                  height="60"
+                  fill="#9ca3af"
+                  opacity="0.04"
+                />
+
+                {/* Fourth row - faded for hero */}
+                <rect
+                  x="30"
+                  y="380"
+                  width="100"
+                  height="70"
+                  fill="#9ca3af"
+                  opacity="0.04"
+                />
+                <rect
+                  x="150"
+                  y="400"
+                  width="80"
+                  height="90"
+                  fill="#9ca3af"
+                  opacity="0.05"
+                />
+                <rect
+                  x="260"
+                  y="380"
+                  width="110"
+                  height="60"
+                  fill="#9ca3af"
+                  opacity="0.04"
+                />
+                <rect
+                  x="400"
+                  y="390"
+                  width="70"
+                  height="80"
+                  fill="#9ca3af"
+                  opacity="0.06"
+                />
+                <rect
+                  x="500"
+                  y="380"
+                  width="90"
+                  height="100"
+                  fill="#9ca3af"
+                  opacity="0.04"
+                />
+                <rect
+                  x="620"
+                  y="400"
+                  width="100"
+                  height="70"
+                  fill="#9ca3af"
+                  opacity="0.05"
+                />
+                <rect
+                  x="750"
+                  y="380"
+                  width="80"
+                  height="90"
+                  fill="#9ca3af"
+                  opacity="0.04"
+                />
+                <rect
+                  x="860"
+                  y="390"
+                  width="110"
+                  height="80"
+                  fill="#9ca3af"
+                  opacity="0.06"
+                />
+                <rect
+                  x="1000"
+                  y="380"
+                  width="90"
+                  height="70"
+                  fill="#9ca3af"
+                  opacity="0.04"
+                />
+
+                {/* Fifth row - faded for hero */}
+                <rect
+                  x="0"
+                  y="510"
+                  width="90"
+                  height="80"
+                  fill="#9ca3af"
+                  opacity="0.05"
+                />
+                <rect
+                  x="110"
+                  y="530"
+                  width="120"
+                  height="60"
+                  fill="#9ca3af"
+                  opacity="0.04"
+                />
+                <rect
+                  x="260"
+                  y="510"
+                  width="70"
+                  height="100"
+                  fill="#9ca3af"
+                  opacity="0.04"
+                />
+                <rect
+                  x="360"
+                  y="520"
+                  width="100"
+                  height="80"
+                  fill="#9ca3af"
+                  opacity="0.06"
+                />
+                <rect
+                  x="490"
+                  y="510"
+                  width="80"
+                  height="90"
+                  fill="#9ca3af"
+                  opacity="0.05"
+                />
+                <rect
+                  x="600"
+                  y="530"
+                  width="110"
+                  height="70"
+                  fill="#9ca3af"
+                  opacity="0.04"
+                />
+                <rect
+                  x="740"
+                  y="510"
+                  width="90"
+                  height="80"
+                  fill="#9ca3af"
+                  opacity="0.06"
+                />
+                <rect
+                  x="860"
+                  y="520"
+                  width="70"
+                  height="90"
+                  fill="#9ca3af"
+                  opacity="0.04"
+                />
+                <rect
+                  x="960"
+                  y="510"
+                  width="100"
+                  height="100"
+                  fill="#9ca3af"
+                  opacity="0.05"
+                />
+                <rect
+                  x="1090"
+                  y="530"
+                  width="110"
+                  height="60"
+                  fill="#9ca3af"
+                  opacity="0.04"
+                />
+
+                {/* Sixth row - faded for hero */}
+                <rect
+                  x="20"
+                  y="640"
+                  width="100"
+                  height="70"
+                  fill="#9ca3af"
+                  opacity="0.04"
+                />
+                <rect
+                  x="150"
+                  y="660"
+                  width="80"
+                  height="90"
+                  fill="#9ca3af"
+                  opacity="0.05"
+                />
+                <rect
+                  x="260"
+                  y="640"
+                  width="110"
+                  height="60"
+                  fill="#9ca3af"
+                  opacity="0.04"
+                />
+                <rect
+                  x="400"
+                  y="650"
+                  width="70"
+                  height="80"
+                  fill="#9ca3af"
+                  opacity="0.06"
+                />
+                <rect
+                  x="500"
+                  y="640"
+                  width="90"
+                  height="100"
+                  fill="#9ca3af"
+                  opacity="0.04"
+                />
+                <rect
+                  x="620"
+                  y="660"
+                  width="100"
+                  height="70"
+                  fill="#9ca3af"
+                  opacity="0.05"
+                />
+                <rect
+                  x="750"
+                  y="640"
+                  width="80"
+                  height="90"
+                  fill="#9ca3af"
+                  opacity="0.04"
+                />
+                <rect
+                  x="860"
+                  y="650"
+                  width="110"
+                  height="80"
+                  fill="#9ca3af"
+                  opacity="0.06"
+                />
+                <rect
+                  x="1000"
+                  y="640"
+                  width="90"
+                  height="70"
+                  fill="#9ca3af"
+                  opacity="0.04"
+                />
+              </svg>
+            </div>
+            {/* Centered Content */}
+            <div ref={textRef} className="max-w-4xl mx-auto px-6 text-center">
+              {/* Small italicized heading with bullet */}
+              <div className="mb-6">
+                <span className="text-l italic text-gray-600 dark:text-gray-400 font-medium">
+                  <span className="inline-block w-2 h-2 bg-black dark:bg-white rounded-sm mr-2"></span>
+                  Finance, Made Easy
                 </span>
+              </div>
+
+              {/* Main headline */}
+              <h1
+                className="text-3xl md:text-3xl lg:text-5xl font-bold text-black dark:text-white leading-tight tracking-tight mb-6"
+                style={{ fontFamily: "Inter, sans-serif" }}
+              >
+                The only AI expense tracker built for modern life.
+                <br />
+                <span
+                  className="text-black dark:text-gray-200"
+                  style={{ fontFamily: "Inter, sans-serif" }}
+                ></span>
               </h1>
-              <span className="block mt-2 text-3xl font-semibold text-trackaro-text dark:text-on-dark">
-                Finance Assistant, Reimagined
-              </span>
 
-              <p className="text-xl text-trackaro-accent dark:text-on-dark mt-6 mb-4 font-light">
-                Experience expense tracking through natural conversation — as
-                easy as chatting with a friend.
+              {/* Description paragraph */}
+              <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 leading-relaxed max-w-3xl mx-auto mb-10">
+                An AI-powered expense tracker that learns your habits and simplifies money management.
+Effortless tracking, smart insights, and financial clarity — all in one place.
               </p>
-              <p className="text-base text-trackaro-accent dark:text-on-dark mb-10 opacity-80">
-                Log expenses, split bills, scan receipts, and get intelligent
-                insights — all through a simple chat interface.
-              </p>
-            </div>
 
-            {/* Animated Button */}
-            <div className="flex justify-center z-10 relative mb-8">
-              <Button
-                text="Start Chat"
-                onClick={handleStartChatting}
-                className="font-semibold bg-black shadow-xl"
-                size="large"
-                initiallyExpanded={false}
-                icon={
+              {/* CTA Button */}
+              <div className="flex justify-center">
+                <button
+                  ref={buttonRef}
+                  onClick={handleStartChatting}
+                  className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-8 py-4 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-3"
+                >
+                  Start Chatting
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    width="90"
-                    height="24"
+                    width="20"
+                    height="20"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
@@ -498,36 +1031,28 @@ const LandingPage: React.FC = () => {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   >
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    <path d="M5 12h14M12 5l7 7-7 7" />
                   </svg>
-                }
-              />
-            </div>
+                </button>
+              </div>
 
-            {/* Floating Chat Mockup Below */}
-            <motion.div
-              className="m-15 w-full max-w-2xl mx-auto"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{
-                type: "spring",
-                stiffness: 100,
-                damping: 15,
-                delay: 0.2,
-              }}
-            >
-              <ChatMockup />
-            </motion.div>
+              <div className="mb-15">
+                <MockupPage />
+                {/* Dashboard Screenshot */}
+                
+              </div>
+            </div>
           </section>
 
-          <section id="technology" className="m-0">
+          <section id="technology" className="m-0 bg-black">
             <TechnologyPage />
           </section>
           {/* Features Section */}
           <section
             id="features"
             ref={featuresRef}
-            className="container mx-auto px-6 py-20 "
+            className="container mx-auto px-6 py-20 border-t-2 border-gray-300 dark:border-gray-600"
+            style={{ backgroundColor: "rgb(237, 233, 222)" }}
           >
             <h2 className="text-4xl font-bold text-center text-trackaro-text dark:text-trackaro-text mb-16 relative">
               KEY FEATURES
@@ -725,7 +1250,8 @@ const LandingPage: React.FC = () => {
           <section
             id="dashboard"
             ref={dashboardRef}
-            className="bg-black dark:bg-trackaro-card py-20"
+            className="py-20 border-t-2 border-gray-300 dark:border-gray-600"
+            style={{ backgroundColor: "rgb(237, 233, 222)" }}
           >
             <div className="container mx-auto px-6">
               <h2
@@ -737,285 +1263,33 @@ const LandingPage: React.FC = () => {
               </h2>
 
               <div
-                ref={dashboardCardRef}
-                className="w-full max-w-4xl mx-auto bg-trackaro-bg rounded-lg shadow-xl overflow-hidden border border-trackaro-border"
               >
-                <div className="bg-secondary dark:bg-secondary  text-black dark:text-white p-4 flex justify-between items-center">
-                  <div className="font-semibold">Your Financial Dashboard</div>
-                  <div className="flex space-x-2">
-                    <div className="w-3 h-3 rounded-full bg-black dark:bg-white"></div>
-                    <div className="w-3 h-3 rounded-full bg-black dark:bg-white bg-opacity-70"></div>
-                    <div className="w-3 h-3 rounded-full bg-black dark:bg-white bg-opacity-40"></div>
-                  </div>
+                  <div className="flex justify-center mt-8">
+                  <img
+                    src="/dashboard/dashboard.jpg"
+                    alt="Dashboard Screenshot"
+                    className="max-w-2xl w-full rounded-2xl shadow-lg border border-gray-300"
+                  />
                 </div>
-
-                <div ref={dashboardContentRef} className="p-6">
-                  <div className="flex flex-col md:flex-row gap-6">
-                    <div className="w-full md:w-2/3 bg-trackaro-card p-4 rounded-lg shadow-md">
-                      <h3 className="text-lg font-semibold text-trackaro-text mb-4">
-                        Monthly Spending Trend
-                      </h3>
-                      <div className="h-60 w-full bg-white bg-opacity-5 rounded-md p-3">
-                        {/* Mock Chart */}
-                        <div className="relative h-full w-full flex items-end">
-                          <div className="absolute inset-0 flex flex-col justify-between">
-                            <div className="border-b border-trackaro-border border-opacity-20"></div>
-                            <div className="border-b border-trackaro-border border-opacity-20"></div>
-                            <div className="border-b border-trackaro-border border-opacity-20"></div>
-                            <div className="border-b border-trackaro-border border-opacity-20"></div>
-                            <div className="border-b border-trackaro-border border-opacity-20"></div>
-                          </div>
-                          <div className="bar-chart w-full h-full flex items-end justify-between relative z-10">
-                            <div
-                              data-height="30%"
-                              className="w-8 bg-trackaro-accent rounded-t-sm mx-1"
-                            ></div>
-                            <div
-                              data-height="45%"
-                              className="w-8 bg-trackaro-accent rounded-t-sm mx-1"
-                            ></div>
-                            <div
-                              data-height="60%"
-                              className="w-8 bg-trackaro-accent rounded-t-sm mx-1"
-                            ></div>
-                            <div
-                              data-height="40%"
-                              className="w-8 bg-trackaro-accent rounded-t-sm mx-1"
-                            ></div>
-                            <div
-                              data-height="75%"
-                              className="w-8 bg-trackaro-accent rounded-t-sm mx-1"
-                            ></div>
-                            <div
-                              data-height="55%"
-                              className="w-8 bg-trackaro-accent rounded-t-sm mx-1"
-                            ></div>
-                            <div
-                              data-height="85%"
-                              className="w-8 bg-trackaro-accent rounded-t-sm mx-1"
-                            ></div>
-                          </div>
-                        </div>
-                        <div className="flex justify-between mt-3 text-xs text-trackaro-accent">
-                          <span>Jan</span>
-                          <span>Feb</span>
-                          <span>Mar</span>
-                          <span>Apr</span>
-                          <span>May</span>
-                          <span>Jun</span>
-                          <span>Jul</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="w-full md:w-1/3 flex flex-col gap-4">
-                      <div className="bg-trackaro-card p-4 rounded-lg shadow-md">
-                        <h3 className="text-lg font-semibold text-trackaro-text mb-3">
-                          Expense Breakdown
-                        </h3>
-                        <div className="space-y-3">
-                          <div>
-                            <div className="flex justify-between text-sm">
-                              <span className="text-trackaro-accent">Food</span>
-                              <span className="text-trackaro-accent">35%</span>
-                            </div>
-                            <div className="h-2 w-full bg-gray-200 rounded-full mt-1 progress-bar">
-                              <div
-                                data-width="35%"
-                                className="h-full bg-trackaro-accent rounded-full"
-                              ></div>
-                            </div>
-                          </div>
-                          <div>
-                            <div className="flex justify-between text-sm">
-                              <span className="text-trackaro-accent">
-                                Transportation
-                              </span>
-                              <span className="text-trackaro-accent">25%</span>
-                            </div>
-                            <div className="h-2 w-full bg-gray-200 rounded-full mt-1 progress-bar">
-                              <div
-                                data-width="25%"
-                                className="h-full bg-trackaro-accent rounded-full"
-                              ></div>
-                            </div>
-                          </div>
-                          <div>
-                            <div className="flex justify-between text-sm">
-                              <span className="text-trackaro-accent">
-                                Shopping
-                              </span>
-                              <span className="text-trackaro-accent">20%</span>
-                            </div>
-                            <div className="h-2 w-full bg-gray-200 rounded-full mt-1 progress-bar">
-                              <div
-                                data-width="20%"
-                                className="h-full bg-trackaro-accent rounded-full"
-                              ></div>
-                            </div>
-                          </div>
-                          <div>
-                            <div className="flex justify-between text-sm">
-                              <span className="text-trackaro-accent">
-                                Entertainment
-                              </span>
-                              <span className="text-trackaro-accent">15%</span>
-                            </div>
-                            <div className="h-2 w-full bg-gray-200 rounded-full mt-1 progress-bar">
-                              <div
-                                data-width="15%"
-                                className="h-full bg-trackaro-accent rounded-full"
-                              ></div>
-                            </div>
-                          </div>
-                          <div>
-                            <div className="flex justify-between text-sm">
-                              <span className="text-trackaro-accent">
-                                Other
-                              </span>
-                              <span className="text-trackaro-accent">5%</span>
-                            </div>
-                            <div className="h-2 w-full bg-gray-200 rounded-full mt-1 progress-bar">
-                              <div
-                                data-width="5%"
-                                className="h-full bg-trackaro-accent rounded-full"
-                              ></div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="bg-trackaro-card p-4 rounded-lg shadow-md">
-                        <h3 className="text-lg font-semibold text-trackaro-text mb-2">
-                          Monthly Budget
-                        </h3>
-                        <div className="flex items-center justify-center">
-                          <div className="relative w-28 h-28">
-                            {/* SVG Circle for better animation */}
-                            <svg
-                              className="w-full h-full"
-                              viewBox="0 0 100 100"
-                            >
-                              {/* Background circle */}
-                              <circle
-                                cx="50"
-                                cy="50"
-                                r="45"
-                                fill="transparent"
-                                stroke="#374151"
-                                strokeWidth="4"
-                              />
-                              {/* Animated progress circle */}
-                              <circle
-                                ref={budgetCircleRef}
-                                cx="50"
-                                cy="50"
-                                r="45"
-                                fill="transparent"
-                                stroke="#6366f1"
-                                strokeWidth="4"
-                                strokeDasharray="283"
-                                strokeDashoffset="283"
-                                strokeLinecap="round"
-                                transform="rotate(-90 50 50)"
-                              />
-                              {/* Center text */}
-                              <text
-                                x="50"
-                                y="50"
-                                textAnchor="middle"
-                                dominantBaseline="middle"
-                                fill="#6366f1"
-                                fontSize="18"
-                                fontWeight="bold"
-                                className="text-trackaro-accent"
-                              >
-                                75%
-                              </text>
-                            </svg>
-                          </div>
-                        </div>
-                        <p className="text-center text-xs text-trackaro-accent mt-2">
-                          ₹15,000 / ₹20,000
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mt-6 bg-trackaro-card p-4 rounded-lg shadow-md">
-                    <h3 className="text-lg font-semibold text-trackaro-text mb-3">
-                      Recent Transactions
-                    </h3>
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center p-2 border-b border-trackaro-border border-opacity-20">
-                        <div className="flex items-center">
-                          <div className="w-8 h-8 rounded-full bg-trackaro-accent bg-opacity-20 flex items-center justify-center text-trackaro-accent">
-                            🍽️
-                          </div>
-                          <div className="ml-3">
-                            <div className="text-sm font-medium text-trackaro-text">
-                              Taj Hotel
-                            </div>
-                            <div className="text-xs text-trackaro-accent">
-                              Yesterday
-                            </div>
-                          </div>
-                        </div>
-                        <div className="text-sm font-medium text-trackaro-text">
-                          -₹1,200
-                        </div>
-                      </div>
-                      <div className="flex justify-between items-center p-2 border-b border-trackaro-border border-opacity-20">
-                        <div className="flex items-center">
-                          <div className="w-8 h-8 rounded-full bg-trackaro-accent bg-opacity-20 flex items-center justify-center text-trackaro-accent">
-                            🚗
-                          </div>
-                          <div className="ml-3">
-                            <div className="text-sm font-medium text-trackaro-text">
-                              Uber
-                            </div>
-                            <div className="text-xs text-trackaro-accent">
-                              Today
-                            </div>
-                          </div>
-                        </div>
-                        <div className="text-sm font-medium text-trackaro-text">
-                          -₹500
-                        </div>
-                      </div>
-                      <div className="flex justify-between items-center p-2">
-                        <div className="flex items-center">
-                          <div className="w-8 h-8 rounded-full bg-trackaro-accent bg-opacity-20 flex items-center justify-center text-trackaro-accent">
-                            🍕
-                          </div>
-                          <div className="ml-3">
-                            <div className="text-sm font-medium text-trackaro-text">
-                              Italian Bistro
-                            </div>
-                            <div className="text-xs text-trackaro-accent">
-                              June 2
-                            </div>
-                          </div>
-                        </div>
-                        <div className="text-sm font-medium text-trackaro-text">
-                          -₹850
-                        </div>
-                      </div>
-                    </div>
-                  </div>
                 </div>
-              </div>
             </div>
           </section>
 
           {/* Final Call to Action */}
 
-          <div id="teams" className="bg-trackaro-card py-10">
+          <div
+            id="teams"
+            className="py-10 border-t-2 border-gray-300 dark:border-gray-600"
+            style={{ backgroundColor: "rgb(237, 233, 222)" }}
+          >
             <Teams />
           </div>
 
           {/* Footer */}
-          <footer className="bg-black dark:bg-gray-900 py-4 border-t border-gray-800 dark:border-gray-700">
+          <footer
+            className="py-4 border-t border-gray-800 dark:border-gray-700"
+            style={{ backgroundColor: "rgb(237, 233, 222)" }}
+          >
             <div className="container mx-auto px-6 text-center">
               <p className="text-gray-400 dark:text-gray-500 text-sm">
                 © 2024 Copyright Reserved - Team Pie-Rates
