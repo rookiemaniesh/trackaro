@@ -18,6 +18,9 @@ const poppins = Poppins({
 export const metadata: Metadata = {
   title: "TracKARO - Finance Assistant",
   description: "Conversational Finance Assistant",
+  icons: {
+    icon: "/favicon.jpg",
+  },
 };
 
 export const viewport: Viewport = {

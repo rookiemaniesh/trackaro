@@ -6,10 +6,7 @@ const { generateToken } = require('../utils/jwt');
 const router = express.Router();
 const prisma = new PrismaClient();
 
-/**
- * Register new user with email and password
- * POST /api/auth/register
- */
+
 router.post('/register', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -29,7 +26,7 @@ router.post('/register', async (req, res) => {
       });
     }
 
-    // Check if user already exists
+  
     const existingUser = await prisma.user.findUnique({
       where: { email: email.toLowerCase() }
     });
@@ -41,11 +38,11 @@ router.post('/register', async (req, res) => {
       });
     }
 
-    // Hash password
+    
     const saltRounds = 12;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    // Create user
+   
     const user = await prisma.user.create({
       data: {
         email: email.toLowerCase(),
@@ -59,7 +56,6 @@ router.post('/register', async (req, res) => {
       }
     });
 
-    // Generate JWT token
     const token = generateToken(user);
 
     res.status(201).json({
@@ -80,15 +76,12 @@ router.post('/register', async (req, res) => {
   }
 });
 
-/**
- * Login user with email and password
- * POST /api/auth/login
- */
+
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Validation
+   
     if (!email || !password) {
       return res.status(400).json({
         success: false,
@@ -96,7 +89,7 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // Find user
+    
     const user = await prisma.user.findUnique({
       where: { email: email.toLowerCase() }
     });
@@ -108,7 +101,7 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // Check if user has a password (not Google-only user)
+   
     if (!user.password) {
       return res.status(401).json({
         success: false,
@@ -126,10 +119,10 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // Generate JWT token
+    
     const token = generateToken(user);
 
-    // Return user data (excluding password)
+    
     const { password: _, ...userWithoutPassword } = user;
 
     res.json({

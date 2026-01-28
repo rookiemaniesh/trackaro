@@ -150,7 +150,6 @@ const handleIncomingMessage = async ({ user_id, content, source, extMessageId, e
  */
 const handleExpenseResponse = async ({ user_id, aiData, source, extMessageId, extChatId }) => {
   try {
-    console.log('💰 Processing expense response from AI');
     console.log('📊 Expense AI Data:', JSON.stringify(aiData, null, 2));
     
     const expenseData = aiData.data;
@@ -191,7 +190,7 @@ const handleExpenseResponse = async ({ user_id, aiData, source, extMessageId, ex
       }
     });
     
-    console.log('✅ Expense saved to database:', JSON.stringify(expense, null, 2));
+    console.log('Expense saved to database:', JSON.stringify(expense, null, 2));
 
     // Save AI response message with expense reference
     const aiMessage = await prisma.message.create({
@@ -212,7 +211,7 @@ const handleExpenseResponse = async ({ user_id, aiData, source, extMessageId, ex
     };
 
   } catch (error) {
-    console.error('❌ Error handling expense response:', error);
+    console.error('Error handling expense response:', error);
     throw error;
   }
 };
@@ -224,19 +223,19 @@ const handleExpenseResponse = async ({ user_id, aiData, source, extMessageId, ex
  */
 const handleQueryResponse = async ({ user_id, aiData, source, extMessageId, extChatId }) => {
   try {
-    console.log(`❓ Processing query response`);
-    console.log('📊 Query AI Data:', JSON.stringify(aiData, null, 2));
+    console.log(`Processing query response`);
+    console.log('Query AI Data:', JSON.stringify(aiData, null, 2));
 
     // Extract message from Railway AI model response format
     let responseMessage = aiData.message;
     if (aiData.message && aiData.message.output) {
       responseMessage = aiData.message.output;
-      console.log('💬 Using nested message.output:', responseMessage);
+      console.log('Using nested message.output:', responseMessage);
     } else {
-      console.log('💬 Using direct message:', responseMessage);
+      console.log('Using direct message:', responseMessage);
     }
     
-    console.log('📝 Final query response message:', responseMessage);
+    console.log('Final query response message:', responseMessage);
 
     // Save AI response message
     const aiMessage = await prisma.message.create({
@@ -256,7 +255,7 @@ const handleQueryResponse = async ({ user_id, aiData, source, extMessageId, extC
     };
 
   } catch (error) {
-    console.error('❌ Error handling query response:', error);
+    console.error('Error handling query response:', error);
     throw error;
   }
 };
@@ -276,7 +275,7 @@ const clearConversationState = async (user_id) => {
 
     return true;
   } catch (error) {
-    console.error('❌ Error clearing conversation state:', error);
+    console.error('Error clearing conversation state:', error);
     return false;
   }
 };

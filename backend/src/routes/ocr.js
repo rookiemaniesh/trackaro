@@ -76,14 +76,14 @@ router.post('/process-receipt', upload.single('file'), async (req, res) => {
 
     // Call OCR API
     const ocrResponse = await axios.post(
-      'https://ocrdataparser-production.up.railway.app/process-receipt/',
+      process.env.OCR_API_URL,
       formData,
       {
         headers: {
           ...formData.getHeaders(),
           'accept': 'application/json'
         },
-        timeout: 30000 // 30 second timeout
+        timeout: 30000 
       }
     );
 

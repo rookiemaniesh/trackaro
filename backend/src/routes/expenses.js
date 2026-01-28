@@ -1,4 +1,4 @@
-const express = require('express');
+import express from 'express';
 const { PrismaClient } = require('../../generated/prisma');
 
 const router = express.Router();

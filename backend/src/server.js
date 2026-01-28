@@ -1,4 +1,5 @@
-const express = require('express');
+import express from 'express';
+import { aiMessageLimiter, generalLimiter, ocrLimiter } from './middleware/rateLimiter';
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
@@ -6,7 +7,7 @@ const session = require('express-session');
 const passport = require('passport');
 require('dotenv').config();
 
-// Import routes
+
 const authLocalRoutes = require('./routes/auth.local');
 const authGoogleRoutes = require('./routes/auth.google');
 const authTelegramRoutes = require('./routes/auth.telegram');
@@ -14,28 +15,26 @@ const telegramWebhookRoutes = require('./routes/telegram.webhook');
 const messagesRoutes = require('./routes/messages');
 const expensesRoutes = require('./routes/expenses');
 const ocrRoutes = require('./routes/ocr');
-const recommendationsRoutes = require('./routes/recommendations');
+const jobRoutes=require('./routes/jobs')
 
-// Import middleware
 const { authenticate } = require('./middleware/auth');
 
 const app = express();
+app.set('trust proxy', 1);
 const PORT = process.env.PORT || 5000;
 
-// Security middleware
+//Helmet is an Express middleware that secures HTTP response headers to reduce common browser-based attacks.
 app.use(helmet());
 
-// CORS configuration
+
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     
     const allowedOrigins = [
       process.env.FRONTEND_URL || 'http://localhost:3000',
       'http://localhost:3000',
       'http://127.0.0.1:3000',
-      // Allow any localhost with different ports for mobile testing
       /^http:\/\/localhost:\d+$/,
       /^http:\/\/127\.0\.0\.1:\d+$/,
       /^http:\/\/192\.168\.\d+\.\d+:\d+$/, // Allow local network IPs for mobile testing
@@ -60,12 +59,12 @@ const corsOptions = {
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  optionsSuccessStatus: 200 // Some legacy browsers (IE11, various SmartTVs) choke on 204
+  optionsSuccessStatus: 200 
 };
 
 app.use(cors(corsOptions));
 
-// Body parsing middleware
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
@@ -98,28 +97,27 @@ app.get('/health', (req, res) => {
     userAgent: req.headers['user-agent']
   });
 });
-
-// Authentication routes
+app.use('/api',generalLimiter);
 app.use('/api/auth/local', authLocalRoutes);
 app.use('/api/auth/google', authGoogleRoutes);
 app.use('/api/auth/telegram', authenticate, authTelegramRoutes);
 
-// Telegram webhook routes
+
 app.use('/api/telegram', telegramWebhookRoutes);
 
-// Messages routes (web UI)
-app.use('/api/messages', authenticate, messagesRoutes);
 
-// Expenses routes
+app.use('/api/messages', authenticate, aiMessageLimiter, messagesRoutes);
+
+
 app.use('/api/expenses', authenticate, expensesRoutes);
 
-// Recommendations routes
-app.use('/api/recommendations', authenticate, recommendationsRoutes);
 
-// OCR routes
-app.use('/api/ocr', authenticate, ocrRoutes);
+app.use('/api/ocr', authenticate,ocrLimiter, ocrRoutes);
 
-// Protected route example
+
+app.use('/api/jobs',authenticate,jobRoutes)
+
+
 app.get('/api/profile', authenticate, (req, res) => {
   console.log('Profile endpoint - User:', req.user);
   res.json({
@@ -131,7 +129,7 @@ app.get('/api/profile', authenticate, (req, res) => {
   });
 });
 
-// Update profile endpoint
+
 app.put('/api/profile', authenticate, async (req, res) => {
   try {
     const { PrismaClient } = require('./generated/prisma');
@@ -172,7 +170,7 @@ app.put('/api/profile', authenticate, async (req, res) => {
   }
 });
 
-// Logout endpoint
+
 app.post('/api/auth/logout', (req, res) => {
   // Since we're using JWT, logout is handled on the client side
   // by removing the token from storage
@@ -182,7 +180,7 @@ app.post('/api/auth/logout', (req, res) => {
   });
 });
 
-// Error handling middleware
+//This setup provides centralized error handling and a fallback 404 response to keep the API stable and secure.
 app.use((err, req, res, next) => {
   console.error('Error:', err);
   
@@ -205,11 +203,6 @@ app.use((req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📱 Health check: http://localhost:${PORT}/health`);
-  console.log(`🔐 Auth endpoints:`);
-  console.log(`   - Local: http://localhost:${PORT}/api/auth/local`);
-  console.log(`   - Google: http://localhost:${PORT}/api/auth/google`);
-  console.log(`   - Telegram: http://localhost:${PORT}/api/auth/telegram`);
-  console.log(`📱 Telegram webhook: http://localhost:${PORT}/api/telegram/webhook`);
 });
 
 module.exports = app;

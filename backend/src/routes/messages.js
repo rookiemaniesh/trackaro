@@ -1,6 +1,6 @@
 const express = require('express');
 const { PrismaClient } = require('../../generated/prisma');
-const { handleIncomingMessage } = require('../services/messageHandler');
+const { aiQueue } = require('../services/queue');
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -9,6 +9,7 @@ const prisma = new PrismaClient();
  * Send message endpoint for web UI
  * POST /api/messages
  * Requires JWT authentication
+ * Returns jobId for async processing - frontend should poll /api/jobs/:jobId
  */
 router.post('/', async (req, res) => {
   try {
@@ -30,23 +31,31 @@ router.post('/', async (req, res) => {
       });
     }
 
-    // Process as regular message (no more payment method checks)
-    const result = await handleIncomingMessage({
+    // Save user message immediately
+    const userMessage = await prisma.message.create({
+      data: {
+        user_id,
+        content: content.trim(),
+        source: 'web',
+        sender: 'user'
+      }
+    });
+
+    // Add job to queue for async processing
+    const job = await aiQueue.add('process-message', {
       user_id,
       content: content.trim(),
       source: 'web',
-      extMessageId: null,
-      extChatId: null
+      userMessageId: userMessage.id
     });
 
-    // Return response
-    res.json({
-      success: result.success,
-      message: result.message,
+    // Return 202 Accepted with jobId for polling
+    res.status(202).json({
+      success: true,
+      message: 'Processing started',
       data: {
-        messageId: result.messageId,
-        expenseId: result.expenseId || null,
-        queryData: result.queryData || null
+        jobId: job.id,
+        userMessageId: userMessage.id
       }
     });
 
@@ -58,6 +67,7 @@ router.post('/', async (req, res) => {
     });
   }
 });
+
 
 /**
  * Get conversation history for user
@@ -156,7 +166,7 @@ router.delete('/state', async (req, res) => {
   try {
     const user_id = req.user.id;
     const { clearConversationState } = require('../services/messageHandler');
-    
+
     const success = await clearConversationState(user_id);
 
     res.json({

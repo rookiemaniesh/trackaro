@@ -12,7 +12,6 @@ async function setupTelegram() {
     // Check if bot token is configured
     if (!process.env.TELEGRAM_BOT_TOKEN) {
       console.error('❌ TELEGRAM_BOT_TOKEN is not configured in .env file');
-      console.log('Please add your bot token to the .env file:');
       console.log('TELEGRAM_BOT_TOKEN="your-bot-token-here"');
       return;
     }

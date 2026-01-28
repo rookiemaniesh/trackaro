@@ -3,10 +3,7 @@ const { verifyToken, extractTokenFromHeader } = require('../utils/jwt');
 
 const prisma = new PrismaClient();
 
-/**
- * Authentication middleware
- * Verifies JWT token and attaches user to request object
- */
+
 const authenticate = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
