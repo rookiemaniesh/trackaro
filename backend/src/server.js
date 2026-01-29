@@ -1,5 +1,5 @@
-import express from 'express';
-import { aiMessageLimiter, generalLimiter, ocrLimiter } from './middleware/rateLimiter';
+const express=require('express')
+const { aiMessageLimiter, generalLimiter, ocrLimiter } =require('./middleware/rateLimiter');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
