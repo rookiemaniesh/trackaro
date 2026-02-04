@@ -1,4 +1,3 @@
-"use client";
 
 import { useRef, useEffect, useState } from "react";
 import {
@@ -36,7 +35,8 @@ const TechCard: React.FC<TechCardProps> = ({ icon, name, color, index }) => {
       <div className="w-4 h-4 flex items-center justify-center transition-transform group-hover:scale-110">
         {icon}
       </div>
-      <span className="text-base font-light whitespace-nowrap text-white/90 group-hover:font-normal transition-all">
+      <span className=" font-medium whitespace-nowrap text-black/90 group-hover:font-normal transition-all"
+      style={{ fontFamily: "Inter, sans-serif" }}>
         {name}
       </span>
     </div>
@@ -101,9 +101,7 @@ const InfiniteMovingCards = ({ techItems }: { techItems: TechItem[] }) => {
 };
 
 export default function TechnologyPage() {
-  const headingRef = useRef<HTMLHeadingElement>(null);
   const subHeadingRef = useRef<HTMLParagraphElement>(null);
-  const cursorRef = useRef<HTMLSpanElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -111,18 +109,9 @@ export default function TechnologyPage() {
     const tl = gsap.timeline();
 
     // Set initial states
-    gsap.set([headingRef.current, subHeadingRef.current], {
+    gsap.set(subHeadingRef.current, {
       opacity: 0,
       y: 20
-    });
-
-    // Animate heading entrance
-    tl.to(headingRef.current, {
-      opacity: 1,
-      y: 0,
-      duration: 0.8,
-      ease: "power2.out",
-      delay: 0.5,
     });
 
     // Animate sub-heading entrance
@@ -133,16 +122,9 @@ export default function TechnologyPage() {
         y: 0,
         duration: 0.8,
         ease: "power2.out",
-      },
-      "-=0.4"
+        delay: 0.5,
+      }
     );
-
-    // Hide cursor after animation
-    tl.to(cursorRef.current, {
-      opacity: 0,
-      duration: 0.5,
-      delay: 1,
-    });
 
     // Reveal the moving cards with a nice fade-in
     tl.fromTo(
@@ -152,15 +134,6 @@ export default function TechnologyPage() {
       "-=0.5"
     );
 
-    // Cursor blinking animation (independent of timeline)
-    gsap.to(cursorRef.current, {
-      opacity: 0,
-      ease: "power2.inOut",
-      repeat: 7, // Blink a few times then stop (timeline will handle hiding it)
-      yoyo: true,
-      duration: 0.5,
-    });
-
     // Cleanup
     return () => {
       tl.kill();
@@ -169,20 +142,6 @@ export default function TechnologyPage() {
 
   // Define technology items with their icons
   const techItems = [
-    {
-      name: "React",
-      color: "blue-400",
-      icon: (
-        <svg
-          viewBox="0 0 24 24"
-          fill="#61DAFB" // React blue color
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-full h-full"
-        >
-          <path d="M12 10.11c1.03 0 1.87.84 1.87 1.89 0 1-.84 1.85-1.87 1.85-1.03 0-1.87-.85-1.87-1.85 0-1.05.84-1.89 1.87-1.89M7.37 20c.63.38 2.01-.2 3.6-1.7-.52-.59-1.03-1.23-1.51-1.9-.82-.08-1.63-.2-2.4-.36-.51 2.14-.32 3.61.31 3.96m.71-5.74l-.29-.51c-.11.29-.22.58-.29.86.27.06.57.11.88.16l-.3-.51m6.54-.76l.81-1.5-.81-1.5c-.3-.53-.62-1-.91-1.47C13.17 9 12.6 9 12 9c-.6 0-1.17 0-1.71.03-.29.47-.61.94-.91 1.47L8.57 12l.81 1.5c.3.53.62 1 .91 1.47.54.03 1.11.03 1.71.03.6 0 1.17 0 1.71-.03.29-.47.61-.94.91-1.47M12 6.78c-.19.22-.39.45-.59.72h1.18c-.2-.27-.4-.5-.59-.72m0 10.44c.19-.22.39-.45.59-.72h-1.18c.2.27.4.5.59.72M16.62 4c-.62-.38-2 .2-3.59 1.7.52.59 1.03 1.23 1.51 1.9.82.08 1.63.2 2.4.36.51-2.14.32-3.61-.32-3.96m-.7 5.74l.29.51c.11-.29.22-.58.29-.86-.27-.06-.57-.11-.88-.16l.3.51m1.45-7.05c1.47.84 1.63 3.05 1.01 5.63 2.54.75 4.37 1.99 4.37 3.68 0 1.69-1.83 2.93-4.37 3.68.62 2.58.46 4.79-1.01 5.63-1.46.84-3.45-.12-5.37-1.95-1.92 1.83-3.91 2.79-5.38 1.95-1.46-.84-1.62-3.05-1-5.63-2.54-.75-4.37-1.99-4.37-3.68 0-1.69 1.83-2.93 4.37-3.68-.62-2.58-.46-4.79 1-5.63 1.47-.84 3.46.12 5.38 1.95 1.92-1.83 3.91-2.79 5.37-1.95M17.08 12c.34.75.64 1.5.89 2.26 2.1-.63 3.28-1.53 3.28-2.26 0-.73-1.18-1.63-3.28-2.26-.25.76-.55 1.51-.89 2.26M6.92 12c-.34-.75-.64-1.5-.89-2.26-2.1.63-3.28 1.53-3.28 2.26 0 .73 1.18 1.63 3.28 2.26.25-.76.55-1.51.89-2.26m9 2.26l-.3.51c.31-.05.61-.1.88-.16-.07-.28-.18-.57-.29-.86l-.29.51m-2.89 4.04c1.59 1.5 2.97 2.08 3.59 1.7.64-.35.83-1.82.32-3.96-.77.16-1.58.28-2.4.36-.48.67-.99 1.31-1.51 1.9M8.08 9.74l.3-.51c-.31.05-.61.1-.88.16.07.28.18.57.29.86l.29-.51m2.89-4.04C9.38 4.2 8 3.62 7.37 4c-.63.36-.82 1.82-.31 3.96a22.7 22.7 0 002.4-.36c.48-.67.99-1.31 1.51-1.9z" />
-        </svg>
-      ),
-    },
     {
       name: "Next.js",
       color: "gray-800 dark:white",
@@ -286,26 +245,16 @@ export default function TechnologyPage() {
   return (
     <>
       {/* Technology Stack Section */}
-      <div className="bg-black py-16">
-        <div className="flex flex-col text-white mt-4 mb-5 w-full max-w-6xl mx-auto px-6">
+      <div
+        style={{ backgroundColor: "rgb(250, 247, 240)" }}>
+        <div className="flex flex-col text-black mt-4 mb-5 w-full max-w-6xl mx-auto px-6">
           <div className="text-center mb-8">
-            <div className="flex items-center justify-center mb-4">
-              <h2
-                ref={headingRef}
-                className="text-3xl md:text-4xl font-bold text-white inline"
-              >
-                Powered by Modern Technology
-              </h2>
-              <span
-                ref={cursorRef}
-                className="text-3xl md:text-4xl font-bold text-white h-8 w-[3px] bg-white inline-block ml-1 animate-pulse"
-              ></span>
-            </div>
+
             <p
               ref={subHeadingRef}
               className="text-gray-300 text-lg md:text-xl max-w-2xl mx-auto"
             >
-              Built with cutting-edge tools for a seamless experience
+              Built with
             </p>
           </div>
 

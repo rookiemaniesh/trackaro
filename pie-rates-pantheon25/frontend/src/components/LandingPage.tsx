@@ -1,6 +1,4 @@
-﻿"use client";
-
-import React, { useState, useEffect, useRef, useCallback } from "react";
+﻿import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
@@ -477,7 +475,7 @@ const LandingPage: React.FC = () => {
   // We already have this defined above, so removing the duplicate
 
   return (
-    <div className="min-h-screen bg-trackaro-bg dark:bg-trackaro-bg">
+    <div className="min-h-screen bg-trackaro-bg ">
       {isLoading ? (
         // Loading skeleton
         <div className="container mx-auto px-6 py-24">
@@ -495,7 +493,7 @@ const LandingPage: React.FC = () => {
           <section
             id="hero"
             ref={heroRef}
-            className="relative min-h-screen flex flex-col items-center justify-start pt-15 dark:from-gray-900 dark:to-gray-800 overflow-hidden rounded-b-3xl border-t-2 border-gray-300 dark:border-gray-600"
+            className="relative  flex flex-col items-center justify-start pt-15 dark:from-gray-900 dark:to-gray-800 overflow-hidden rounded-b-3xl border-t-2 border-gray-300 dark:border-gray-600"
             style={{ backgroundColor: "rgb(250, 247, 240)" }}
           >
             {/* Block Pattern Background */}
@@ -1032,7 +1030,7 @@ Effortless tracking, smart insights, and financial clarity — all in one place.
             </div>
           </section>
 
-          <section id="technology" className="m-0 bg-black">
+          <section id="technology" >
             <TechnologyPage />
           </section>
           {/* Features Section */}
@@ -1234,34 +1232,7 @@ Effortless tracking, smart insights, and financial clarity — all in one place.
             </motion.div>
           </section>
 
-          {/* Dashboard Preview Section */}
-          <section
-            id="dashboard"
-            ref={dashboardRef}
-            className="py-20 border-t-2 border-gray-300 dark:border-gray-600"
-            style={{ backgroundColor: "rgb(237, 233, 222)" }}
-          >
-            <div className="container mx-auto px-6">
-              <h2
-                ref={dashboardHeaderRef}
-                className="text-3xl font-bold text-center text-trackaro-text dark:text-trackaro-text mb-16 relative"
-              >
-                INTERACTIVE DASHBOARDS
-                <span className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-20 h-1 bg-trackaro-accent rounded-full"></span>
-              </h2>
-
-              <div
-              >
-                  <div className="flex justify-center mt-8">
-                  <img
-                    src="/dashboard/dashboard.jpg"
-                    alt="Dashboard Screenshot"
-                    className="max-w-2xl w-full rounded-2xl shadow-lg border border-gray-300"
-                  />
-                </div>
-                </div>
-            </div>
-          </section>
+         
 
           
 
