@@ -279,7 +279,7 @@ export default function ChatSidebar({
               <motion.a
                 href="/profile"
                 onClick={(e) => handleNavigation(e, "/profile")}
-                className="p-3 rounded-lg backdrop-blur-sm bg-trackaro-card/30 border border-trackaro-border/30 shadow-sm hover:bg-trackaro-accent/10 dark:hover:bg-trackaro-accent/10 transition-colors cursor-pointer block"
+                className=" rounded-lg backdrop-blur-sm bg-trackaro-card/30 border border-trackaro-border/30 shadow-sm hover:bg-trackaro-accent/10 dark:hover:bg-trackaro-accent/10 transition-colors cursor-pointer block"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
@@ -307,9 +307,6 @@ export default function ChatSidebar({
                       <>
                         <p className="text-sm font-medium text-trackaro-text dark:text-trackaro-text truncate">
                           {user?.name || "User"}
-                        </p>
-                        <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">
-                          {user?.email || "user@example.com"}
                         </p>
                       </>
                     )}

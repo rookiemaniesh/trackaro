@@ -1,8 +1,8 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import { useTheme } from "./ThemeProvider";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import Image from "next/image";
 
 // Icons from lucide-react, commonly used with shadcn/ui
 const MenuIcon = ({ className }: { className?: string }) => (
@@ -114,53 +114,12 @@ const MountainIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const SunIcon = ({ className }: { className?: string }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="20"
-    height="20"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-  >
-    <circle cx="12" cy="12" r="4" />
-    <path d="M12 2v2" />
-    <path d="M12 20v2" />
-    <path d="m4.93 4.93 1.41 1.41" />
-    <path d="m17.66 17.66 1.41 1.41" />
-    <path d="M2 12h2" />
-    <path d="M20 12h2" />
-    <path d="m6.34 17.66-1.41 1.41" />
-    <path d="m19.07 4.93-1.41 1.41" />
-  </svg>
-);
 
-const MoonIcon = ({ className }: { className?: string }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="20"
-    height="20"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-  >
-    <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
-  </svg>
-);
 
 const Navbar = () => {
   // State to manage the visibility of the mobile menu
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const { theme, setTheme } = useTheme();
   const pathname = usePathname();
   const router = useRouter();
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -234,12 +193,16 @@ const Navbar = () => {
             <a
               href="/"
               onClick={(e) => handleNavigation(e, "/")}
-              className="flex items-center gap-2 transition-all duration-300 hover:opacity-80 group"
+              className="transition-all duration-300 hover:opacity-80"
             >
-              <MountainIcon className="h-6 w-6 text-trackaro-text dark:text-trackaro-text transform group-hover:rotate-12 transition-transform duration-300" />
-              <span className="text-lg font-semibold text-trackaro-text dark:text-on-dark group-hover:text-trackaro-accent transition-colors duration-300">
-                TRACKARO
-              </span>
+              <Image
+                src="/logo-1.png"
+                alt="Trackaro"
+                width={120}
+                height={20}
+                className="h-10 w-auto"
+                priority
+              />
             </a>
           </div>
 

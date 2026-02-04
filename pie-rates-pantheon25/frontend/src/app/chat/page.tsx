@@ -2,19 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import ChatBox from "../../components/ChatBox";
 import GlassChatBox from "./GlassChatBox";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
 import { useApi } from "@/app/utils/api";
 import ChatSidebar from "@/components/ChatSidebar";
-
-// Icons
-
-
-
-
-
 
 const TelegramIcon = ({ className }: { className?: string }) => (
   <svg

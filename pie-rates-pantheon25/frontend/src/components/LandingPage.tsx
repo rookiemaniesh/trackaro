@@ -6,21 +6,13 @@ import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import MockupPage from "@/app/mockup/page";
+
 
 // Loading fallback component
 const LoadingSkeleton = () => (
   <div className="w-full h-20 bg-gray-200 dark:bg-gray-800 animate-pulse rounded-lg"></div>
 );
 
-// Import components with dynamic loading for better performance
-const Teams = dynamic(
-  () => import("./Teams").then((mod) => ({ default: mod.Teams })),
-  {
-    ssr: false,
-    loading: () => <LoadingSkeleton />,
-  }
-);
 
 const TechnologyPage = dynamic(() => import("./TechnologyPage"), {
   ssr: false,
@@ -1036,11 +1028,7 @@ Effortless tracking, smart insights, and financial clarity — all in one place.
                 </button>
               </div>
 
-              <div className="mb-15">
-                <MockupPage />
-                {/* Dashboard Screenshot */}
-                
-              </div>
+             
             </div>
           </section>
 
@@ -1275,15 +1263,7 @@ Effortless tracking, smart insights, and financial clarity — all in one place.
             </div>
           </section>
 
-          {/* Final Call to Action */}
-
-          <div
-            id="teams"
-            className="py-10 border-t-2 border-gray-300 dark:border-gray-600"
-            style={{ backgroundColor: "rgb(237, 233, 222)" }}
-          >
-            <Teams />
-          </div>
+          
 
           {/* Footer */}
           <footer
