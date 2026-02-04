@@ -493,7 +493,7 @@ const LandingPage: React.FC = () => {
           <section
             id="hero"
             ref={heroRef}
-            className="relative  flex flex-col items-center justify-start pt-15 dark:from-gray-900 dark:to-gray-800 overflow-hidden rounded-b-3xl border-t-2 border-gray-300 dark:border-gray-600"
+            className="relative min-h-screen  flex flex-col items-center justify-start pt-15 pb-10 dark:from-gray-900 dark:to-gray-800 overflow-hidden rounded-b-3xl border-t-2 border-gray-300 dark:border-gray-600"
             style={{ backgroundColor: "rgb(250, 247, 240)" }}
           >
             {/* Block Pattern Background */}
@@ -1028,11 +1028,12 @@ Effortless tracking, smart insights, and financial clarity — all in one place.
 
              
             </div>
-          </section>
-
-          <section id="technology" >
+             <section id="technology" >
             <TechnologyPage />
           </section>
+          </section>
+
+         
           {/* Features Section */}
           <section
             id="features"

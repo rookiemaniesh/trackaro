@@ -29,14 +29,14 @@ interface TechCardProps {
   index: number;
 }
 
-const TechCard: React.FC<TechCardProps> = ({ icon, name, color, index }) => {
+const TechCard: React.FC<TechCardProps> = ({ icon, name }) => {
   return (
-    <div className="flex gap-2 items-center py-1 px-2 rounded-lg border-gray-600/20 transition-all group">
-      <div className="w-4 h-4 flex items-center justify-center transition-transform group-hover:scale-110">
+    <div className="flex gap-4 items-center py-1 px-2 rounded-lg border-gray-600/20 transition-all group">
+      <div className="w-6 h-6 flex items-center justify-center transition-transform group-hover:scale-110">
         {icon}
       </div>
-      <span className=" font-medium whitespace-nowrap text-black/90 group-hover:font-normal transition-all"
-      style={{ fontFamily: "Inter, sans-serif" }}>
+      <span className="text-lg font-medium whitespace-nowrap text-black/90 group-hover:font-normal transition-all"
+        style={{ fontFamily: "Inter, sans-serif" }}>
         {name}
       </span>
     </div>
@@ -247,12 +247,12 @@ export default function TechnologyPage() {
       {/* Technology Stack Section */}
       <div
         style={{ backgroundColor: "rgb(250, 247, 240)" }}>
-        <div className="flex flex-col text-black mt-4 mb-5 w-full max-w-6xl mx-auto px-6">
+        <div className="flex flex-col text-black w-full max-w-6xl mx-auto px-6">
           <div className="text-center mb-8">
 
             <p
               ref={subHeadingRef}
-              className="text-gray-300 text-lg md:text-xl max-w-2xl mx-auto"
+              className="text-gray-300 text-xl md:text-xl max-w-2xl mx-auto"
             >
               Built with
             </p>
