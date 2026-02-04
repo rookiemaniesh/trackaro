@@ -187,7 +187,7 @@ const Navbar = () => {
   return (
     <header className="bg-trackaro-bg/80 dark:bg-trackaro-bg/80 backdrop-blur-sm sticky top-0 z-50 w-full" style={{ backgroundColor: 'rgb(250, 247, 240)' }}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-14">
           {/* Logo Section */}
           <div className="flex-shrink-0">
             <a
@@ -200,20 +200,20 @@ const Navbar = () => {
                 alt="Trackaro"
                 width={120}
                 height={20}
-                className="h-10 w-auto"
+                className="h-7 w-auto"
                 priority
               />
             </a>
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-6">
+          <nav className="hidden md:flex items-center gap-13">
             {navLinks.map((link) => (
               <a
                 key={link.label}
                 href={link.href}
                 onClick={(e) => handleNavigation(e, link.href)}
-                className="nav-link text-sm font-medium text-trackaro-accent dark:text-on-dark hover:text-trackaro-text dark:hover:text-on-dark transition-all duration-300 relative py-1 after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-trackaro-accent after:transition-all after:duration-300 hover:after:w-full"
+                className="nav-link text-base font-bold text-trackaro-accent dark:text-on-dark hover:text-trackaro-text dark:hover:text-on-dark transition-all duration-300 relative py-1 after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-trackaro-accent after:transition-all after:duration-300 hover:after:w-full"
               >
                 {link.label}
               </a>
@@ -227,20 +227,18 @@ const Navbar = () => {
                 <a
                   href="/auth/login"
                   onClick={(e) => handleNavigation(e, "/auth/login")}
-                  className="hidden sm:inline-flex items-center justify-center rounded-md text-sm font-medium h-10 px-4 py-2 border border-trackaro-accent bg-primary  text-white dark:bg-white dark:text-black hover:bg-trackaro-accent hover:text-white dark:hover:bg-trackaro-accent dark:hover:text-black transition-all duration-300 transform hover:scale-105"
+                  className="hidden sm:inline-flex items-center justify-center rounded-md text-sm font-medium h-9 px-4 py-2 border border-trackaro-accent bg-primary  text-white dark:bg-white dark:text-black hover:bg-trackaro-accent hover:text-white dark:hover:bg-trackaro-accent dark:hover:text-black transition-all duration-300 transform hover:scale-105"
                 >
                   <span>Log In</span>
                 </a>
                 <a
                   href="/auth/signup"
                   onClick={(e) => handleNavigation(e, "/auth/signup")}
-                  className="hidden sm:inline-flex items-center justify-center rounded-md text-sm font-medium h-10 px-4 py-2 bg-trackaro-accent 
+                  className="hidden sm:inline-flex items-center justify-center rounded-md text-sm font-medium h-9 px-4 py-2 bg-trackaro-accent 
                   shadow-md dark:shadow-gray-800/20 dark:hover:shadow-white-800/40 dark:bg-trackaro-accent text-black  dark:text-white hover:bg-primary-hover dark:hover:bg-secondary transition-all duration-300 transform hover:scale-105"
                 >
                   <span>Sign Up</span>
-                  {/* <span className="ml-1 transform translate-x-0 group-hover:translate-x-1 transition-transform duration-300">
-                  →
-                  </span> */}
+                 
                 </a>
               </>
             )}
