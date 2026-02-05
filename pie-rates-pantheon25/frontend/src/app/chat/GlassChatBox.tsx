@@ -14,6 +14,142 @@ interface Message {
   animate?: boolean;
 }
 
+// --- External Components ---
+
+interface QuickPromptsProps {
+  handleSubmit: (e?: React.FormEvent, promptText?: string) => void;
+}
+
+const QuickPrompts: React.FC<QuickPromptsProps> = ({ handleSubmit }) => (
+  <div className="flex flex-wrap justify-center gap-3 mt-8 max-w-2xl mx-auto">
+    {[
+      { icon: "", text: "How much did I spend last month?" },
+      { icon: "", text: "What category did I spend the most?" },
+      { icon: "", text: "Show my recent transactions" }
+    ].map((prompt, i) => (
+      <motion.button
+        key={i}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 * i }}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={() => handleSubmit(undefined, prompt.text)}
+        className="flex items-center gap-2 px-4 py-2 bg-white/50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-full text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800 shadow-sm transition-all"
+      >
+        <span>{prompt.icon}</span>
+        <span>{prompt.text}</span>
+      </motion.button>
+    ))}
+  </div>
+);
+
+interface InputCardProps {
+  isCompact?: boolean;
+  inputValue: string;
+  setInputValue: (val: string) => void;
+  handleSubmit: (e?: React.FormEvent, promptText?: string) => void;
+  fileInputRef: React.RefObject<HTMLInputElement>;
+  handleFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  speechSupported: boolean;
+  isRecording: boolean;
+  startListening: () => void;
+  stopListening: () => void;
+  startRecording: () => void;
+}
+
+const InputCard: React.FC<InputCardProps> = ({
+  isCompact = false,
+  inputValue,
+  setInputValue,
+  handleSubmit,
+  fileInputRef,
+  handleFileUpload,
+  speechSupported,
+  isRecording,
+  startListening,
+  stopListening,
+  startRecording
+}) => (
+  <div className={`${isCompact ? "w-full" : "w-full max-w-3xl mx-auto"} relative`}>
+    <div className={`
+          relative bg-white dark:bg-gray-900 
+          ${isCompact ? "rounded-2xl border-t border-gray-100 dark:border-gray-800" : "rounded-3xl shadow-xl border border-gray-100 dark:border-gray-800"} 
+          overflow-hidden transition-all duration-300
+      `}>
+      {/* Header (Only in full view) */}
+      {!isCompact && (
+        <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/50">
+          <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <span className="font-semibold text-sm">Chat</span>
+          </div>
+        </div>
+      )}
+
+      {/* Input Area */}
+      <div className={`${isCompact ? "p-3" : "p-6"}`}>
+        <textarea
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              handleSubmit();
+            }
+          }}
+          placeholder="How can AI help you today?"
+          className={`
+                      w-full bg-transparent border-none focus:ring-0 resize-none outline-none 
+                      text-gray-800 dark:text-gray-200 placeholder-gray-400
+                      ${isCompact ? "h-12 py-3" : "h-12 text-lg"}
+                  `}
+        />
+
+        {/* Actions Bar */}
+        <div className={`flex items-center justify-between ${isCompact ? "" : "mt-4 pt-4 border-t border-gray-100 dark:border-gray-800"}`}>
+          <div className="flex gap-2">
+            {/* Attach Button */}
+            <motion.button
+              whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
+              onClick={() => fileInputRef.current?.click()}
+              className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-xl transition-colors"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+            </motion.button>
+            <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept="image/*" className="hidden" />
+
+            {/* Voice Button */}
+            <motion.button
+              whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
+              onClick={speechSupported ? (isRecording ? stopListening : startListening) : startRecording}
+              className={`p-2 rounded-xl transition-colors ${isRecording ? "text-red-500 bg-red-50" : "text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20"}`}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" x2="12" y1="19" y2="22"></line></svg>
+            </motion.button>
+          </div>
+
+          {/* Send Button */}
+          <div className="flex items-center gap-3">
+            <motion.button
+              layout
+              disabled={!inputValue.trim()}
+              onClick={() => handleSubmit()}
+              className={`p-2.5 rounded-xl shadow-lg transition-all ${inputValue.trim()
+                ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-200 dark:shadow-none"
+                : "bg-gray-200 text-gray-400 cursor-not-allowed shadow-none dark:bg-gray-800 dark:text-gray-600"
+                }`}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            </motion.button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+
 const GlassChatBox: React.FC = () => {
   const { user, isLoading: authLoading } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
@@ -21,39 +157,26 @@ const GlassChatBox: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [isFileUploading, setIsFileUploading] = useState(false);
-  const [isFetchingMessages, setIsFetchingMessages] = useState(true);
   const [speechSupported, setSpeechSupported] = useState(false);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const recognitionRef = useRef<any>(null);
-  const { isAuthenticated } = useAuth();
+  const recognitionRef = useRef<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
+
   const api = useApi();
 
-  // Fetch messages from API on component mount
-  useEffect(() => {
-    if (isAuthenticated) {
-      fetchMessages();
-    } else {
-      setIsFetchingMessages(false);
-    }
-  }, [isAuthenticated]);
-
-  // Detect browser speech recognition support and init
+  // Detect browser speech recognition support
   useEffect(() => {
     if (typeof window === "undefined") return;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const SR: any =
-      (window as any).SpeechRecognition ||
-      (window as any).webkitSpeechRecognition;
+    const SR: any = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition; // eslint-disable-line @typescript-eslint/no-explicit-any
     if (SR) {
       setSpeechSupported(true);
       recognitionRef.current = new SR();
       recognitionRef.current.continuous = false;
       recognitionRef.current.interimResults = true;
-      recognitionRef.current.lang = "en-IN"; // adjust as needed
+      recognitionRef.current.lang = "en-IN";
     }
 
     return () => {
@@ -65,46 +188,12 @@ const GlassChatBox: React.FC = () => {
     };
   }, []);
 
-  // Fetch chat history
-  const fetchMessages = async () => {
-    try {
-      setIsFetchingMessages(true);
-      const response = await api.get<{
-        data?: {
-          messages?: Array<{
-            id: number;
-            content: string;
-            sender: "user" | "bot";
-            createdAt: string;
-          }>;
-        };
-      }>("/api/messages");
-
-      if (response.data?.messages && response.data.messages.length > 0) {
-        // Transform messages from API to match our interface
-        const formattedMessages: Message[] = response.data.messages.map(
-          (msg) => ({
-            id: msg.id,
-            text: msg.content,
-            sender: msg.sender,
-            timestamp: new Date(msg.createdAt),
-          })
-        );
-        setMessages(formattedMessages);
-      }
-    } catch (error) {
-      console.error("Error fetching messages:", error);
-    } finally {
-      setIsFetchingMessages(false);
-    }
-  };
-
-  // Auto-scroll to bottom when messages change
+  // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Start voice recording
+  // Voice & Recording Logic
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -113,55 +202,35 @@ const GlassChatBox: React.FC = () => {
       audioChunksRef.current = [];
 
       mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
-        }
+        if (event.data.size > 0) audioChunksRef.current.push(event.data);
       };
 
-      mediaRecorder.onstart = () => {
-        setIsRecording(true);
-      };
-
+      mediaRecorder.onstart = () => setIsRecording(true);
       mediaRecorder.onstop = async () => {
         setIsRecording(false);
-        const audioBlob = new Blob(audioChunksRef.current, {
-          type: "audio/webm",
-        });
-
-        // Here you would send the audio to a speech-to-text service
-        // For now, we'll simulate the transcription
+        const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
         simulateTranscription(audioBlob);
-
-        // Stop all tracks from the stream
         stream.getTracks().forEach((track) => track.stop());
       };
 
       mediaRecorder.start();
     } catch (error) {
       console.error("Error starting recording:", error);
-      alert("Could not access microphone. Please check your permissions.");
+      alert("Could not access microphone.");
     }
   };
 
-  // Stop voice recording
   const stopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-    }
+    if (mediaRecorderRef.current && isRecording) mediaRecorderRef.current.stop();
   };
 
-  // Start browser speech recognition (preferred when supported)
   const startListening = () => {
     if (!recognitionRef.current) return;
     let finalTranscript = "";
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    recognitionRef.current.onresult = (event: any) => {
+    recognitionRef.current.onresult = (event: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i];
-        const transcript = result[0]?.transcript ?? "";
-        if (result.isFinal) {
-          finalTranscript += transcript + " ";
-        }
+        if (result.isFinal) finalTranscript += result[0]?.transcript + " ";
       }
     };
     recognitionRef.current.onstart = () => setIsRecording(true);
@@ -169,577 +238,196 @@ const GlassChatBox: React.FC = () => {
       setIsRecording(false);
       if (finalTranscript.trim()) setInputValue(finalTranscript.trim());
     };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    recognitionRef.current.onerror = (e: any) => {
-      console.error("Speech recognition error:", e);
-      setIsRecording(false);
-      alert("Speech recognition error. Please try again or use typing.");
-    };
-    try {
-      recognitionRef.current.start();
-    } catch (e) {
-      console.error("Failed to start recognition:", e);
-    }
+    recognitionRef.current.start();
   };
 
   const stopListening = () => {
-    try {
-      if (recognitionRef.current) recognitionRef.current.stop();
-    } catch (e) {
-      console.error("Failed to stop recognition:", e);
-    }
+    if (recognitionRef.current) recognitionRef.current.stop();
   };
 
-  // Simulate transcription (in a real app, you would send to a speech-to-text API)
   const simulateTranscription = (audioBlob: Blob) => {
-    // Simulating processing time
     setIsLoading(true);
-
-    // In a real app, you would send the audio to a service like Google Speech-to-Text
     setTimeout(() => {
-      // Simulated transcription result
-      const transcription = "I spent $45 on groceries yesterday";
-      setInputValue(transcription);
+      setInputValue("Simulated voice input text");
       setIsLoading(false);
-    }, 1500);
+    }, 1000);
   };
 
-  // Handle file upload with OCR processing
-  const handleFileUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  // File Upload Logic
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      alert('Please select an image file (JPG, PNG, WebP, etc.)');
-      return;
-    }
-
-    // Validate file size (10MB limit)
-    if (file.size > 10 * 1024 * 1024) {
-      alert('File size too large. Please select an image smaller than 10MB.');
-      return;
-    }
+    if (!file.type.startsWith('image/')) return alert('Please select an image file');
+    if (file.size > 10 * 1024 * 1024) return alert('File too large (max 10MB)');
 
     setIsFileUploading(true);
-
-    // Add user message to UI immediately
-    const userMessage: Message = {
-      id: messages.length,
-      text: `📷 Uploading receipt: ${file.name}`,
+    // Add optimistic user message
+    setMessages(prev => [...prev, {
+      id: Date.now(),
+      text: `📷 Uploading: ${file.name}`,
       sender: "user",
-      timestamp: new Date(),
-    };
-    setMessages((prev) => [...prev, userMessage]);
+      timestamp: new Date()
+    }]);
 
-    // Add loading message for OCR processing
-    const loadingMessage: Message = {
-      id: messages.length + 1,
-      text: "🔍 Processing receipt with OCR",
+    const loadingId = Date.now() + 1;
+    setMessages(prev => [...prev, {
+      id: loadingId,
+      text: "🔍 Processing receipt...",
       sender: "bot",
       timestamp: new Date(),
-      animate: true,
-    };
-    setMessages((prev) => [...prev, loadingMessage]);
+      animate: true
+    }]);
 
     try {
-      // Create FormData for file upload
       const formData = new FormData();
       formData.append('file', file);
-
-      console.log('Uploading file:', {
-        name: file.name,
-        size: file.size,
-        type: file.type,
-        formDataEntries: Array.from(formData.entries()),
-        formDataKeys: Array.from(formData.keys()),
-        formDataValues: Array.from(formData.values())
-      });
-
-      // Call OCR API
-      const response = await api.postFormData<{
-        success: boolean;
-        message: string;
-        data?: {
-          ocrData: any;
-          expense: any;
-          message: any;
-        };
-      }>("/api/ocr/process-receipt", formData);
+      const response = await api.postFormData<any>("/api/ocr/process-receipt", formData); // eslint-disable-line @typescript-eslint/no-explicit-any
 
       if (response.success && response.data) {
-        const { ocrData, expense, message } = response.data;
-
-        // Replace loading message with OCR results
-        setMessages((prev) =>
-          prev.map((msg) =>
-            msg.id === loadingMessage.id
-              ? {
-                ...msg,
-                text: `✅ Receipt processed successfully!
-
-💰 Amount: ₹${expense.amount}
-📂 Category: ${expense.category}
-📅 Date: ${new Date(expense.date).toLocaleDateString()}
-💳 Payment Method: ${expense.paymentMethod}
-${expense.description ? `📝 Description: ${expense.description}` : ''}
-${expense.companions.length > 0 ? `👥 Companions: ${expense.companions.join(', ')}` : ''}
-
-Expense has been automatically added to your records!`,
-              }
-              : msg
-          )
-        );
+        const { expense } = response.data;
+        const successText = `✅ Processed!\nAmount: ₹${expense.amount}\nCategory: ${expense.category}\nDate: ${new Date(expense.date).toLocaleDateString()}`;
+        setMessages(prev => prev.map(m => m.id === loadingId ? { ...m, text: successText } : m));
       } else {
-        throw new Error(response.message || 'Failed to process receipt');
+        throw new Error(response.message);
       }
     } catch (error) {
-      console.error('Error processing receipt:', error);
-
-      // Replace loading message with error message
-      setMessages((prev) =>
-        prev.map((msg) =>
-          msg.id === loadingMessage.id
-            ? {
-              ...msg,
-              text: `❌ Failed to process receipt: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again with a clearer image.`,
-            }
-            : msg
-        )
-      );
+      setMessages(prev => prev.map(m => m.id === loadingId ? { ...m, text: "❌ Failed to process receipt." } : m));
     } finally {
       setIsFileUploading(false);
-      // Clear the file input
-      if (event.target) {
-        event.target.value = '';
-      }
+      if (event.target) event.target.value = '';
     }
   };
 
-  // Trigger file input click
-  const triggerFileUpload = () => {
-    fileInputRef.current?.click();
-  };
+  // Chat Submission
+  const handleSubmit = async (e?: React.FormEvent, promptText?: string) => {
+    if (e) e.preventDefault();
+    const textToSend = promptText || inputValue;
+    if (!textToSend.trim()) return;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!inputValue.trim()) return;
-
-    // Add user message to UI immediately
-    const userMessage: Message = {
-      id: messages.length,
-      text: inputValue,
+    // Add user message
+    setMessages(prev => [...prev, {
+      id: Date.now(),
+      text: textToSend,
       sender: "user",
-      timestamp: new Date(),
-    };
+      timestamp: new Date()
+    }]);
 
-    setMessages((prev) => [...prev, userMessage]);
     setInputValue("");
     setIsLoading(true);
 
-    // Add loading message immediately
-    const loadingMessage: Message = {
-      id: messages.length + 1,
-      text: "🤖 Generating response",
+    // Bot Loading State
+    const botMsgId = Date.now() + 1;
+    setMessages(prev => [...prev, {
+      id: botMsgId,
+      text: "typing...",
       sender: "bot",
       timestamp: new Date(),
-      animate: true,
-    };
-    setMessages((prev) => [...prev, loadingMessage]);
+      animate: true
+    }]);
 
     try {
-      // Send message to the backend using the correct endpoint
-      const response = await api.post<{
-        success: boolean;
-        message: string;
-        data?: {
-          messageId: number;
-          expenseId?: number;
-          queryData?: any;
-          requiresPaymentMethod?: boolean;
-        };
-      }>("/api/messages", {
-        content: inputValue,
-      });
-
-      // Replace loading message with actual bot response
-      setMessages((prev) =>
-        prev.map((msg) =>
-          msg.id === loadingMessage.id
-            ? {
-              ...msg,
-              text: response.message,
-            }
-            : msg
-        )
-      );
+      const response = await api.post<any>("/api/messages", { content: textToSend }); // eslint-disable-line @typescript-eslint/no-explicit-any
+      setMessages(prev => prev.map(m => m.id === botMsgId ? { ...m, text: response.message } : m));
     } catch (error) {
-      console.error("Error processing message:", error);
-
-      // Replace loading message with error message
-      setMessages((prev) =>
-        prev.map((msg) =>
-          msg.id === loadingMessage.id
-            ? {
-              ...msg,
-              text: "Sorry, I couldn't process that. Please try again with a different message.",
-            }
-            : msg
-        )
-      );
+      setMessages(prev => prev.map(m => m.id === botMsgId ? { ...m, text: "Sorry, I encountered an error." } : m));
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Animated input change handler
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
-    setInputValue(newValue);
+  const resetChat = () => {
+    setMessages([]);
+    setInputValue("");
   };
 
-  // Renders the input form content
-  const renderInputForm = () => (
-    <>
-      <div className="flex space-x-2 justify-center">
-        {/* Hidden file input */}
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleFileUpload}
-          accept="image/jpeg,image/jpg,image/png,image/webp,image/gif,image/bmp"
-          className="hidden"
-        />
-
-        {/* File upload button */}
-        <motion.button
-          type="button"
-          onClick={triggerFileUpload}
-          disabled={isLoading || isRecording || isFileUploading}
-          className="border border-trackaro-border/30 p-3 text-trackaro-text hover:bg-trackaro-accent/10 rounded-full focus:outline-none backdrop-blur-sm bg-gradient-to-br from-white/70 to-neutral-200/60"
-          aria-label="Upload receipt image for OCR processing"
-          whileTap={{ scale: 0.75 }}
-        >
-          {isFileUploading ? (
-            <svg
-              className="animate-spin h-5 w-5"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              ></circle>
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              ></path>
-            </svg>
-          ) : (
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-              <polyline points="17 8 12 3 7 8" />
-              <line x1="12" y1="3" x2="12" y2="15" />
-            </svg>
-          )}
-        </motion.button>
-
-        {/* Text input */}
-        <motion.div
-          className="flex border border-trackaro-border/30 rounded-full w-full backdrop-blur-sm bg-gradient-to-r from-white/70 to-gray-200/60"
-          whileTap={{ borderWidth: "2px" }}
-        >
-          <motion.input
-            type="text"
-            value={inputValue}
-            onChange={handleInputChange}
-            placeholder={
-              isRecording
-                ? speechSupported
-                  ? "Listening... tap mic to stop"
-                  : "Recording... release to stop"
-                : isFileUploading
-                  ? "Processing receipt image..."
-                  : speechSupported
-                    ? "Tap mic to speak, upload receipt, or type..."
-                    : "Hold mic to record, upload receipt, or type..."
-            }
-            className="flex-1 px-4 py-2 border-none rounded-full focus:outline-none bg-transparent text-trackaro-text text-base min-w-0"
-            spellCheck="false"
-            autoComplete="off"
-            disabled={isLoading || isRecording || isFileUploading}
-          />
-
-          {/* Voice recording button / Send button based on input */}
-          {inputValue.trim() ? (
-            <motion.button
-              type="submit"
-              className="p-3 rounded-full focus:outline-none flex-shrink-0 text-trackaro-text hover:bg-trackaro-accent/10"
-              disabled={isLoading || isRecording || isFileUploading}
-              aria-label="Send message"
-              whileTap={{ scale: 0.95 }}
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="m22 2-7 20-4-9-9-4 20-7Z" />
-                <path d="M22 2 11 13" />
-              </svg>
-            </motion.button>
-          ) : (
-            <motion.button
-              type="button"
-              onClick={
-                speechSupported
-                  ? () => (isRecording ? stopListening() : startListening())
-                  : undefined
-              }
-              onMouseDown={speechSupported ? undefined : startRecording}
-              onMouseUp={speechSupported ? undefined : stopRecording}
-              onTouchStart={speechSupported ? undefined : startRecording}
-              onTouchEnd={speechSupported ? undefined : stopRecording}
-              disabled={isLoading || isFileUploading}
-              className={`p-3 rounded-full focus:outline-none flex-shrink-0 ${isRecording
-                  ? "text-red-500 bg-red-100/30"
-                  : "text-trackaro-text hover:bg-trackaro-accent/10"
-                }`}
-              aria-label={
-                isRecording
-                  ? speechSupported
-                    ? "Listening... tap to stop"
-                    : "Recording... release to stop"
-                  : speechSupported
-                    ? "Tap to start voice input"
-                    : "Hold to record voice"
-              }
-              whileTap={{ scale: 0.95 }}
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
-                <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-                <line x1="12" x2="12" y1="19" y2="22" />
-              </svg>
-            </motion.button>
-          )}
-        </motion.div>
-      </div>
-
-      {/* Recording/uploading indicators */}
-      {(isRecording || isFileUploading) && (
-        <div className="mt-2 text-xs text-trackaro-accent animate-pulse text-center">
-          {isRecording
-            ? "Recording voice... Release to stop"
-            : "Processing receipt image with OCR..."}
-        </div>
-      )}
-    </>
-  );
-
-  const isEmptyState = messages.length === 0 && !isFetchingMessages;
+  const isEmptyState = messages.length === 0;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
-      className="flex flex-col h-full backdrop-blur-xl bg-gradient-to-br from-slate-200/80 via-gray-100/70 to-zinc-200/75 dark:from-slate-700/60 dark:via-gray-700/50 dark:to-zinc-700/55 rounded-xl border border-trackaro-border/30 overflow-hidden"
-      style={{
-        boxShadow:
-          "0 8px 32px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
-      }}
-    >
-      {isEmptyState ? (
-        // Empty State Layout
-        <div className="flex flex-col items-center justify-center h-full p-8">
-          <div className="mb-8 text-center space-y-2">
-            <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#4A90E2] to-[#8E2DE2] dark:from-[#5C9CE6] dark:to-[#A359EA] pb-1">
-              Welcome, {user?.name?.split(" ")[0] || "Friend"}! 👋
-            </h1>
-            <h2 className="text-2xl md:text-3xl font-medium text-gray-500 dark:text-gray-400">
-              How can I help you today?
-            </h2>
-          </div>
+    <div className="flex flex-col h-full bg-[#FAFAFA] dark:bg-black overflow-hidden relative">
+      {/* Top Header */}
+      <header className="h-16 px-6 flex items-center justify-between bg-white/80 dark:bg-black/80 backdrop-blur-sm z-10 border-b border-gray-200 dark:border-gray-800">
+        <h1 className="text-xl font-bold text-gray-900 dark:text-white"
+          style={{ fontFamily: "Inter, sans-serif" }}>
+          {isEmptyState ? "New Chat" : "Chat"}
+        </h1>
+      </header>
 
-          <div className="w-full max-w-2xl">
-            <motion.form
-              onSubmit={handleSubmit}
-              className="p-4 rounded-full bg-white/50 dark:bg-black/20 shadow-lg backdrop-blur-lg border border-white/20 dark:border-white/10"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, ease: "easeOut", delay: 0.2 }}
+      <div className="flex-1 overflow-hidden relative">
+        <AnimatePresence mode="wait">
+          {isEmptyState ? (
+            <motion.div
+              key="empty"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="h-full flex flex-col items-center justify-center p-6 max-w-5xl mx-auto w-full"
             >
-              {renderInputForm()}
-            </motion.form>
-          </div>
-        </div>
-      ) : (
-        // Standard Chat Layout
-        <>
-          {/* Chat header */}
-          <motion.div
-            className="chat-header backdrop-blur-md bg-gradient-to-r from-gray-300/85 to-neutral-300/80 dark:from-gray-600/70 dark:to-neutral-700/60 border-b border-trackaro-border/30 p-4 flex justify-between items-center"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, ease: "easeOut", delay: 0.1 }}
-          >
-            <div className="flex items-center space-x-3">
-              <div className="h-10 w-10 rounded-full bg-trackaro-accent/10 flex items-center justify-center overflow-hidden border border-trackaro-border/30">
-                {authLoading ? (
-                  <div className="h-full w-full bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse"></div>
-                ) : user?.profilePicture ? (
-                  <img
-                    src={user.profilePicture}
-                    alt={user.name || "User"}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <svg
-                    className="h-6 w-6 text-trackaro-accent"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                      clipRule="evenodd"
-                    ></path>
-                  </svg>
-                )}
-              </div>
-              <div>
-                <h2 className="text-lg font-semibold text-trackaro-text">
-                  Trackaro- Simplying Expense Tracking
+              <div className="text-center mb-10 space-y-3">
+                <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white tracking-tight">
+                  Hello {user?.name?.split(" ")[0] || "!!"} <span className="animate-wave inline-block"></span>
                 </h2>
-                <p className="text-sm text-trackaro-text/70">
-                  Your AI-powered expense tracker that feels like chatting with a friend.
+                <p className="text-xl text-gray-500 dark:text-gray-400 font-medium">
+                  Ask or Tell Anything about your Personal Finance
                 </p>
               </div>
-            </div>
-          </motion.div>
 
-          {/* Messages container */}
-          <div className="flex-1 p-4 overflow-y-auto bg-gradient-to-b from-stone-200/60 via-gray-100/50 to-slate-200/55 dark:from-stone-700/50 dark:via-gray-700/40 dark:to-slate-700/45">
-            {isFetchingMessages ? (
-              <div className="flex justify-center items-center h-full">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-trackaro-accent"></div>
+              <InputCard
+                inputValue={inputValue}
+                setInputValue={setInputValue}
+                handleSubmit={handleSubmit}
+                fileInputRef={fileInputRef}
+                handleFileUpload={handleFileUpload}
+                speechSupported={speechSupported}
+                isRecording={isRecording}
+                startListening={startListening}
+                stopListening={stopListening}
+                startRecording={startRecording}
+              />
+
+              <div className="mt-10 w-full text-center">
+                <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">quick prompts</p>
+                <QuickPrompts handleSubmit={handleSubmit} />
               </div>
-            ) : (
-              <>
-                <AnimatePresence initial={false}>
-                  {messages.map((message) => (
-                    <motion.div
-                      key={message.id}
-                      initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 10 }}
-                      transition={{ duration: 0.35, ease: "easeOut" }}
-                    >
-                      <MessageBubble
-                        message={message.text}
-                        sender={message.sender}
-                        timestamp={message.timestamp}
-                        animateTypewriter={
-                          message.animate && message.sender === "bot"
-                        }
-                        userProfilePicture={user?.profilePicture}
-                        userName={user?.name}
-                      />
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              </>
-            )}
+            </motion.div>
+          ) : (
+            <motion.div
+              key="chat"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+              className="h-full flex flex-col"
+            >
+              <div className="flex-1 overflow-y-auto p-4 space-y-6">
+                {messages.map((msg) => (
+                  <MessageBubble
+                    key={msg.id}
+                    message={msg.text}
+                    sender={msg.sender}
+                    timestamp={msg.timestamp}
+                    animateTypewriter={msg.animate}
+                    userProfilePicture={user?.profilePicture}
+                    userName={user?.name}
+                  />
+                ))}
+                <div ref={messagesEndRef} />
+              </div>
 
-            {/* Loading indicator */}
-            <AnimatePresence>
-              {isLoading && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  transition={{ duration: 0.25 }}
-                  className="flex items-center space-x-2 p-3 max-w-[80%] rounded-lg bg-secondary text-trackaro-text rounded-bl-none"
-                >
-                  <div className="flex space-x-1">
-                    {[0, 1, 2].map((i) => (
-                      <motion.span
-                        key={i}
-                        className="w-2 h-2 rounded-full bg-trackaro-accent block"
-                        animate={{ y: [0, -5, 0], opacity: [0.6, 1, 0.6] }}
-                        transition={{
-                          duration: 0.8,
-                          repeat: Infinity,
-                          ease: "easeInOut",
-                          delay: i * 0.15,
-                        }}
-                      />
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Empty div for auto-scrolling */}
-            <div ref={messagesEndRef} />
-          </div>
-
-          {/* Input form */}
-          <motion.form
-            onSubmit={handleSubmit}
-            className="border-t border-trackaro-border/30 p-4 input-area bg-gradient-to-r from-neutral-200/70 via-gray-100/60 to-zinc-200/65 dark:from-neutral-700/55 dark:via-gray-700/45 dark:to-zinc-700/50 backdrop-blur-lg"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, ease: "easeOut", delay: 0.2 }}
-          >
-            {renderInputForm()}
-          </motion.form>
-        </>
-      )}
-    </motion.div>
+              <div className="p-4 bg-white/80 dark:bg-black/80 backdrop-blur-md border-t border-gray-100 dark:border-gray-800">
+                <InputCard
+                  isCompact
+                  inputValue={inputValue}
+                  setInputValue={setInputValue}
+                  handleSubmit={handleSubmit}
+                  fileInputRef={fileInputRef}
+                  handleFileUpload={handleFileUpload}
+                  speechSupported={speechSupported}
+                  isRecording={isRecording}
+                  startListening={startListening}
+                  stopListening={stopListening}
+                  startRecording={startRecording}
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
   );
 };
 

@@ -203,8 +203,8 @@ export default function ChatSidebar({
     <motion.button
       onClick={onClick}
       className={`group flex items-center w-full p-3 rounded-xl transition-all duration-200 relative overflow-hidden ${isActive
-          ? "bg-white dark:bg-gray-800 shadow-sm text-gray-900 dark:text-gray-100"
-          : "text-gray-500 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-gray-800/50 hover:text-gray-900 dark:hover:text-gray-200"
+        ? "bg-white dark:bg-gray-800 shadow-sm text-gray-900 dark:text-gray-100"
+        : "text-gray-500 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-gray-800/50 hover:text-gray-900 dark:hover:text-gray-200"
         }`}
       whileHover={{ scale: 1.01 }}
       whileTap={{ scale: 0.98 }}
@@ -262,13 +262,18 @@ export default function ChatSidebar({
       {/* Toggle Button - Absolute positioned or top aligned */}
       <button
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        className="absolute -right-3 top-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full p-1 shadow-md hover:bg-gray-50 z-20 text-gray-500"
+        className="absolute -right-5 top-18 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full p-1 shadow-md hover:bg-gray-50 z-20 text-gray-500"
       >
         <ToggleIcon isOpen={isSidebarOpen} />
       </button>
 
 
       <div className="flex flex-col h-full p-4 overflow-y-auto no-scrollbar">
+
+        {/* App Logo */}
+        <div className={`mx-2 mb-4 transition-all duration-300 ${isSidebarOpen ? "opacity-100 placeholder-opacity-100" : "opacity-0 h-0 overflow-hidden"}`}>
+          <img src="/logo-1.png" alt="Logo" className="w-20 h-auto" />
+        </div>
 
         {/* User Profile Card */}
         <div className={`relative bg-white dark:bg-gray-800 rounded-3xl p-1 mb-6 transition-all duration-300 ${isSidebarOpen ? "" : "bg-transparent dark:bg-transparent"}`}>
@@ -356,7 +361,7 @@ export default function ChatSidebar({
 
         </nav>
 
-       
+
 
       </div>
     </motion.aside>

@@ -275,7 +275,7 @@ Or copy this UPI link: ${upiUrl}`);
       </div>
 
       <div className="flex flex-1 overflow-hidden">
-        <ChatSidebar 
+        <ChatSidebar
           isSidebarOpen={isSidebarOpen}
           setIsSidebarOpen={setIsSidebarOpen}
           onTelegramClick={openTelegramModal}
@@ -285,26 +285,19 @@ Or copy this UPI link: ${upiUrl}`);
 
         {/* Main content */}
         <motion.main
-          className="flex-1 flex flex-col items-center justify-center p-4 md:p-8 overflow-hidden ml-[45px]"
+          className="flex-1 flex flex-col overflow-hidden h-screen"
           style={{
-            marginLeft: isSidebarOpen ? "200px" : "45px",
+            marginLeft: isSidebarOpen ? "260px" : "80px",
             transition: "margin-left 0.3s",
+            width: `calc(100% - ${isSidebarOpen ? "260px" : "80px"})`,
           }}
-          initial={{ opacity: 0, x: 16 }}
-          animate={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
         >
-          <motion.div
-            className="w-full h-full max-w-4xl flex items-center justify-center"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: "easeOut", delay: 0.1 }}
-            layout
-          >
-            <div className="w-full h-[85vh] overflow-hidden rounded-2xl shadow-lg">
-              <GlassChatBox />
-            </div>
-          </motion.div>
+          <div className="w-full h-full">
+            <GlassChatBox />
+          </div>
         </motion.main>
       </div>
 
@@ -330,127 +323,126 @@ Or copy this UPI link: ${upiUrl}`);
             >
               {/* Scrollable Content Container */}
               <div className="flex-1 overflow-y-auto p-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500 relative">
-              {/* Header with gradient background */}
-              <div className="relative mb-6">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 rounded-xl blur-sm"></div>
-                <div className="relative bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-pink-500/5 rounded-xl p-4 border border-blue-200/20 dark:border-blue-800/20">
-                  <div className="flex items-center space-x-3">
-                    <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg">
-                      <PaymentIcon className="h-6 w-6 text-white" />
-                    </div>
-                    <div>
-                      <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 font-poppins">
-                        💳 UPI Payment
-                      </h2>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 font-inter">
-                        Secure & Instant Payments
-                      </p>
+                {/* Header with gradient background */}
+                <div className="relative mb-6">
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 rounded-xl blur-sm"></div>
+                  <div className="relative bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-pink-500/5 rounded-xl p-4 border border-blue-200/20 dark:border-blue-800/20">
+                    <div className="flex items-center space-x-3">
+                      <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg">
+                        <PaymentIcon className="h-6 w-6 text-white" />
+                      </div>
+                      <div>
+                        <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 font-poppins">
+                          💳 UPI Payment
+                        </h2>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 font-inter">
+                          Secure & Instant Payments
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-              
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 font-inter leading-relaxed">
-                Fill in the details below and click "Open Google Pay" to
-                initiate payment with pre-filled information.
-              </p>
+
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 font-inter leading-relaxed">
+                  Fill in the details below and click "Open Google Pay" to
+                  initiate payment with pre-filled information.
+                </p>
 
 
-              <div className="space-y-5">
-                {/* UPI ID Field */}
-                <div className="relative">
-                  <label className="flex text-sm font-semibold mb-3 text-gray-700 dark:text-gray-300 font-inter items-center">
-                    <span className="h-2 w-2 bg-blue-500 rounded-full mr-2"></span>
-                    UPI ID *
-                  </label>
+                <div className="space-y-5">
+                  {/* UPI ID Field */}
                   <div className="relative">
-                    <input
-                      type="text"
-                      value={upiId}
-                      onChange={(e) => setUpiId(e.target.value)}
-                      placeholder="Enter UPI ID (e.g., user@paytm, user@phonepe)"
-                      className={`w-full p-4 border-2 rounded-xl font-inter bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none transition-all duration-200 backdrop-blur-sm ${
-                        upiId && !validateUpiId(upiId)
-                          ? "border-red-300 dark:border-red-600 focus:border-red-500 focus:ring-4 focus:ring-red-100 dark:focus:ring-red-900/20"
-                          : "border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/20"
-                      }`}
-                    />
-                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                      {upiId && validateUpiId(upiId) ? (
-                        <svg className="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                      ) : upiId && !validateUpiId(upiId) ? (
-                        <svg className="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                        </svg>
-                      ) : (
-                        <svg className="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                          <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                        </svg>
-                      )}
+                    <label className="flex text-sm font-semibold mb-3 text-gray-700 dark:text-gray-300 font-inter items-center">
+                      <span className="h-2 w-2 bg-blue-500 rounded-full mr-2"></span>
+                      UPI ID *
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={upiId}
+                        onChange={(e) => setUpiId(e.target.value)}
+                        placeholder="Enter UPI ID (e.g., user@paytm, user@phonepe)"
+                        className={`w-full p-4 border-2 rounded-xl font-inter bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none transition-all duration-200 backdrop-blur-sm ${upiId && !validateUpiId(upiId)
+                            ? "border-red-300 dark:border-red-600 focus:border-red-500 focus:ring-4 focus:ring-red-100 dark:focus:ring-red-900/20"
+                            : "border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/20"
+                          }`}
+                      />
+                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                        {upiId && validateUpiId(upiId) ? (
+                          <svg className="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        ) : upiId && !validateUpiId(upiId) ? (
+                          <svg className="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                          </svg>
+                        ) : (
+                          <svg className="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                            <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                          </svg>
+                        )}
+                      </div>
                     </div>
+                    {upiId && !validateUpiId(upiId) && (
+                      <motion.p
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="text-red-500 text-xs mt-2 font-inter flex items-center"
+                      >
+                        <svg className="h-3 w-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                        Please enter a valid UPI ID format
+                      </motion.p>
+                    )}
                   </div>
-                  {upiId && !validateUpiId(upiId) && (
-                    <motion.p 
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="text-red-500 text-xs mt-2 font-inter flex items-center"
-                    >
-                      <svg className="h-3 w-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                      </svg>
-                      Please enter a valid UPI ID format
-                    </motion.p>
-                  )}
-                </div>
 
 
-                {/* Amount Field */}
-                <div className="relative">
-                  <label className="flex text-sm font-semibold mb-3 text-gray-700 dark:text-gray-300 font-inter items-center">
-                    <span className="h-2 w-2 bg-green-500 rounded-full mr-2"></span>
-                    Amount *
-                  </label>
+                  {/* Amount Field */}
                   <div className="relative">
-                    <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 font-semibold">
-                      ₹
+                    <label className="flex text-sm font-semibold mb-3 text-gray-700 dark:text-gray-300 font-inter items-center">
+                      <span className="h-2 w-2 bg-green-500 rounded-full mr-2"></span>
+                      Amount *
+                    </label>
+                    <div className="relative">
+                      <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 font-semibold">
+                        ₹
+                      </div>
+                      <input
+                        type="number"
+                        value={paymentAmount}
+                        onChange={(e) => setPaymentAmount(e.target.value)}
+                        placeholder="Enter amount (e.g., 100)"
+                        className="w-full p-4 pl-8 border-2 border-gray-200 dark:border-gray-600 rounded-xl font-inter bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/20 transition-all duration-200 backdrop-blur-sm"
+                      />
                     </div>
-                    <input
-                      type="number"
-                      value={paymentAmount}
-                      onChange={(e) => setPaymentAmount(e.target.value)}
-                      placeholder="Enter amount (e.g., 100)"
-                      className="w-full p-4 pl-8 border-2 border-gray-200 dark:border-gray-600 rounded-xl font-inter bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/20 transition-all duration-200 backdrop-blur-sm"
+                  </div>
+
+                  {/* Note Field */}
+                  <div className="relative">
+                    <label className="flex text-sm font-semibold mb-3 text-gray-700 dark:text-gray-300 font-inter items-center">
+                      <span className="h-2 w-2 bg-yellow-500 rounded-full mr-2"></span>
+                      Note (Optional)
+                    </label>
+                    <textarea
+                      value={paymentNote}
+                      onChange={(e) => setPaymentNote(e.target.value)}
+                      placeholder="Add a note about this payment (e.g., Dinner, Groceries)"
+                      className="w-full p-4 border-2 border-gray-200 dark:border-gray-600 rounded-xl font-inter bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/20 transition-all duration-200 resize-none h-20 backdrop-blur-sm"
                     />
                   </div>
                 </div>
 
-                {/* Note Field */}
-                <div className="relative">
-                  <label className="flex text-sm font-semibold mb-3 text-gray-700 dark:text-gray-300 font-inter items-center">
-                    <span className="h-2 w-2 bg-yellow-500 rounded-full mr-2"></span>
-                    Note (Optional)
-                  </label>
-                  <textarea
-                    value={paymentNote}
-                    onChange={(e) => setPaymentNote(e.target.value)}
-                    placeholder="Add a note about this payment (e.g., Dinner, Groceries)"
-                    className="w-full p-4 border-2 border-gray-200 dark:border-gray-600 rounded-xl font-inter bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/20 transition-all duration-200 resize-none h-20 backdrop-blur-sm"
-                  />
-                </div>
-              </div>
-
-              {/* Scroll fade indicator */}
-              <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white/90 via-white/50 to-transparent dark:from-gray-800/90 dark:via-gray-800/50 pointer-events-none rounded-b-2xl"></div>
+                {/* Scroll fade indicator */}
+                <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white/90 via-white/50 to-transparent dark:from-gray-800/90 dark:via-gray-800/50 pointer-events-none rounded-b-2xl"></div>
               </div>
 
               {/* Fixed Footer with Buttons */}
               <div className="flex-shrink-0 p-6 pt-0 border-t border-gray-200/30 dark:border-gray-700/30 bg-gradient-to-r from-white/50 to-gray-50/50 dark:from-gray-800/50 dark:to-gray-900/50 backdrop-blur-sm rounded-b-2xl space-y-4">
                 {/* UPI Link Display */}
                 {showCopyButton && generatedUpiUrl && (
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="p-4 bg-gradient-to-r from-blue-50/80 to-indigo-50/80 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border border-blue-200/30 dark:border-blue-700/30 backdrop-blur-sm"
@@ -496,11 +488,10 @@ Or copy this UPI link: ${upiUrl}`);
                 <motion.button
                   onClick={handlePaymentContinue}
                   disabled={!paymentAmount || !upiId || !validateUpiId(upiId) || isCreatingExpense}
-                  className={`w-full py-4 px-6 rounded-xl font-semibold font-inter transition-all duration-300 relative overflow-hidden ${
-                    paymentAmount && upiId && validateUpiId(upiId) && !isCreatingExpense
+                  className={`w-full py-4 px-6 rounded-xl font-semibold font-inter transition-all duration-300 relative overflow-hidden ${paymentAmount && upiId && validateUpiId(upiId) && !isCreatingExpense
                       ? "bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700 shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]"
                       : "bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
-                  }`}
+                    }`}
                   whileHover={paymentAmount && upiId && validateUpiId(upiId) && !isCreatingExpense ? { scale: 1.02 } : {}}
                   whileTap={paymentAmount && upiId && validateUpiId(upiId) && !isCreatingExpense ? { scale: 0.98 } : {}}
                 >
@@ -573,7 +564,7 @@ Or copy this UPI link: ${upiUrl}`);
                   Connect Telegram
                 </h2>
               </div>
-              
+
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 font-inter">
                 Link your Telegram account to receive expense notifications and chat with Trackaro AI.
               </p>
@@ -593,7 +584,7 @@ Or copy this UPI link: ${upiUrl}`);
                     </button>
                   )}
                 </div>
-                
+
                 {isLoadingTelegramCode ? (
                   <div className="flex items-center justify-center py-4">
                     <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-600"></div>
@@ -616,7 +607,7 @@ Or copy this UPI link: ${upiUrl}`);
                     Generate Code
                   </button>
                 )}
-                
+
                 {telegramExpiry && (
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
                     Code expires: {new Date(telegramExpiry).toLocaleString()}
