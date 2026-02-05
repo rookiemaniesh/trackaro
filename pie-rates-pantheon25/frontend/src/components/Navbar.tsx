@@ -97,22 +97,6 @@ const LogoutIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const MountainIcon = ({ className }: { className?: string }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-  >
-    <path d="m8 3 4 8 5-5 5 15H2L8 3z" />
-  </svg>
-);
 
 
 
@@ -207,13 +191,14 @@ const Navbar = () => {
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-13">
+          <nav className="hidden md:flex items-center gap-10">
             {navLinks.map((link) => (
               <a
                 key={link.label}
                 href={link.href}
                 onClick={(e) => handleNavigation(e, link.href)}
                 className="nav-link text-base font-bold text-trackaro-accent dark:text-on-dark hover:text-trackaro-text dark:hover:text-on-dark transition-all duration-300 relative py-1 after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-trackaro-accent after:transition-all after:duration-300 hover:after:w-full"
+                style={{ fontFamily: "Inter, sans-serif" }}
               >
                 {link.label}
               </a>
@@ -227,15 +212,15 @@ const Navbar = () => {
                 <a
                   href="/auth/login"
                   onClick={(e) => handleNavigation(e, "/auth/login")}
-                  className="hidden sm:inline-flex items-center justify-center rounded-md text-sm font-medium h-9 px-4 py-2 border border-trackaro-accent bg-primary  text-white dark:bg-white dark:text-black hover:bg-trackaro-accent hover:text-white dark:hover:bg-trackaro-accent dark:hover:text-black transition-all duration-300 transform hover:scale-105"
+                  className="hidden sm:inline-flex items-center justify-center rounded-lg text-sm font-medium h-9 px-4 py-2 border border-trackaro-accent bg-primary  text-white dark:bg-white dark:text-black hover:bg-trackaro-accent hover:text-white dark:hover:bg-trackaro-accent dark:hover:text-black transition-all duration-300 transform hover:scale-105"
                 >
                   <span>Log In</span>
                 </a>
                 <a
                   href="/auth/signup"
                   onClick={(e) => handleNavigation(e, "/auth/signup")}
-                  className="hidden sm:inline-flex items-center justify-center rounded-md text-sm font-medium h-9 px-4 py-2 bg-trackaro-accent 
-                  shadow-md dark:shadow-gray-800/20 dark:hover:shadow-white-800/40 dark:bg-trackaro-accent text-black  dark:text-white hover:bg-primary-hover dark:hover:bg-secondary transition-all duration-300 transform hover:scale-105"
+                  className="hidden sm:inline-flex items-center justify-center rounded-lg text-sm font-medium h-9 px-4 py-2 bg-trackaro-accent 
+                  shadow-md  text-black hover:bg-primary-hover dark:hover:bg-secondary transition-all duration-300 transform hover:scale-105"
                 >
                   <span>Sign Up</span>
                  

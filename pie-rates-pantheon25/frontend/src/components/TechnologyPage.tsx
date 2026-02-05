@@ -248,11 +248,12 @@ export default function TechnologyPage() {
       <div
         style={{ backgroundColor: "rgb(250, 247, 240)" }}>
         <div className="flex flex-col text-black w-full max-w-6xl mx-auto px-6">
-          <div className="text-center mb-8">
+          <div className="text-center mt-14 mb-4">
 
             <p
               ref={subHeadingRef}
-              className="text-gray-300 text-xl md:text-xl max-w-2xl mx-auto"
+              className="text-gray-500 tracking-wide text-xl md:text-xl max-w-2xl mx-auto"
+              style={{ fontFamily: "Inter, sans-serif" }}
             >
               Built with
             </p>
