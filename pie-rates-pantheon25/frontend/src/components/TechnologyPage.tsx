@@ -1,18 +1,13 @@
-
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect} from "react";
 import {
   motion,
   useAnimationFrame,
-  useMotionValue,
-  useTransform,
-  useSpring,
+  useMotionValue
 } from "framer-motion";
 import gsap from "gsap";
 
-// We need to dynamically import TextPlugin to avoid SSR issues
 let TextPlugin: any;
 
-// Register TextPlugin with GSAP in client-side only
 if (typeof window !== "undefined") {
   TextPlugin = require("gsap/TextPlugin").TextPlugin;
   gsap.registerPlugin(TextPlugin);
@@ -20,7 +15,7 @@ if (typeof window !== "undefined") {
 
 const CARD_WIDTH = 80; // Width of each technology card (decreased more)
 const CARD_GAP = 12; // Gap between cards (decreased more)
-const ANIMATION_DURATION = 50; // Animation duration in seconds (lower = faster)
+
 
 interface TechCardProps {
   icon: React.ReactNode;

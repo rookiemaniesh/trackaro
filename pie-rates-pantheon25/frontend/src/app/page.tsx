@@ -14,7 +14,6 @@ export default function Home() {
       <Navbar />
       <main className="flex-grow flex flex-col">
         <LandingPage />
-        {/* New Team Section with Infinite Sliding Animation */}
       </main>
     </div>
   );

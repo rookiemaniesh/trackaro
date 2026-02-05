@@ -1,16 +1,13 @@
-"use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
+import { useState } from "react";
 
-// Icons
+// --- Icons ---
 const HomeIcon = ({ className }: { className?: string }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -27,8 +24,6 @@ const HomeIcon = ({ className }: { className?: string }) => (
 const UserIcon = ({ className }: { className?: string }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -45,8 +40,6 @@ const UserIcon = ({ className }: { className?: string }) => (
 const DashboardIcon = ({ className }: { className?: string }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -62,66 +55,9 @@ const DashboardIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const SettingsIcon = ({ className }: { className?: string }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-  >
-    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
-    <circle cx="12" cy="12" r="3"></circle>
-  </svg>
-);
-
-const NotificationIcon = ({ className }: { className?: string }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-  >
-    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path>
-    <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path>
-  </svg>
-);
-
-const RecommendationIcon = ({ className }: { className?: string }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-  >
-    <path d="M9 12l2 2 4-4"></path>
-    <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9c1.5 0 2.91.37 4.15 1.02"></path>
-    <path d="M12 3v6l3-3"></path>
-  </svg>
-);
-
 const TelegramIcon = ({ className }: { className?: string }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -137,8 +73,6 @@ const TelegramIcon = ({ className }: { className?: string }) => (
 const PaymentIcon = ({ className }: { className?: string }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -152,11 +86,41 @@ const PaymentIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+const HistoryIcon = ({ className }: { className?: string }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <circle cx="12" cy="12" r="10" />
+    <polyline points="12 6 12 12 16 14" />
+  </svg>
+);
+
+const SettingsIcon = ({ className }: { className?: string }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
+    <circle cx="12" cy="12" r="3"></circle>
+  </svg>
+);
+
 const LogoutIcon = ({ className }: { className?: string }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -171,6 +135,21 @@ const LogoutIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+const ToggleIcon = ({ isOpen }: { isOpen: boolean }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="w-5 h-5"
+  >
+    {isOpen ? <path d="m15 18-6-6 6-6" /> : <path d="m9 18 6-6-6-6" />}
+  </svg>
+);
+
+
 interface ChatSidebarProps {
   isSidebarOpen: boolean;
   setIsSidebarOpen: (open: boolean) => void;
@@ -179,23 +158,26 @@ interface ChatSidebarProps {
   currentPath?: string;
 }
 
-export default function ChatSidebar({ 
-  isSidebarOpen, 
-  setIsSidebarOpen, 
+export default function ChatSidebar({
+  isSidebarOpen,
+  setIsSidebarOpen,
   onTelegramClick,
   onPaymentClick,
-  currentPath = "/"
+  currentPath = "/",
 }: ChatSidebarProps) {
   const { user, isLoading, logout } = useAuth();
   const router = useRouter();
 
-  const handleNavigation = (e: React.MouseEvent, path: string) => {
-    e.preventDefault();
+
+
+
+
+
+  const handleNavigation = (path: string) => {
     router.push(path);
   };
 
-  const handleLogout = async (e: React.MouseEvent) => {
-    e.preventDefault();
+  const handleLogout = async () => {
     try {
       await logout();
       router.push("/");
@@ -204,324 +186,178 @@ export default function ChatSidebar({
     }
   };
 
+  // Reusable Nav Item Component
+  const NavItem = ({
+    icon: Icon,
+    label,
+    isActive = false,
+    onClick,
+    categoryItem = false
+  }: {
+    icon: any;
+    label: string;
+    isActive?: boolean;
+    onClick: () => void;
+    categoryItem?: boolean;
+  }) => (
+    <motion.button
+      onClick={onClick}
+      className={`group flex items-center w-full p-3 rounded-xl transition-all duration-200 relative overflow-hidden ${isActive
+          ? "bg-white dark:bg-gray-800 shadow-sm text-gray-900 dark:text-gray-100"
+          : "text-gray-500 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-gray-800/50 hover:text-gray-900 dark:hover:text-gray-200"
+        }`}
+      whileHover={{ scale: 1.01 }}
+      whileTap={{ scale: 0.98 }}
+    >
+      <div className={`flex-shrink-0 ${isActive ? "text-gray-900 dark:text-white" : ""}`}>
+        <Icon className="w-5 h-5" />
+      </div>
+
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <motion.span
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -10 }}
+            transition={{ duration: 0.2 }}
+            className="ml-3 font-medium text-sm whitespace-nowrap"
+          >
+            {label}
+          </motion.span>
+        )}
+      </AnimatePresence>
+
+      {/* Active Indicator on left (optional style choice, keeping it clean for now) */}
+      {isActive && (
+        <motion.div
+          layoutId="activeTab"
+          className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gray-900 rounded-r-full hidden"
+        />
+      )}
+    </motion.button>
+  );
+
+  const SectionHeader = ({ title }: { title: string }) => (
+    <AnimatePresence>
+      {isSidebarOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="px-3 mt-6 mb-2"
+        >
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">{title}</p>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+
   return (
     <motion.aside
-      className={`backdrop-blur-lg bg-trackaro-card/50 border-r border-trackaro-border/30 fixed h-full z-10 shadow-lg`}
-      animate={{ width: isSidebarOpen ? 200 : 45 }}
+      className="fixed h-full z-10 bg-[#F3F5F1] dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col shadow-xl"
+      animate={{ width: isSidebarOpen ? 260 : 80 }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
       style={{ willChange: "width" }}
     >
-      <div className="flex flex-col h-full py-3">
-        {/* Sidebar header with title and toggle */}
-        <div className="px-3 mb-2 flex items-center justify-between">
-          <AnimatePresence initial={false}>
-            {isSidebarOpen && (
-              <motion.span
-                key="brand"
-                className="text-sm text-center font-semibold tracking-wide text-trackaro-text dark:text-trackaro-text font-poppins"
-                initial={{ opacity: 0, x: -8 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -8 }}
-                transition={{ duration: 0.2 }}
-              >
-                Trackaro
-              </motion.span>
-            )}
-          </AnimatePresence>
-          <motion.button
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="text-trackaro-text dark:text-trackaro-text"
-            whileTap={{ scale: 0.9 }}
-            whileHover={{ scale: 1.05 }}
-          >
-            {isSidebarOpen ? (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="m15 18-6-6 6-6" />
-              </svg>
-            ) : (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="m9 18 6-6-6-6" />
-              </svg>
-            )}
-          </motion.button>
+      {/* Toggle Button - Absolute positioned or top aligned */}
+      <button
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        className="absolute -right-3 top-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full p-1 shadow-md hover:bg-gray-50 z-20 text-gray-500"
+      >
+        <ToggleIcon isOpen={isSidebarOpen} />
+      </button>
+
+
+      <div className="flex flex-col h-full p-4 overflow-y-auto no-scrollbar">
+
+        {/* User Profile Card */}
+        <div className={`relative bg-white dark:bg-gray-800 rounded-3xl p-1 mb-6 transition-all duration-300 ${isSidebarOpen ? "" : "bg-transparent dark:bg-transparent"}`}>
+          <div className={`flex items-center ${isSidebarOpen ? "gap-4" : "justify-center flex-col gap-2"}`}>
+            <div className="relative">
+              <div className="w-12 h-12 rounded-[18px] bg-red-100 overflow-hidden flex-shrink-0 border-2 border-white shadow-sm ring-2 ring-red-50">
+                {user?.profilePicture ? (
+                  <img src={user.profilePicture} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-red-400">
+                    <UserIcon className="w-6 h-6" />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <AnimatePresence>
+              {isSidebarOpen && (
+                <motion.div
+                  initial={{ opacity: 0, width: 0 }}
+                  animate={{ opacity: 1, width: "auto" }}
+                  exit={{ opacity: 0, width: 0 }}
+                  className="flex-1 overflow-hidden"
+                >
+                  <h3 className="font-bold text-gray-900 dark:text-white truncate text-base">
+                    {isLoading ? "Loading..." : (user?.name || "User")}
+                  </h3>
+
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
 
-        {/* User Profile Bar */}
-        <AnimatePresence>
-          {isSidebarOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3 }}
-              className="px-3 mb-4 overflow-hidden"
-            >
-              <motion.a
-                href="/profile"
-                onClick={(e) => handleNavigation(e, "/profile")}
-                className=" rounded-lg backdrop-blur-sm bg-trackaro-card/30 border border-trackaro-border/30 shadow-sm hover:bg-trackaro-accent/10 dark:hover:bg-trackaro-accent/10 transition-colors cursor-pointer block"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <div className="flex items-center space-x-3">
-                  <div className="h-9 w-9 rounded-full bg-trackaro-accent/10 flex items-center justify-center overflow-hidden">
-                    {isLoading ? (
-                      <div className="h-full w-full bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse"></div>
-                    ) : user?.profilePicture ? (
-                      <img
-                        src={user.profilePicture}
-                        alt={user.name || "User"}
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <UserIcon className="h-5 w-5 text-trackaro-text" />
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    {isLoading ? (
-                      <>
-                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-1"></div>
-                        <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-2/3"></div>
-                      </>
-                    ) : (
-                      <>
-                        <p className="text-sm font-medium text-trackaro-text dark:text-trackaro-text truncate">
-                          {user?.name || "User"}
-                        </p>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </motion.a>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
-        {/* Sidebar Navigation */}
-        <nav className="flex-1 space-y-1 px-2">
-          <motion.a
-            href="/notification"
-            onClick={(e) => handleNavigation(e, "/notification")}
-            className="flex items-center space-x-2 p-1.5 text-zinc-500 rounded-lg text-sm text-trackaro-text dark:text-trackaro-text hover:bg-trackaro-accent/10 dark:hover:bg-trackaro-accent/10"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <NotificationIcon className="h-4 w-4" />
-            <AnimatePresence initial={false}>
-              {isSidebarOpen && (
-                <motion.span
-                  key="notif-label"
-                  initial={{ opacity: 0, x: -8 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -8 }}
-                  transition={{ duration: 0.2 }}
-                  className="font-inter text-zinc-500"
-                >
-                  Notifications
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </motion.a>
-          
-          <motion.a
-            href="/chat"
-            onClick={(e) => handleNavigation(e, "/chat")}
-            className={`flex items-center space-x-2 p-1.5 rounded-lg text-sm text-trackaro-text dark:text-trackaro-text hover:bg-blue-200 dark:hover:bg-trackaro-accent/10 ${
-              currentPath === "/chat" ? "bg-blue-200 dark:bg-trackaro-accent/10" : ""
-            }`}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <HomeIcon className="h-4 w-4" />
-            <AnimatePresence initial={false}>
-              {isSidebarOpen && (
-                <motion.span
-                  key="home-label"
-                  initial={{ opacity: 0, x: -8 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -8 }}
-                  transition={{ duration: 0.2 }}
-                  className="font-inter"
-                >
-                  Home
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </motion.a>
-          
-          <motion.a
-            href="/dashboard"
-            onClick={(e) => handleNavigation(e, "/dashboard")}
-            className={`flex items-center space-x-2 p-1.5 rounded-lg text-sm text-trackaro-text dark:text-trackaro-text hover:bg-blue-200 dark:hover:bg-trackaro-accent/10 ${
-              currentPath === "/dashboard" ? "bg-blue-200 dark:bg-trackaro-accent/10" : ""
-            }`}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <DashboardIcon className="h-4 w-4" />
-            <AnimatePresence initial={false}>
-              {isSidebarOpen && (
-                <motion.span
-                  key="dashboard-label"
-                  initial={{ opacity: 0, x: -8 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -8 }}
-                  transition={{ duration: 0.2 }}
-                  className="font-inter"
-                >
-                  Dashboard
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </motion.a>
-          
-          <motion.a
-            href="/recommendations"
-            onClick={(e) => handleNavigation(e, "/recommendations")}
-            className={`flex items-center space-x-2 p-1.5 rounded-lg text-sm text-trackaro-text dark:text-trackaro-text hover:bg-blue-200 dark:hover:bg-trackaro-accent/10 ${
-              currentPath === "/recommendations" ? "bg-blue-200 dark:bg-trackaro-accent/10" : ""
-            }`}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <RecommendationIcon className="h-4 w-4" />
-            <AnimatePresence initial={false}>
-              {isSidebarOpen && (
-                <motion.span
-                  key="recommendations-label"
-                  initial={{ opacity: 0, x: -8 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -8 }}
-                  transition={{ duration: 0.2 }}
-                  className="font-inter"
-                >
-                  Recommendations
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </motion.a>
-          
-          {onTelegramClick && (
-            <motion.button
-              onClick={onTelegramClick}
-              className="flex w-full items-center space-x-2 p-1.5 rounded-lg text-sm text-trackaro-text dark:text-trackaro-text hover:bg-blue-200 dark:hover:bg-trackaro-accent/10"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <TelegramIcon className="h-4 w-4" />
-              <AnimatePresence initial={false}>
-                {isSidebarOpen && (
-                  <motion.span
-                    key="telegram-label"
-                    initial={{ opacity: 0, x: -8 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -8 }}
-                    transition={{ duration: 0.2 }}
-                    className="font-inter"
-                  >
-                    Telegram
-                  </motion.span>
-                )}
-              </AnimatePresence>
-            </motion.button>
-          )}
-          
-          {onPaymentClick && (
-            <motion.button
-              onClick={onPaymentClick}
-              className="flex w-full items-center space-x-2 p-1.5 rounded-lg text-sm text-trackaro-text dark:text-trackaro-text hover:bg-blue-200 dark:hover:bg-trackaro-accent/10"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <PaymentIcon className="h-4 w-4" />
-              <AnimatePresence initial={false}>
-                {isSidebarOpen && (
-                  <motion.span
-                    key="payment-label"
-                    initial={{ opacity: 0, x: -8 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -8 }}
-                    transition={{ duration: 0.2 }}
-                    className="font-inter"
-                  >
-                    Payment
-                  </motion.span>
-                )}
-              </AnimatePresence>
-            </motion.button>
-          )}
+        {/* Navigation Sections */}
+        <nav className="flex-1 space-y-1">
+
+          <SectionHeader title="General" />
+          <NavItem
+            icon={HomeIcon}
+            label="Home"
+            isActive={currentPath === "/chat"}
+            onClick={() => handleNavigation("/chat")}
+          />
+
+          <NavItem
+            icon={DashboardIcon}
+            label="Dashboard"
+            isActive={currentPath === "/dashboard"}
+            onClick={() => handleNavigation("/dashboard")}
+          />
+
+          <SectionHeader title="Services" />
+          <NavItem
+            icon={TelegramIcon}
+            label="Telegram"
+            onClick={onTelegramClick || (() => { })}
+          />
+          <NavItem
+            icon={PaymentIcon}
+            label="Payment"
+            onClick={onPaymentClick || (() => { })}
+          />
+          <NavItem
+            icon={HistoryIcon}
+            label="History"
+            isActive={currentPath === "/history"}
+            onClick={() => handleNavigation("/history")}
+          />
+
+
+          <SectionHeader title="Other" />
+          <NavItem
+            icon={SettingsIcon}
+            label="Settings"
+            isActive={currentPath === "/settings"}
+            onClick={() => handleNavigation("/settings")}
+          />
+          <NavItem
+            icon={LogoutIcon}
+            label="Logout"
+            onClick={handleLogout}
+          />
+
         </nav>
 
-        {/* Logout button at bottom */}
-        <div className="mt-auto px-2 space-y-1">
-          <motion.a
-            href="/settings"
-            onClick={(e) => handleNavigation(e, "/settings")}
-            className="flex items-center space-x-2 p-1.5 rounded-lg text-sm text-trackaro-text dark:text-trackaro-text hover:bg-blue-200 dark:hover:bg-trackaro-accent/10"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <SettingsIcon className="h-4 w-4" />
-            <AnimatePresence initial={false}>
-              {isSidebarOpen && (
-                <motion.span
-                  key="settings-label"
-                  initial={{ opacity: 0, x: -8 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -8 }}
-                  transition={{ duration: 0.2 }}
-                  className="font-inter"
-                >
-                  Settings
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </motion.a>
-          
-          <motion.a
-            href="/"
-            onClick={handleLogout}
-            className="flex items-center space-x-2 p-1.5 rounded-lg text-sm text-red-500 hover:bg-red-500/10"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <LogoutIcon className="h-4 w-4" />
-            <AnimatePresence initial={false}>
-              {isSidebarOpen && (
-                <motion.span
-                  key="logout-label"
-                  initial={{ opacity: 0, x: -8 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -8 }}
-                  transition={{ duration: 0.2 }}
-                  className="font-inter"
-                >
-                  Logout
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </motion.a>
-        </div>
+       
+
       </div>
     </motion.aside>
   );

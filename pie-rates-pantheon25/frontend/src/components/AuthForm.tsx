@@ -85,12 +85,12 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
 
     return (
         <div className="min-h-screen bg-[#F5F5F7] flex flex-col items-center justify-center p-4 font-sans text-[#333]">
-           
+
 
             {/* Card */}
             <div className="bg-white w-full max-w-[500px] rounded-xl shadow-[0_2px_20px_rgba(0,0,0,0.04)] sm:px-8 sm:py-6 border border-gray-100/50">
                 {/* Header */}
-                
+
 
                 {/* Social Login */}
                 <div className="space-y-3 mb-3">
@@ -174,6 +174,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
                         </div>
                     )}
 
+                   
+
                     <button
                         type="submit"
                         disabled={isLoading || submitting}
@@ -182,6 +184,16 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
                         {isLogin ? (submitting ? "Signing in..." : "Sign In") : (submitting ? "Creating account..." : "Sign Up")}
                     </button>
 
+                         {isLogin && (
+                        <div className=" text-center ">
+                            <p className="text-xs text-gray-600 font-medium">Demo Account Details:</p>
+                            <div className="flex flex-col sm:flex-row items-center justify-center gap-x-3 text-xs text-gray-500 font-mono mt-1">
+                                <span>email: visitor@gmail.com</span>
+                                <span className="hidden sm:inline text-gray-300">|</span>
+                                <span>pass: visitor@1234</span>
+                            </div>
+                        </div>
+                    )}
                     <div className="pt- text-center">
                         <p className="text-gray-500 font-medium">
                             {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
