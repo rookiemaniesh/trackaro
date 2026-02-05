@@ -240,6 +240,90 @@ export default function TechnologyPage() {
         </svg>
       ),
     },
+    {
+      name: "Pydantic",
+      color: "pink-600",
+      icon: (
+        <svg
+          viewBox="0 0 24 24"
+          fill="#D946EF" // Pink-600
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-full h-full"
+        >
+          <path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5zm-2 16l-4-4 1.41-1.41L10 15.17l6.59-6.59L18 10l-8 8z" />
+        </svg>
+      ),
+    },
+    {
+      name: "Python",
+      color: "yellow-500",
+      icon: (
+        <svg
+          viewBox="0 0 24 24"
+          fill="#EAB308" // Yellow-500
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-full h-full"
+        >
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
+        </svg>
+      ),
+    },
+    {
+      name: "Gemini",
+      color: "blue-400",
+      icon: (
+        <svg
+          viewBox="0 0 24 24"
+          fill="#60A5FA" // Blue-400
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-full h-full"
+        >
+          <path d="M12 2L15.09 8.26L22 12L15.09 15.74L12 22L8.91 15.74L2 12L8.91 8.26L12 2Z" />
+        </svg>
+      ),
+    },
+    {
+      name: "Docker",
+      color: "blue-600",
+      icon: (
+        <svg
+          viewBox="0 0 24 24"
+          fill="#2563EB" // Blue-600
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-full h-full"
+        >
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16zM7.5 10.5l4.5 2.6 4.5-2.6L12 7.9 7.5 10.5zm4.5-8.1l6.9 4-2.2 1.3-4.7-2.7V2.4zm-7.9 5.3l6.9-4v2.6L7.2 9l-3.1-1.3zM4.1 16l-1.1-1.9 3.1-4.5 3.1 4.5-1.1 1.9H4.1zm11.8 0l-1.1-1.9 3.1-4.5 3.1 4.5-1.1 1.9h-4z" />
+        </svg>
+      ),
+    },
+    {
+      name: "Redis",
+      color: "red-600",
+      icon: (
+        <svg
+          viewBox="0 0 24 24"
+          fill="#DC2626" // Red-600
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-full h-full"
+        >
+          <path d="M12 2.5c5.33 0 10 1.67 10 4.17v10.66c0 2.5-4.67 4.17-10 4.17S2 19.83 2 17.33V6.67c0-2.5 4.67-4.17 10-4.17zm0 2.08c-3.6 0-7.05.8-7.92 2.09.87 1.28 4.32 2.08 7.92 2.08 3.6 0 7.05-.8 7.92-2.08-.87-1.29-4.32-2.09-7.92-2.09zM2.08 6.67v5.33c0 2.5 4.67 4.17 10 4.17s10-1.67 10-4.17V6.67c-.87 1.29-4.32 2.09-7.92 2.09-3.6 0-7.05-.8-7.92-2.09z" />
+        </svg>
+      ),
+    },
+    {
+      name: "AWS",
+      color: "orange-500",
+      icon: (
+        <svg
+          viewBox="0 0 24 24"
+          fill="#F97316" // Orange-500
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-full h-full"
+        >
+          <path d="M17.5 19c-3.037 0-5.5-2.463-5.5-5.5S14.463 8 17.5 8s5.5 2.463 5.5 5.5-2.463 5.5-5.5 5.5z M6.5 19C3.463 19 1 16.537 1 13.5S3.463 8 6.5 8s5.5 2.463 5.5 5.5S9.537 19 6.5 19z M12 11c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3z" />
+        </svg>
+      ),
+    },
   ];
 
   return (

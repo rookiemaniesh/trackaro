@@ -18,48 +18,46 @@ const FeatureSection: React.FC = () => {
                         FEATURES
                     </div>
                     <h2
-                        className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight"
+                        className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-6 leading-tight"
                         style={{ fontFamily: "Inter, sans-serif" }}
                     >
                         Latest advanced technologies to
                         <br />
                         ensure everything you needs
                     </h2>
-                    <p className="text-lg text-gray-500 dark:text-gray-400">
-                        Maximize your team's productivity and security with our affordable,
-                        user-friendly contract management system.
-                    </p>
+
                 </div>
 
                 {/* Grid Layout */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {/* Top Big Card - NLP (Spans full width on desktop if we used a different grid, but here I'll make it span 2 cols) */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+                    {/* Top Big Card - NLP */}
                     <motion.div
-                        className="col-span-1 md:col-span-2 bg-[#F3F5F1] dark:bg-gray-800 rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center gap-12 overflow-hidden relative"
+                        className="col-span-1 md:col-span-2 bg-[#F3F5F1] dark:bg-gray-800 rounded-3xl p-8 md:pl-10 md:py-10 md:pr-0 flex flex-col md:flex-row items-center gap-8 overflow-hidden relative"
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.5 }}
                     >
                         <div className="flex-1 z-10">
-                            <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                            <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-4"
+                            style={{ fontFamily: "Inter, sans-serif" }}>
                                 Natural Language Processing
                             </h3>
-                            <p className="text-lg text-gray-600 dark:text-gray-300 mb-8 leading-relaxed">
+                            <p className="text-base text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">
                                 Our core technology understands human-like conversation, allowing
                                 you to add expenses and access complex analytics by simply asking
                                 questions.
                             </p>
-                            <button className="bg-emerald-900 hover:bg-emerald-800 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200">
+                            <button className="bg-orange-400 hover:bg-orange-500 text-white font-medium py-2.5 px-5 rounded-lg transition-colors duration-200 text-sm">
                                 Explore all
                             </button>
                         </div>
                         <div className="flex-1 w-full flex justify-center md:justify-end">
-                            <div className="relative w-full max-w-lg">
+                            <div className="relative w-full max-w-md">
                                 <img
                                     src="/feature_pic/nlp.png"
                                     alt="Natural Language Processing Interface"
-                                    className="rounded-xl shadow-xl w-full h-auto object-cover transform transition-transform hover:scale-[1.02] duration-500 block"
+                                    className="rounded-xl shadow-xl w-auto h-auto max-h-64 object-cover transform transition-transform hover:scale-[1.02] duration-500 block"
                                 />
                             </div>
                         </div>
@@ -67,56 +65,52 @@ const FeatureSection: React.FC = () => {
 
                     {/* Bottom Left Small Card - Dashboard */}
                     <motion.div
-                        className="bg-[#F3F5F1] dark:bg-gray-800 rounded-3xl p-8 md:p-10 flex flex-col h-full"
+                        className="bg-[#F3F5F1] dark:bg-gray-800 rounded-3xl p-6 md:p-8 flex flex-col h-full"
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.5, delay: 0.1 }}
                     >
-                        <div className="mb-8">
-                            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                        <div className="mb-6">
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3"
+                            style={{ fontFamily: "Inter, sans-serif" }}>
                                 Visual Interactive Dashboards
                             </h3>
-                            <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                            <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
                                 Get a holistic view of your financial health with clean,
                                 interactive dashboards that provide a deep dive into your
                                 spending habits over time.
                             </p>
                         </div>
-                        <div className="mt-auto flex justify-center">
-                            <img
-                                src="/feature_pic/visual interactive dashboard.png"
-                                alt="Dashboard"
-                                className="rounded-xl shadow-lg w-full max-w-sm h-auto object-cover"
-                            />
-                        </div>
+                        <button className="bg-orange-400 hover:bg-orange-500 text-white font-medium py-2.5 px-5 rounded-lg transition-colors duration-200 text-sm">
+                            Explore all
+                        </button>
+
                     </motion.div>
 
                     {/* Bottom Right Small Card - OCR */}
                     <motion.div
-                        className="bg-[#F3F5F1] dark:bg-gray-800 rounded-3xl p-8 md:p-10 flex flex-col h-full"
+                        className="bg-[#F3F5F1] dark:bg-gray-800 rounded-3xl p-6 md:p-8 flex flex-col h-full"
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.5, delay: 0.2 }}
                     >
-                        <div className="mb-8">
-                            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                        <div className="mb-6">
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3"
+                            style={{ fontFamily: "Inter, sans-serif" }}>
                                 Receipt Scanning (OCR)
                             </h3>
-                            <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                                Simply upload a photo of your receipt. Our AI uses Optical
+                            <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                                Our AI uses Optical
                                 Character Recognition (OCR) to automatically extract and populate
                                 key details like the vendor, date, and total.
                             </p>
                         </div>
-                        <div className="mt-auto flex justify-center">
-                            <img
-                                src="/feature_pic/Receipt Scanning.png"
-                                alt="OCR Scanning"
-                                className="rounded-xl shadow-lg w-full max-w-sm h-auto object-cover"
-                            />
-                        </div>
+
+                        <button className="bg-orange-400 hover:bg-orange-500 text-white font-medium py-2.5 px-5 rounded-lg transition-colors duration-200 text-sm">
+                            Explore all
+                        </button>
                     </motion.div>
                 </div>
             </div>

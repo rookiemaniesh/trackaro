@@ -57,12 +57,12 @@ const LandingPage: React.FC = () => {
 
           {/* Footer */}
           <footer
-            className="py-4 border-t border-gray-800 dark:border-gray-700"
-            style={{ backgroundColor: "rgb(237, 233, 222)" }}
+            className="py-4 bg-white"
+            
           >
             <div className="container mx-auto px-6 text-center">
-              <p className="text-gray-400 dark:text-gray-500 text-sm">
-                © 2024 Copyright Reserved - Team Pie-Rates
+              <p className="text-gray-400 dark:text-gray-500 text-md">
+               made with ♡ by Pie-Rates
               </p>
             </div>
           </footer>
