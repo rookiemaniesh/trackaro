@@ -13,17 +13,17 @@ export default function Page() {
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-100 dark:from-slate-900 dark:via-gray-900 dark:to-zinc-900">
-      <ChatSidebar 
+      <ChatSidebar
         isSidebarOpen={isSidebarOpen}
         setIsSidebarOpen={setIsSidebarOpen}
         currentPath="/dashboard"
       />
-      
+
       {/* Main content area */}
-      <div 
+      <div
         className="flex-1 flex flex-col overflow-hidden transition-all duration-300 ease-in-out"
         style={{
-          marginLeft: isSidebarOpen ? "200px" : "45px",
+          marginLeft: isSidebarOpen ? "250px" : "65px",
         }}
       >
         {/* Header */}
@@ -40,7 +40,7 @@ export default function Page() {
         <div className="flex-1 overflow-y-auto">
           <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
             <ExpenseStats />
-            
+
             {/* Charts Section */}
             <div className="px-4 lg:px-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -48,7 +48,7 @@ export default function Page() {
                 <CategoryTrendsChart />
               </div>
             </div>
-            
+
             <div className="px-4 lg:px-6">
               <ExpenseChart />
             </div>

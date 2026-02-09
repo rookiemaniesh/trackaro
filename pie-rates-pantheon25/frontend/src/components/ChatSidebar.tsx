@@ -2,7 +2,6 @@
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
-import { useState } from "react";
 
 // --- Icons ---
 const HomeIcon = ({ className }: { className?: string }) => (
@@ -161,8 +160,6 @@ interface ChatSidebarProps {
 export default function ChatSidebar({
   isSidebarOpen,
   setIsSidebarOpen,
-  onTelegramClick,
-  onPaymentClick,
   currentPath = "/",
 }: ChatSidebarProps) {
   const { user, isLoading, logout } = useAuth();
@@ -202,9 +199,9 @@ export default function ChatSidebar({
   }) => (
     <motion.button
       onClick={onClick}
-      className={`group flex items-center w-full p-3 rounded-xl transition-all duration-200 relative overflow-hidden ${isActive
+      className={`group flex cursor-pointer items-center w-full p-3 rounded-xl transition-all duration-200 relative overflow-hidden ${isActive
         ? "bg-white dark:bg-gray-800 shadow-sm text-gray-900 dark:text-gray-100"
-        : "text-gray-500 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-gray-800/50 hover:text-gray-900 dark:hover:text-gray-200"
+        : "text-gray-600 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-gray-800/50 hover:text-gray-900 dark:hover:text-gray-200"
         }`}
       whileHover={{ scale: 1.01 }}
       whileTap={{ scale: 0.98 }}
@@ -262,7 +259,7 @@ export default function ChatSidebar({
       {/* Toggle Button - Absolute positioned or top aligned */}
       <button
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        className="absolute -right-5 top-18 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full p-1 shadow-md hover:bg-gray-50 z-20 text-gray-500"
+        className="absolute cursor-pointer -right-5 top-18 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full p-1 shadow-md hover:bg-gray-50 z-20 text-gray-500"
       >
         <ToggleIcon isOpen={isSidebarOpen} />
       </button>
@@ -276,7 +273,9 @@ export default function ChatSidebar({
         </div>
 
         {/* User Profile Card */}
-        <div className={`relative bg-white dark:bg-gray-800 rounded-3xl p-1 mb-6 transition-all duration-300 ${isSidebarOpen ? "" : "bg-transparent dark:bg-transparent"}`}>
+        <div
+        onClick={()=>handleNavigation("/profile")}
+        className={`relative bg-white dark:bg-gray-800 cursor-pointer rounded-3xl p-1 mb-6 transition-all duration-300 ${isSidebarOpen ? "" : "bg-transparent dark:bg-transparent"}`}>
           <div className={`flex items-center ${isSidebarOpen ? "gap-4" : "justify-center flex-col gap-2"}`}>
             <div className="relative">
               <div className="w-12 h-12 rounded-[18px] bg-red-100 overflow-hidden flex-shrink-0 border-2 border-white shadow-sm ring-2 ring-red-50">
@@ -331,12 +330,14 @@ export default function ChatSidebar({
           <NavItem
             icon={TelegramIcon}
             label="Telegram"
-            onClick={onTelegramClick || (() => { })}
+            isActive={currentPath === "/connect-telegram"}
+            onClick={() => handleNavigation("/connect-telegram")}
           />
           <NavItem
             icon={PaymentIcon}
             label="Payment"
-            onClick={onPaymentClick || (() => { })}
+            isActive={currentPath === "/payment"}
+            onClick={() => handleNavigation("/payment")}
           />
           <NavItem
             icon={HistoryIcon}

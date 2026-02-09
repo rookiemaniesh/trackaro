@@ -39,10 +39,10 @@ export default function RootLayout({
       <body
         className={`${poppins.variable} ${inter.variable} antialiased font-poppins`}
       >
-        
-          <AuthProvider>{children}</AuthProvider>
-       
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );
 }
+
+
