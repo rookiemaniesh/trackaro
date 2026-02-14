@@ -1,4 +1,4 @@
-import { useRef, useEffect} from "react";
+import { useRef, useEffect } from "react";
 import {
   motion,
   useAnimationFrame,
@@ -6,10 +6,9 @@ import {
 } from "framer-motion";
 import gsap from "gsap";
 
-let TextPlugin: any;
-
 if (typeof window !== "undefined") {
-  TextPlugin = require("gsap/TextPlugin").TextPlugin;
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const TextPlugin = require("gsap/TextPlugin").TextPlugin;
   gsap.registerPlugin(TextPlugin);
 }
 

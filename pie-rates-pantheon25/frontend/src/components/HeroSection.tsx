@@ -100,6 +100,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onStartChatting }) => {
         );
 
       // Store timeline for cleanup
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       animations.push(tl as any);
     }
 

@@ -23,7 +23,7 @@ export default function WorkInProgress() {
         Work in Progress
       </h1>
       <p className="text-lg mb-8 max-w-md text-gray-600 dark:text-gray-400">
-        We're working hard to bring you something amazing. Check back soon!
+        We&apos;re working hard to bring you something amazing. Check back soon!
       </p>
       <Link
         href="/"
