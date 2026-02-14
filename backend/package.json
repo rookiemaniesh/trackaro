@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "node src/server.js",
+    "start": "npx concurrently --kill-others \"node src/server.js\" \"node src/workers/worker.js\"",
     "build": "npx prisma generate",
     "dev": "nodemon src/server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -12,7 +12,7 @@
     "db:deploy": "npx prisma migrate deploy",
     "db:studio": "npx prisma studio",
     "telegram:setup": "node src/scripts/setup-telegram.js",
-    "worker":"node src/workers/worker.js"
+    "worker": "node src/workers/worker.js"
   },
   "keywords": [],
   "author": "",

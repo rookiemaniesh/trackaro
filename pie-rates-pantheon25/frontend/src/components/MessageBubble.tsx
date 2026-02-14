@@ -108,10 +108,8 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                 </svg>
               )
             ) : (
-              // AI Logo placeholder - you can replace this with your logo
-              <div className="h-full w-full bg-gradient-to-br from-trackaro-accent to-blue-500 flex items-center justify-center">
-                <span className="text-white font-bold text-xs">AI</span>
-              </div>
+             <img
+              src="./favicon.jpg" alt="AI LOGO" />
             )}
           </div>
         </div>

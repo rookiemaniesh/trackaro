@@ -52,7 +52,8 @@ const aiWorker = new Worker('ai-processing', async (job) => {
             }
         });
         return {
-            messageId: message.id, expenseId: expense.id
+            messageId: message.id, expenseId: expense.id,
+            message: aiData.message?.output || aiData.message
         };
     }
     const message = await prisma.message.create({
@@ -63,7 +64,7 @@ const aiWorker = new Worker('ai-processing', async (job) => {
             sender: 'ai'
         }
     });
-    return { messageId: message.id };
+    return { messageId: message.id, message: aiData.message?.output || aiData.message };
 }, { connection });
 aiWorker.on('completed', (job) => console.log(`Job ${job.id} Completed`));
 aiWorker.on('failed', (job, err) => console.log(`Job ${job.id} failed ${err.message}`));

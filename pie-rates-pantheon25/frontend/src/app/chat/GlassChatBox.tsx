@@ -6,8 +6,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../../context/AuthContext";
 import { useApi } from "../../app/utils/api";
 
+let msgIdCounter = 0;
+function generateMsgId(): string {
+  return `msg-${Date.now()}-${++msgIdCounter}`;
+}
+
 interface Message {
-  id: number;
+  id: string;
   text: string;
   sender: "user" | "bot";
   timestamp: Date;
@@ -49,7 +54,7 @@ interface InputCardProps {
   inputValue: string;
   setInputValue: (val: string) => void;
   handleSubmit: (e?: React.FormEvent, promptText?: string) => void;
-  fileInputRef: React.RefObject<HTMLInputElement>;
+  fileInputRef: React.RefObject<HTMLInputElement | null>;
   handleFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
   speechSupported: boolean;
   isRecording: boolean;
@@ -263,13 +268,13 @@ const GlassChatBox: React.FC = () => {
     setIsFileUploading(true);
     // Add optimistic user message
     setMessages(prev => [...prev, {
-      id: Date.now(),
+      id: generateMsgId(),
       text: `📷 Uploading: ${file.name}`,
       sender: "user",
       timestamp: new Date()
     }]);
 
-    const loadingId = Date.now() + 1;
+    const loadingId = generateMsgId();
     setMessages(prev => [...prev, {
       id: loadingId,
       text: "🔍 Processing receipt...",
@@ -298,7 +303,7 @@ const GlassChatBox: React.FC = () => {
     }
   };
 
-  // Chat Submission
+  // Chat Submission with async job polling
   const handleSubmit = async (e?: React.FormEvent, promptText?: string) => {
     if (e) e.preventDefault();
     const textToSend = promptText || inputValue;
@@ -306,7 +311,7 @@ const GlassChatBox: React.FC = () => {
 
     // Add user message
     setMessages(prev => [...prev, {
-      id: Date.now(),
+      id: generateMsgId(),
       text: textToSend,
       sender: "user",
       timestamp: new Date()
@@ -316,7 +321,7 @@ const GlassChatBox: React.FC = () => {
     setIsLoading(true);
 
     // Bot Loading State
-    const botMsgId = Date.now() + 1;
+    const botMsgId = generateMsgId();
     setMessages(prev => [...prev, {
       id: botMsgId,
       text: "typing...",
@@ -326,10 +331,55 @@ const GlassChatBox: React.FC = () => {
     }]);
 
     try {
-      const response = await api.post<any>("/api/messages", { content: textToSend }); // eslint-disable-line @typescript-eslint/no-explicit-any
-      setMessages(prev => prev.map(m => m.id === botMsgId ? { ...m, text: response.message } : m));
+      // Step 1: Send message and get jobId
+      const submitResponse = await api.post<{ success: boolean; data: { jobId: string; userMessageId: string } }>("/api/messages", { content: textToSend });
+
+      if (!submitResponse.data?.jobId) {
+        throw new Error("No job ID returned from server");
+      }
+
+      const jobId = submitResponse.data.jobId;
+
+      // Step 2: Poll for job completion
+      const pollInterval = 1500; // 1.5 seconds
+      const maxPollTime = 60000; // 60 seconds timeout
+      const startTime = Date.now();
+
+      const pollJobStatus = async (): Promise<string> => {
+        while (Date.now() - startTime < maxPollTime) {
+          const jobResponse = await api.get<{
+            success: boolean;
+            data: {
+              state: "waiting" | "active" | "completed" | "failed";
+              result?: { messageId?: string; expenseId?: string; message?: string };
+              error?: string;
+            };
+          }>(`/api/jobs/${jobId}`);
+
+          const jobData = jobResponse.data;
+
+          if (jobData.state === "completed") {
+            // Extract the AI response message
+            return jobData.result?.message || "Request completed successfully.";
+          }
+
+          if (jobData.state === "failed") {
+            throw new Error(jobData.error || "Job processing failed");
+          }
+
+          // Wait before next poll
+          await new Promise(resolve => setTimeout(resolve, pollInterval));
+        }
+
+        throw new Error("Request timed out. Please try again.");
+      };
+
+      const aiResponse = await pollJobStatus();
+      setMessages(prev => prev.map(m => m.id === botMsgId ? { ...m, text: aiResponse, animate: false } : m));
+
     } catch (error) {
-      setMessages(prev => prev.map(m => m.id === botMsgId ? { ...m, text: "Sorry, I encountered an error." } : m));
+      const errorMessage = error instanceof Error ? error.message : "Sorry, I encountered an error.";
+      setMessages(prev => prev.map(m => m.id === botMsgId ? { ...m, text: errorMessage, animate: false } : m));
     } finally {
       setIsLoading(false);
     }

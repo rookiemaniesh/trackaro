@@ -1,8 +1,7 @@
 const axios = require('axios');
 
 // Always use Railway AI model URL
-const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'https://insightful-laughter-production-7c35.up.railway.app/process';
-const AI_SERVICE_KEY = process.env.AI_SERVICE_KEY || 'not-required-for-railway';
+const AI_SERVICE_URL = process.env.AI_SERVICE_URL ;
 
 /**
  * AI Service Client
@@ -40,7 +39,7 @@ class AIClient {
           'Accept': 'application/json',
           'User-Agent': 'Trackaro-Backend/1.0'
         },
-        timeout: 30000 // 30 second timeout
+        timeout: 60000 // 60 second timeout
       });
 
       console.log(` AI service response status: ${response.status}`);
