@@ -59,16 +59,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             },
           });
 
-      if (response.ok) {
-        const data = await response.json();
-        const userData = data.data.user;
-        // Derive name from email if not provided
-        if (!userData.name) {
-          userData.name = userData.email.split("@")[0];
-        }
-        setUser(userData);
-        setAccessToken(storedToken);
-      } else {
+          if (response.ok) {
+            const data = await response.json();
+            const userData = data.data.user;
+            // Derive name from email if not provided
+            if (!userData.name) {
+              userData.name = userData.email.split("@")[0];
+            }
+            setUser(userData);
+            setAccessToken(storedToken);
+          } else {
             // If token is invalid or expired, try to refresh it
             await refreshToken();
           }
@@ -160,7 +160,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             const text = await response.text();
             if (text) message = text;
           }
-        } catch {}
+        } catch { }
         throw new Error(message);
       }
 
@@ -204,7 +204,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             const text = await response.text();
             if (text) message = text;
           }
-        } catch {}
+        } catch { }
         throw new Error(message);
       }
 
@@ -281,7 +281,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             const text = await response.text();
             if (text) message = text;
           }
-        } catch {}
+        } catch { }
         throw new Error(message);
       }
 
@@ -296,7 +296,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   // Create an axios interceptor-like function to handle token expiration
-  const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
+  const _fetchWithAuth = async (url: string, options: RequestInit = {}) => {
     if (!accessToken) {
       throw new Error("Not authenticated");
     }
@@ -334,7 +334,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
               });
             }
           }
-        } catch {}
+        } catch { }
       }
 
       return response;
@@ -352,7 +352,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
     try {
       console.log("Attempting to fetch Telegram status from:", `${API_URL}/api/auth/telegram/status`);
-      
+
       const response = await fetch(`${API_URL}/api/auth/telegram/status`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -378,7 +378,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         } catch (parseError) {
           console.error("Error parsing response:", parseError);
         }
-        
+
         // Provide more specific error messages
         if (response.status === 404) {
           message = "Telegram endpoint not found. Please make sure the backend server is running.";
@@ -387,7 +387,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         } else if (response.status === 500) {
           message = "Server error. Please try again later.";
         }
-        
+
         throw new Error(message);
       }
 
@@ -396,12 +396,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       return data.data;
     } catch (error) {
       console.error("Telegram status error:", error);
-      
+
       // Handle network errors
       if (error instanceof TypeError && error.message.includes('fetch')) {
         throw new Error("Cannot connect to server. Please make sure the backend is running on port 5000.");
       }
-      
+
       throw error;
     }
   };
@@ -426,7 +426,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           const errorData = await response.json();
           message = errorData.message || message;
         }
-      } catch {}
+      } catch { }
       throw new Error(message);
     }
 
@@ -454,7 +454,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           const errorData = await response.json();
           message = errorData.message || message;
         }
-      } catch {}
+      } catch { }
       throw new Error(message);
     }
   };

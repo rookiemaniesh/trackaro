@@ -89,6 +89,7 @@ export function PaymentMethodsChart() {
     }).format(amount);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
@@ -201,8 +202,8 @@ export function PaymentMethodsChart() {
                 ))}
               </Pie>
               <Tooltip content={<CustomTooltip />} />
-              <Legend 
-                verticalAlign="bottom" 
+              <Legend
+                verticalAlign="bottom"
                 height={36}
                 formatter={(value, entry) => (
                   <span style={{ color: entry.color }}>
