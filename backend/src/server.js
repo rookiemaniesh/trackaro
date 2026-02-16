@@ -1,5 +1,5 @@
-const express=require('express')
-const { aiMessageLimiter, generalLimiter, ocrLimiter } =require('./middleware/rateLimiter');
+const express = require('express')
+const { aiMessageLimiter, generalLimiter, ocrLimiter } = require('./middleware/rateLimiter');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
@@ -15,7 +15,7 @@ const telegramWebhookRoutes = require('./routes/telegram.webhook');
 const messagesRoutes = require('./routes/messages');
 const expensesRoutes = require('./routes/expenses');
 const ocrRoutes = require('./routes/ocr');
-const jobRoutes=require('./routes/jobs')
+const jobRoutes = require('./routes/jobs')
 
 const { authenticate } = require('./middleware/auth');
 
@@ -30,16 +30,18 @@ app.use(helmet());
 const corsOptions = {
   origin: function (origin, callback) {
     if (!origin) return callback(null, true);
-    
+
     const allowedOrigins = [
       process.env.FRONTEND_URL || 'http://localhost:3000',
       'http://localhost:3000',
       'http://127.0.0.1:3000',
+      'https://trackaro.pierates.dev',
+      'https://trackaro-sooty.vercel.app',
       /^http:\/\/localhost:\d+$/,
       /^http:\/\/127\.0\.0\.1:\d+$/,
       /^http:\/\/192\.168\.\d+\.\d+:\d+$/, // Allow local network IPs for mobile testing
     ];
-    
+
     const isAllowed = allowedOrigins.some(allowedOrigin => {
       if (typeof allowedOrigin === 'string') {
         return origin === allowedOrigin;
@@ -48,7 +50,7 @@ const corsOptions = {
       }
       return false;
     });
-    
+
     if (isAllowed) {
       callback(null, true);
     } else {
@@ -59,7 +61,7 @@ const corsOptions = {
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  optionsSuccessStatus: 200 
+  optionsSuccessStatus: 200
 };
 
 app.use(cors(corsOptions));
@@ -97,7 +99,7 @@ app.get('/health', (req, res) => {
     userAgent: req.headers['user-agent']
   });
 });
-app.use('/api',generalLimiter);
+app.use('/api', generalLimiter);
 app.use('/api/auth/local', authLocalRoutes);
 app.use('/api/auth/google', authGoogleRoutes);
 app.use('/api/auth/telegram', authenticate, authTelegramRoutes);
@@ -112,10 +114,10 @@ app.use('/api/messages', authenticate, aiMessageLimiter, messagesRoutes);
 app.use('/api/expenses', authenticate, expensesRoutes);
 
 
-app.use('/api/ocr', authenticate,ocrLimiter, ocrRoutes);
+app.use('/api/ocr', authenticate, ocrLimiter, ocrRoutes);
 
 
-app.use('/api/jobs',authenticate,jobRoutes)
+app.use('/api/jobs', authenticate, jobRoutes)
 
 
 app.get('/api/profile', authenticate, (req, res) => {
@@ -134,7 +136,7 @@ app.put('/api/profile', authenticate, async (req, res) => {
   try {
     const { PrismaClient } = require('./generated/prisma');
     const prisma = new PrismaClient();
-    
+
     const { email, profilePicture } = req.body;
     const userId = req.user.id;
 
@@ -183,7 +185,7 @@ app.post('/api/auth/logout', (req, res) => {
 //This setup provides centralized error handling and a fallback 404 response to keep the API stable and secure.
 app.use((err, req, res, next) => {
   console.error('Error:', err);
-  
+
   res.status(err.status || 500).json({
     success: false,
     message: err.message || 'Internal server error',
