@@ -82,6 +82,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     };
 
     initAuth();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Function to refresh the access token
@@ -295,54 +296,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  // Create an axios interceptor-like function to handle token expiration
-  const _fetchWithAuth = async (url: string, options: RequestInit = {}) => {
-    if (!accessToken) {
-      throw new Error("Not authenticated");
-    }
 
-    // Add authorization header
-    const authOptions = {
-      ...options,
-      headers: {
-        ...options.headers,
-        Authorization: `Bearer ${accessToken}`,
-      },
-    };
-
-    try {
-      const response = await fetch(url, authOptions);
-
-      // If unauthorized and the error is due to token expiration
-      if (response.status === 401) {
-        try {
-          const contentType = response.headers.get("content-type") || "";
-          const errorData = contentType.includes("application/json")
-            ? await response.json()
-            : null;
-          // If token expired, try to refresh it
-          if (errorData && errorData.code === "TOKEN_EXPIRED") {
-            const refreshed = await refreshToken();
-            // If token refresh was successful, retry the original request
-            if (refreshed && accessToken) {
-              return fetch(url, {
-                ...options,
-                headers: {
-                  ...options.headers,
-                  Authorization: `Bearer ${accessToken}`,
-                },
-              });
-            }
-          }
-        } catch { }
-      }
-
-      return response;
-    } catch (error) {
-      console.error("API request error:", error);
-      throw error;
-    }
-  };
 
   // Telegram methods
   const getTelegramStatus = async (): Promise<TelegramStatus> => {

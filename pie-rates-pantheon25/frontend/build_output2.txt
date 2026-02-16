@@ -1,0 +1,151 @@
+﻿
+> frontend@0.1.0 build
+> next build
+
+node.exe :  ΓÜá Warning: 
+Next.js inferred your 
+workspace root, but it 
+may not be correct.
+At C:\Program 
+Files\nodejs\npm.ps1:29 
+char:3
++   & $NODE_EXE 
+$NPM_CLI_JS $args
++   ~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~
+    + CategoryInfo        
+      : NotSpecified: (   
+  ΓÜá Warning: N...not    
+ be correct.:String) [    
+], RemoteException
+    + FullyQualifiedError 
+   Id : NativeCommandErr  
+  or
+ 
+ We detected multiple 
+lockfiles and selected 
+the directory of C:\CODE\T
+rackaro-web\package-lock.j
+son as the root directory.
+ To silence this warning, 
+set 
+`outputFileTracingRoot` 
+in your Next.js config, 
+or consider removing one 
+of the lockfiles if it's 
+not needed.
+   See https://nextjs.org/
+docs/app/api-reference/con
+fig/next-config-js/output#
+caveats for more 
+information.
+ Detected additional 
+lockfiles: 
+   * C:\CODE\Trackaro-web\
+pie-rates-pantheon25\front
+end\package-lock.json
+
+   Γû▓ Next.js 15.5.2
+   - Environments: .env
+
+   Creating an optimized production build ...
+ Γ£ô Compiled successfully in 7.7s
+   Linting and checking validity of types ...
+
+./src/app/chat/GlassChatBox.tsx
+159:28  Warning: 'authLoading' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+162:10  Warning: 'isLoading' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+164:10  Warning: 'isFileUploading' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+228:9  Warning: 'stopRecording' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+253:34  Warning: 'audioBlob' is defined but never used.  @typescript-eslint/no-unused-vars
+298:14  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+388:9  Warning: 'resetChat' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/chat/page.tsx
+10:11  Warning: 'user' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+10:17  Warning: 'isLoading' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/connect-telegram/page.tsx
+10:7  Warning: 'TelegramIcon' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+29:13  Warning: 'user' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+29:30  Warning: 'authLoading' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+85:8  Warning: React Hook useEffect has missing dependencies: 'generateTelegramCode' and 'telegramCode'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/app/payment/page.tsx
+11:13  Warning: 'user' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+11:30  Warning: 'authLoading' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+16:12  Warning: 'generatedUpiUrl' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+17:12  Warning: 'showCopyButton' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+101:11  Warning: 'resetForm' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/AuthForm.tsx
+46:12  Warning: 'staySignedIn' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+46:26  Warning: 'setStaySignedIn' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/ChatSidebar.tsx
+270:11  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+281:19  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/expense-chart.tsx
+7:10  Warning: 'useIsMobile' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/FeatureSection.tsx
+57:33  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/HeroSection.tsx
+167:33  Warning: The ref value 'heroRef.current' will likely have changed by the time this effect cleanup function runs. If this ref points to a node rendered by React, copy 'heroRef.current' to a variable inside the effect, and use that variable in the cleanup function.  react-hooks/exhaustive-deps
+167:52  Warning: The ref value 'buttonRef.current' will likely have changed by the time this effect cleanup function runs. If this ref points to a node rendered by React, copy 'buttonRef.current' to a variable inside the effect, and use that variable in the cleanup function.  react-hooks/exhaustive-deps
+175:35  Warning: The ref value 'textRef.current' will likely have changed by the time this effect cleanup function runs. If this ref points to a node rendered by React, copy 'textRef.current' to a variable inside the effect, and use that variable in the cleanup function.  react-hooks/exhaustive-deps
+
+./src/components/MessageBubble.tsx
+91:17  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+111:15  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/UserProfile.tsx
+90:19  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules
+Failed to compile.
+
+./src/components/expense-s
+tats.tsx:217:20
+Type error: Type 'string' 
+is not assignable to type 
+'"default" | "outline" | 
+"secondary" | 
+"destructive" | null | 
+undefined'.
+
+[0m [90m 215 |[39m     
+      [33m<[39m[33m/[3
+9m[33mCardTitle[39m[33m
+>[39m
+ [90m 216 |[39m         
+  [33m<[39m[33mCardActi
+on[39m[33m>[39m
+[31m[1m>[22m[39m[90m 
+217 |[39m             [3
+3m<[39m[33mBadge[39m va
+riant[33m=[39m{formatGro
+wth(stats[33m.[39mmonthl
+yGrowth)[33m.[39mvariant
+} className[33m=[39m[32
+m"text-xs px-2 
+py-1"[39m[33m>[39m
+ [90m     |[39m         
+           
+[31m[1m^[22m[39m
+ [90m 218 |[39m         
+      {formatGrowth(stats
+[33m.[39mmonthlyGrowth)[
+33m.[39mvalue}
+ [90m 219 |[39m         
+    [33m<[39m[33m/[39m
+[33mBadge[39m[33m>[39m
+ [90m 220 |[39m         
+  [33m<[39m[33m/[39m[
+33mCardAction[39m[33m>[
+39m[0m
+Next.js build worker 
+exited with code: 1 and 
+signal: null

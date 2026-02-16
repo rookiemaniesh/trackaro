@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function AuthCallbackPage() {
+function CallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
@@ -31,7 +31,7 @@ export default function AuthCallbackPage() {
         }
 
         const payload = JSON.parse(atob(tokenParts[1]));
-        
+
         // Validate token expiration
         const currentTime = Math.floor(Date.now() / 1000);
         if (payload.exp && payload.exp < currentTime) {
@@ -54,7 +54,7 @@ export default function AuthCallbackPage() {
         console.error("Auth callback error:", error);
         setStatus("error");
         setMessage(error instanceof Error ? error.message : "Authentication failed");
-        
+
         // Redirect to login page after showing error
         setTimeout(() => {
           router.replace("/auth/login");
@@ -80,13 +80,13 @@ export default function AuthCallbackPage() {
               <div className="text-red-500 text-4xl mb-4">❌</div>
             )}
           </div>
-          
+
           <h1 className="text-xl font-semibold text-trackaro-text dark:text-white mb-2">
             {status === "loading" && "Authenticating..."}
             {status === "success" && "Welcome!"}
             {status === "error" && "Authentication Failed"}
           </h1>
-          
+
           <p className="text-sm text-trackaro-text/70 dark:text-white/70 mb-6">
             {message}
           </p>
@@ -105,5 +105,17 @@ export default function AuthCallbackPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function AuthCallbackPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-trackaro-bg dark:bg-[#0f0f0f] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-trackaro-accent"></div>
+      </div>
+    }>
+      <CallbackContent />
+    </Suspense>
   );
 }

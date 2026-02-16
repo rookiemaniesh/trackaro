@@ -1,9 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
-import { IconTrendingUp, IconTrendingDown } from "@tabler/icons-react";
 
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useApi } from "@/app/utils/api";
@@ -56,21 +55,12 @@ export function ExpenseChart() {
   const [category, setCategory] = useState("all");
   const api = useApi();
   const { isAuthenticated } = useAuth();
-  const isMobile = useIsMobile();
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      fetchExpenseData();
-    } else {
-      setLoading(false);
-    }
-  }, [isAuthenticated, timeRange, category]);
-
-  const fetchExpenseData = async () => {
+  const fetchExpenseData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const response = await api.get<{
         success: boolean;
         data: {
@@ -89,12 +79,20 @@ export function ExpenseChart() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [api, timeRange, category]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchExpenseData();
+    } else {
+      setLoading(false);
+    }
+  }, [isAuthenticated, fetchExpenseData]);
 
   const processExpenseData = (expenses: Expense[], range: string, cat: string) => {
     const now = new Date();
     let startDate: Date;
-    
+
     // Calculate start date based on range
     switch (range) {
       case "7d":
@@ -127,11 +125,11 @@ export function ExpenseChart() {
     // Create chart data array
     const chartDataArray: ChartData[] = [];
     const currentDate = new Date(startDate);
-    
+
     while (currentDate <= now) {
       const dateStr = currentDate.toISOString().split('T')[0];
       const amount = groupedData[dateStr] || 0;
-      
+
       chartDataArray.push({
         date: dateStr,
         amount: amount,
@@ -140,7 +138,7 @@ export function ExpenseChart() {
           day: 'numeric',
         }),
       });
-      
+
       currentDate.setDate(currentDate.getDate() + 1);
     }
 

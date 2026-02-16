@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useApi } from '@/app/utils/api';
@@ -33,16 +33,7 @@ export function CategoryTrendsChart() {
   const { isAuthenticated } = useAuth();
   const api = useApi();
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      setLoading(false);
-      return;
-    }
-
-    fetchCategoryTrendData();
-  }, [isAuthenticated]);
-
-  const fetchCategoryTrendData = async () => {
+  const fetchCategoryTrendData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -73,11 +64,11 @@ export function CategoryTrendsChart() {
         const expenseDate = new Date(expense.date);
         const dateKey = expenseDate.toISOString().split('T')[0]; // YYYY-MM-DD format
         const category = expense.category || 'Other';
-        
+
         if (!dailySpending[dateKey]) {
           dailySpending[dateKey] = {};
         }
-        
+
         dailySpending[dateKey][category] = (dailySpending[dateKey][category] || 0) + Number(expense.amount);
         allCategories.add(category);
       });
@@ -88,12 +79,12 @@ export function CategoryTrendsChart() {
 
       sortedDates.forEach(date => {
         const dayData: CategoryTrendData = { date };
-        
+
         // Add all categories for this date
         Array.from(allCategories).forEach(category => {
           dayData[category] = dailySpending[date][category] || 0;
         });
-        
+
         chartData.push(dayData);
       });
 
@@ -119,7 +110,16 @@ export function CategoryTrendsChart() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [api, isAuthenticated]);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setLoading(false);
+      return;
+    }
+
+    fetchCategoryTrendData();
+  }, [isAuthenticated, fetchCategoryTrendData]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-IN', {
@@ -135,14 +135,14 @@ export function CategoryTrendsChart() {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: Array<{ dataKey: string; value: number; color: string }>; label?: string }) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white dark:bg-gray-800 p-3 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg">
           <p className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
-            {formatDate(label)}
+            {formatDate(label || '')}
           </p>
-          {payload.map((entry: any, index: number) => (
+          {payload.map((entry, index: number) => (
             <p key={index} className="text-sm" style={{ color: entry.color }}>
               {entry.dataKey}: {formatCurrency(entry.value)}
             </p>
@@ -231,12 +231,12 @@ export function CategoryTrendsChart() {
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={data}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis 
-                dataKey="date" 
+              <XAxis
+                dataKey="date"
                 tickFormatter={formatDate}
                 tick={{ fontSize: 12 }}
               />
-              <YAxis 
+              <YAxis
                 tickFormatter={(value) => `₹${value}`}
                 tick={{ fontSize: 12 }}
               />

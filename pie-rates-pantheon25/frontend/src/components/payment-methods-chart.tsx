@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useApi } from '@/app/utils/api';
@@ -33,16 +33,7 @@ export function PaymentMethodsChart() {
   const { isAuthenticated } = useAuth();
   const api = useApi();
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      setLoading(false);
-      return;
-    }
-
-    fetchPaymentMethodData();
-  }, [isAuthenticated]);
-
-  const fetchPaymentMethodData = async () => {
+  const fetchPaymentMethodData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -78,7 +69,16 @@ export function PaymentMethodsChart() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [api, isAuthenticated]);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setLoading(false);
+      return;
+    }
+
+    fetchPaymentMethodData();
+  }, [isAuthenticated, fetchPaymentMethodData]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-IN', {

@@ -6,7 +6,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 export const useApi = () => {
   const { accessToken, logout } = useAuth();
 
-  const apiRequest = async <T = any>(
+  const apiRequest = async <T = unknown>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> => {
@@ -15,7 +15,7 @@ export const useApi = () => {
     }
 
     const url = `${API_URL}${endpoint}`;
-    
+
     // Add authorization header
     const authOptions = {
       ...options,
@@ -35,13 +35,13 @@ export const useApi = () => {
         method: authOptions.method,
         headers: authOptions.headers,
         bodyType: authOptions.body?.constructor?.name,
-        bodySize: authOptions.body instanceof FormData ? 'FormData' : 
-                 authOptions.body instanceof Blob ? authOptions.body.size :
-                 typeof authOptions.body === 'string' ? authOptions.body.length : 'unknown'
+        bodySize: authOptions.body instanceof FormData ? 'FormData' :
+          authOptions.body instanceof Blob ? authOptions.body.size :
+            typeof authOptions.body === 'string' ? authOptions.body.length : 'unknown'
       });
-      
+
       const response = await fetch(url, authOptions);
-      
+
       // Handle authentication errors
       if (response.status === 401) {
         // Automatically logout if unauthorized
@@ -55,10 +55,10 @@ export const useApi = () => {
 
       // Some successful responses can be 204 No Content
       if (response.status === 204 || response.status === 205) {
-        return undefined as unknown as any;
+        return undefined as unknown as T;
       }
 
-  let parsed: unknown = undefined;
+      let parsed: unknown = undefined;
       try {
         if (isJson) {
           parsed = await response.json();
@@ -67,7 +67,7 @@ export const useApi = () => {
           // If HTML or empty, keep as text
           parsed = text;
         }
-      } catch (e) {
+      } catch {
         // Swallow body parse errors; keep parsed undefined
         parsed = undefined;
       }
@@ -93,28 +93,28 @@ export const useApi = () => {
   };
 
   // Common request methods
-  const get = <T = any>(endpoint: string) => apiRequest<T>(endpoint);
-  
-  const post = <T = any, TBody extends unknown = any>(endpoint: string, data: TBody) => 
+  const get = <T = unknown>(endpoint: string) => apiRequest<T>(endpoint);
+
+  const post = <T = unknown, TBody = unknown>(endpoint: string, data: TBody) =>
     apiRequest<T>(endpoint, {
       method: "POST",
       body: JSON.stringify(data),
     });
 
-  const postFormData = async <T = any>(endpoint: string, formData: FormData) => {
+  const postFormData = async <T = unknown>(endpoint: string, formData: FormData) => {
     console.log('postFormData called with:', {
       endpoint,
       formDataEntries: Array.from(formData.entries()),
       formDataKeys: Array.from(formData.keys())
     });
-    
+
     // For FormData, we need to handle headers differently to avoid conflicts
     if (!accessToken) {
       throw new Error("Not authenticated");
     }
 
     const url = `${API_URL}${endpoint}`;
-    
+
     const response = await fetch(url, {
       method: "POST",
       body: formData,
@@ -135,7 +135,7 @@ export const useApi = () => {
     const isJson = contentType.includes("application/json");
 
     if (response.status === 204 || response.status === 205) {
-      return undefined as unknown as any;
+      return undefined as unknown as T;
     }
 
     let parsed: unknown = undefined;
@@ -146,7 +146,7 @@ export const useApi = () => {
         const text = await response.text();
         parsed = text;
       }
-    } catch (e) {
+    } catch {
       parsed = undefined;
     }
 
@@ -164,14 +164,14 @@ export const useApi = () => {
 
     return parsed as T;
   };
-  
-  const put = <T = any, TBody extends unknown = any>(endpoint: string, data: TBody) => 
+
+  const put = <T = unknown, TBody = unknown>(endpoint: string, data: TBody) =>
     apiRequest<T>(endpoint, {
       method: "PUT",
       body: JSON.stringify(data),
     });
-  
-  const del = <T = any>(endpoint: string) => 
+
+  const del = <T = unknown>(endpoint: string) =>
     apiRequest<T>(endpoint, {
       method: "DELETE",
     });

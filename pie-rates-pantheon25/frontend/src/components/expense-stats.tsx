@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { IconTrendingDown, IconTrendingUp, IconCurrencyRupee } from "@tabler/icons-react";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -31,19 +31,11 @@ export function ExpenseStats() {
   const api = useApi();
   const { isAuthenticated } = useAuth();
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      fetchExpenseStats();
-    } else {
-      setLoading(false);
-    }
-  }, [isAuthenticated]);
-
-  const fetchExpenseStats = async () => {
+  const fetchExpenseStats = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       // Fetch expenses from the backend
       const response = await api.get<{
         success: boolean;
@@ -75,7 +67,7 @@ export function ExpenseStats() {
         });
         const monthlySpending = monthlyExpenses.reduce((sum, expense) => sum + Number(expense.amount), 0);
 
-       
+
 
         // Calculate growth (simplified - comparing with previous periods)
         const previousMonthExpenses = expenses.filter(expense => {
@@ -85,8 +77,8 @@ export function ExpenseStats() {
           return expenseDate.getMonth() === prevMonth && expenseDate.getFullYear() === prevYear;
         });
         const previousMonthSpending = previousMonthExpenses.reduce((sum, expense) => sum + Number(expense.amount), 0);
-        const monthlyGrowth = previousMonthSpending > 0 
-          ? ((monthlySpending - previousMonthSpending) / previousMonthSpending) * 100 
+        const monthlyGrowth = previousMonthSpending > 0
+          ? ((monthlySpending - previousMonthSpending) / previousMonthSpending) * 100
           : 0;
 
 
@@ -97,10 +89,10 @@ export function ExpenseStats() {
           categorySpending[category] = (categorySpending[category] || 0) + Number(expense.amount);
         });
         const topCategory = Object.entries(categorySpending)
-          .sort(([,a], [,b]) => b - a)[0] || ['Other', 0];
+          .sort(([, a], [, b]) => b - a)[0] || ['Other', 0];
 
-       
-      
+
+
 
         setStats({
           totalSpending,
@@ -119,7 +111,15 @@ export function ExpenseStats() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [api]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchExpenseStats();
+    } else {
+      setLoading(false);
+    }
+  }, [isAuthenticated, fetchExpenseStats]);
 
   if (!isAuthenticated) {
     return (
@@ -171,12 +171,12 @@ export function ExpenseStats() {
     }).format(amount);
   };
 
-  const formatGrowth = (growth: number) => {
+  const formatGrowth = (growth: number): { value: string; icon: typeof IconTrendingUp | typeof IconTrendingDown; variant: "default" | "destructive" } => {
     const isPositive = growth >= 0;
     return {
       value: `${isPositive ? '+' : ''}${growth.toFixed(1)}%`,
       icon: isPositive ? IconTrendingUp : IconTrendingDown,
-      variant: isPositive ? 'default' : 'destructive' as const,
+      variant: isPositive ? 'default' : 'destructive',
     };
   };
 
@@ -230,7 +230,7 @@ export function ExpenseStats() {
         </CardFooter>
       </Card>
 
-      
+
 
       {/* Additional Statistics Cards */}
       <Card className="@container/card">
@@ -256,7 +256,7 @@ export function ExpenseStats() {
         </CardFooter>
       </Card>
 
-    
+
 
     </div>
   );

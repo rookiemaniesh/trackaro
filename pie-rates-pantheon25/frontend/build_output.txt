@@ -1,0 +1,574 @@
+﻿node.exe :  ΓÜá 
+Warning: Next.js 
+inferred your 
+workspace root, but 
+it may not be 
+correct.
+At C:\Program Files\n
+odejs\npx.ps1:29 
+char:3
++   & $NODE_EXE 
+$NPX_CLI_JS $args
++   ~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~
+    + CategoryInfo   
+           : 
+NotSpecified: (     
+ΓÜá Warning: N...not 
+    be 
+correct.:String) [   
+ ], RemoteException
+    + 
+FullyQualifiedError  
+  Id : 
+NativeCommandErr    
+or
+ 
+ We detected 
+multiple lockfiles 
+and selected the 
+directory of C:\CODE\
+Trackaro-web\package-
+lock.json as the 
+root directory.
+ To silence this 
+warning, set `outputF
+ileTracingRoot` in 
+your Next.js config, 
+or consider removing 
+one of the lockfiles 
+if it's not needed.
+   See https://nextjs
+.org/docs/app/api-ref
+erence/config/next-co
+nfig-js/output#caveat
+s for more 
+information.
+ Detected additional 
+lockfiles: 
+   * C:\CODE\Trackaro
+-web\pie-rates-panthe
+on25\frontend\package
+-lock.json
+
+   Γû▓ Next.js 15.5.2
+   - Environments: .env
+
+   Creating an optimized production build ...
+ Γ£ô Compiled successfully in 3.8s
+   Linting and checking validity of types ...
+
+Failed to compile.
+
+./src/app/chat/GlassC
+hatBox.tsx
+159:28  Warning: 
+'authLoading' is 
+assigned a value but 
+never used.  @typescr
+ipt-eslint/no-unused-
+vars
+162:10  Warning: 
+'isLoading' is 
+assigned a value but 
+never used.  @typescr
+ipt-eslint/no-unused-
+vars
+164:10  Warning: 
+'isFileUploading' is 
+assigned a value but 
+never used.  @typescr
+ipt-eslint/no-unused-
+vars
+228:9  Warning: 
+'stopRecording' is 
+assigned a value but 
+never used.  @typescr
+ipt-eslint/no-unused-
+vars
+253:34  Warning: 
+'audioBlob' is 
+defined but never 
+used.  @typescript-es
+lint/no-unused-vars
+298:14  Warning: 
+'error' is defined 
+but never used.  @typ
+escript-eslint/no-unu
+sed-vars
+388:9  Warning: 
+'resetChat' is 
+assigned a value but 
+never used.  @typescr
+ipt-eslint/no-unused-
+vars
+
+./src/app/chat/page.t
+sx
+10:11  Warning: 
+'user' is assigned a 
+value but never 
+used.  @typescript-es
+lint/no-unused-vars
+10:17  Warning: 
+'isLoading' is 
+assigned a value but 
+never used.  @typescr
+ipt-eslint/no-unused-
+vars
+
+./src/app/connect-tel
+egram/page.tsx
+10:7  Warning: 
+'TelegramIcon' is 
+assigned a value but 
+never used.  @typescr
+ipt-eslint/no-unused-
+vars
+29:13  Warning: 
+'user' is assigned a 
+value but never 
+used.  @typescript-es
+lint/no-unused-vars
+29:30  Warning: 
+'authLoading' is 
+assigned a value but 
+never used.  @typescr
+ipt-eslint/no-unused-
+vars
+85:8  Warning: React 
+Hook useEffect has 
+missing 
+dependencies: 'genera
+teTelegramCode' and 
+'telegramCode'. 
+Either include them 
+or remove the 
+dependency array.  re
+act-hooks/exhaustive-
+deps
+
+./src/app/page.tsx
+2:8  Warning: 
+'react' is defined 
+but never used.  @typ
+escript-eslint/no-unu
+sed-vars
+
+./src/app/payment/pag
+e.tsx
+11:13  Warning: 
+'user' is assigned a 
+value but never 
+used.  @typescript-es
+lint/no-unused-vars
+11:30  Warning: 
+'authLoading' is 
+assigned a value but 
+never used.  @typescr
+ipt-eslint/no-unused-
+vars
+16:12  Warning: 
+'generatedUpiUrl' is 
+assigned a value but 
+never used.  @typescr
+ipt-eslint/no-unused-
+vars
+17:12  Warning: 
+'showCopyButton' is 
+assigned a value but 
+never used.  @typescr
+ipt-eslint/no-unused-
+vars
+37:34  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-es
+lint/no-explicit-any
+38:34  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-es
+lint/no-explicit-any
+97:11  Warning: 
+'resetForm' is 
+assigned a value but 
+never used.  @typescr
+ipt-eslint/no-unused-
+vars
+
+./src/app/utils/api.t
+s
+9:33  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-es
+lint/no-explicit-any
+58:40  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-es
+lint/no-explicit-any
+70:16  Warning: 'e' 
+is defined but never 
+used.  @typescript-es
+lint/no-unused-vars
+96:20  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-es
+lint/no-explicit-any
+98:21  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-es
+lint/no-explicit-any
+98:26  Error: 
+Constraining the 
+generic type `TBody` 
+to `unknown` does 
+nothing and is 
+unnecessary.  @typesc
+ript-eslint/no-unnece
+ssary-type-constraint
+98:50  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-es
+lint/no-explicit-any
+104:35  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-es
+lint/no-explicit-any
+138:38  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-es
+lint/no-explicit-any
+149:14  Warning: 'e' 
+is defined but never 
+used.  @typescript-es
+lint/no-unused-vars
+168:20  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-es
+lint/no-explicit-any
+168:25  Error: 
+Constraining the 
+generic type `TBody` 
+to `unknown` does 
+nothing and is 
+unnecessary.  @typesc
+ript-eslint/no-unnece
+ssary-type-constraint
+168:49  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-es
+lint/no-explicit-any
+174:20  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-es
+lint/no-explicit-any
+
+./src/components/Auth
+Form.tsx
+46:12  Warning: 
+'staySignedIn' is 
+assigned a value but 
+never used.  @typescr
+ipt-eslint/no-unused-
+vars
+46:26  Warning: 
+'setStaySignedIn' is 
+assigned a value but 
+never used.  @typescr
+ipt-eslint/no-unused-
+vars
+
+./src/components/cate
+gory-trends-chart.tsx
+43:6  Warning: React 
+Hook useEffect has a 
+missing dependency: '
+fetchCategoryTrendDat
+a'. Either include 
+it or remove the 
+dependency array.  re
+act-hooks/exhaustive-
+deps
+138:54  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-es
+lint/no-explicit-any
+145:32  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-es
+lint/no-explicit-any
+
+./src/components/Chat
+Sidebar.tsx
+192:5  Warning: 
+'categoryItem' is 
+assigned a value but 
+never used.  @typescr
+ipt-eslint/no-unused-
+vars
+194:11  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-es
+lint/no-explicit-any
+272:11  Warning: 
+Using `<img>` could 
+result in slower LCP 
+and higher 
+bandwidth. Consider 
+using `<Image />` 
+from `next/image` or 
+a custom image 
+loader to 
+automatically 
+optimize images. 
+This may incur 
+additional usage or 
+cost from your 
+provider. See: https:
+//nextjs.org/docs/mes
+sages/no-img-element 
+ @next/next/no-img-el
+ement
+283:19  Warning: 
+Using `<img>` could 
+result in slower LCP 
+and higher 
+bandwidth. Consider 
+using `<Image />` 
+from `next/image` or 
+a custom image 
+loader to 
+automatically 
+optimize images. 
+This may incur 
+additional usage or 
+cost from your 
+provider. See: https:
+//nextjs.org/docs/mes
+sages/no-img-element 
+ @next/next/no-img-el
+ement
+
+./src/components/expe
+nse-chart.tsx
+6:10  Warning: 
+'IconTrendingUp' is 
+defined but never 
+used.  @typescript-es
+lint/no-unused-vars
+6:26  Warning: 
+'IconTrendingDown' 
+is defined but never 
+used.  @typescript-es
+lint/no-unused-vars
+59:9  Warning: 
+'isMobile' is 
+assigned a value but 
+never used.  @typescr
+ipt-eslint/no-unused-
+vars
+
+./src/components/Feat
+ureSection.tsx
+57:33  Warning: 
+Using `<img>` could 
+result in slower LCP 
+and higher 
+bandwidth. Consider 
+using `<Image />` 
+from `next/image` or 
+a custom image 
+loader to 
+automatically 
+optimize images. 
+This may incur 
+additional usage or 
+cost from your 
+provider. See: https:
+//nextjs.org/docs/mes
+sages/no-img-element 
+ @next/next/no-img-el
+ement
+
+./src/components/Hero
+Section.tsx
+167:33  Warning: The 
+ref value 
+'heroRef.current' 
+will likely have 
+changed by the time 
+this effect cleanup 
+function runs. If 
+this ref points to a 
+node rendered by 
+React, copy 
+'heroRef.current' to 
+a variable inside 
+the effect, and use 
+that variable in the 
+cleanup function.  re
+act-hooks/exhaustive-
+deps
+167:52  Warning: The 
+ref value 
+'buttonRef.current' 
+will likely have 
+changed by the time 
+this effect cleanup 
+function runs. If 
+this ref points to a 
+node rendered by 
+React, copy 
+'buttonRef.current' 
+to a variable inside 
+the effect, and use 
+that variable in the 
+cleanup function.  re
+act-hooks/exhaustive-
+deps
+175:35  Warning: The 
+ref value 
+'textRef.current' 
+will likely have 
+changed by the time 
+this effect cleanup 
+function runs. If 
+this ref points to a 
+node rendered by 
+React, copy 
+'textRef.current' to 
+a variable inside 
+the effect, and use 
+that variable in the 
+cleanup function.  re
+act-hooks/exhaustive-
+deps
+
+./src/components/Land
+ingPage.tsx
+2:10  Warning: 
+'motion' is defined 
+but never used.  @typ
+escript-eslint/no-unu
+sed-vars
+
+./src/components/Mess
+ageBubble.tsx
+3:28  Warning: 
+'useMemo' is defined 
+but never used.  @typ
+escript-eslint/no-unu
+sed-vars
+91:17  Warning: 
+Using `<img>` could 
+result in slower LCP 
+and higher 
+bandwidth. Consider 
+using `<Image />` 
+from `next/image` or 
+a custom image 
+loader to 
+automatically 
+optimize images. 
+This may incur 
+additional usage or 
+cost from your 
+provider. See: https:
+//nextjs.org/docs/mes
+sages/no-img-element 
+ @next/next/no-img-el
+ement
+111:14  Warning: 
+Using `<img>` could 
+result in slower LCP 
+and higher 
+bandwidth. Consider 
+using `<Image />` 
+from `next/image` or 
+a custom image 
+loader to 
+automatically 
+optimize images. 
+This may incur 
+additional usage or 
+cost from your 
+provider. See: https:
+//nextjs.org/docs/mes
+sages/no-img-element 
+ @next/next/no-img-el
+ement
+
+./src/components/Navb
+ar.tsx
+177:13  Error: Do 
+not use an `<a>` 
+element to navigate 
+to `/`. Use `<Link 
+/>` from `next/link` 
+instead. See: https:/
+/nextjs.org/docs/mess
+ages/no-html-link-for
+-pages  @next/next/no
+-html-link-for-pages
+489:19  Error: Do 
+not use an `<a>` 
+element to navigate 
+to `/`. Use `<Link 
+/>` from `next/link` 
+instead. See: https:/
+/nextjs.org/docs/mess
+ages/no-html-link-for
+-pages  @next/next/no
+-html-link-for-pages
+
+./src/components/User
+Profile.tsx
+90:19  Warning: 
+Using `<img>` could 
+result in slower LCP 
+and higher 
+bandwidth. Consider 
+using `<Image />` 
+from `next/image` or 
+a custom image 
+loader to 
+automatically 
+optimize images. 
+This may incur 
+additional usage or 
+cost from your 
+provider. See: https:
+//nextjs.org/docs/mes
+sages/no-img-element 
+ @next/next/no-img-el
+ement
+
+./src/context/AuthCon
+text.tsx
+3:65  Warning: 
+'useCallback' is 
+defined but never 
+used.  @typescript-es
+lint/no-unused-vars
+
+info  - Need to 
+disable some ESLint 
+rules? Learn more 
+here: https://nextjs.
+org/docs/app/api-refe
+rence/config/eslint#d
+isabling-rules

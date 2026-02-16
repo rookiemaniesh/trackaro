@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import Image from "next/image";
 
@@ -174,7 +175,7 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-14">
           {/* Logo Section */}
           <div className="flex-shrink-0">
-            <a
+            <Link
               href="/"
               onClick={(e) => handleNavigation(e, "/")}
               className="transition-all duration-300 hover:opacity-80"
@@ -187,7 +188,7 @@ const Navbar = () => {
                 className="h-7 w-auto"
                 priority
               />
-            </a>
+            </Link>
           </div>
 
           {/* Desktop Navigation */}
@@ -223,7 +224,7 @@ const Navbar = () => {
                   shadow-md  text-black hover:bg-primary-hover dark:hover:bg-secondary transition-all duration-300 transform hover:scale-105"
                 >
                   <span>Sign Up</span>
-                 
+
                 </a>
               </>
             )}
@@ -486,13 +487,17 @@ const Navbar = () => {
                     Settings
                   </a>
 
-                  <a
-                    href="/"
-                    className="flex items-center px-3 py-2 text-sm text-red-500 hover:bg-trackaro-accent/10 dark:hover:bg-trackaro-accent/10 rounded-md mt-2"
+                  <button
+                    onClick={async () => {
+                      await logout();
+                      router.push("/");
+                      setIsMenuOpen(false);
+                    }}
+                    className="flex items-center px-3 py-2 text-sm text-red-500 hover:bg-trackaro-accent/10 dark:hover:bg-trackaro-accent/10 rounded-md mt-2 w-full text-left"
                   >
                     <LogoutIcon className="h-4 w-4 mr-2" />
                     Logout
-                  </a>
+                  </button>
                 </div>
               </div>
             )}

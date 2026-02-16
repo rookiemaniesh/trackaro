@@ -7,24 +7,6 @@ import { useApi } from "@/app/utils/api";
 import { useAuth } from "@/context/AuthContext";
 import ChatSidebar from "@/components/ChatSidebar";
 
-const PaymentIcon = ({ className }: { className?: string }) => (
-    <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className={className}
-    >
-        <rect width="20" height="14" x="2" y="5" rx="2"></rect>
-        <line x1="2" x2="22" y1="10" y2="10"></line>
-    </svg>
-);
-
 export default function PaymentPage() {
     const { user, isLoading: authLoading } = useAuth();
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -42,21 +24,7 @@ export default function PaymentPage() {
         return upiRegex.test(upi);
     };
 
-    const copyToClipboard = async (text: string) => {
-        try {
-            await navigator.clipboard.writeText(text);
-            alert("UPI link copied to clipboard!");
-        } catch (err) {
-            console.error("Failed to copy: ", err);
-            const textArea = document.createElement("textarea");
-            textArea.value = text;
-            document.body.appendChild(textArea);
-            textArea.select();
-            document.execCommand("copy");
-            document.body.removeChild(textArea);
-            alert("UPI link copied to clipboard!");
-        }
-    };
+
 
     const handlePaymentContinue = async () => {
         if (paymentAmount && upiId && validateUpiId(upiId)) {
@@ -66,8 +34,12 @@ export default function PaymentPage() {
                     success: boolean;
                     message: string;
                     data?: {
-                        expense: any;
-                        message: any;
+                        expense: {
+                            id: string;
+                            amount: number;
+                            description: string;
+                        };
+                        message: string;
                     };
                 }>("/api/expenses/payment", {
                     amount: paymentAmount,
@@ -171,7 +143,7 @@ Copy this UPI link: ${upiUrl}`);
                         animate={{ scale: 1, opacity: 1, y: 0 }}
                         transition={{ duration: 0.4 }}
                     >
-                    
+
 
                         <div className="space-y-5">
                             {/* UPI ID Field */}
@@ -232,7 +204,7 @@ Copy this UPI link: ${upiUrl}`);
                             <div className="relative">
                                 <label className="flex text-sm font-semibold mb-3 text-gray-700 dark:text-gray-300 items-center">
                                     <span className="h-2 w-2 bg-yellow-500 rounded-full mr-2"></span>
-                                    Note 
+                                    Note
                                 </label>
                                 <textarea
                                     value={paymentNote}
@@ -243,7 +215,7 @@ Copy this UPI link: ${upiUrl}`);
                             </div>
                         </div>
 
-                        
+
 
                         {/* Actions */}
                         <div className="mt-8 space-y-3">

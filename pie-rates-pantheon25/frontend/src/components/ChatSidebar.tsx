@@ -189,13 +189,11 @@ export default function ChatSidebar({
     label,
     isActive = false,
     onClick,
-    categoryItem = false
   }: {
-    icon: any;
+    icon: React.ComponentType<{ className?: string }>;
     label: string;
     isActive?: boolean;
     onClick: () => void;
-    categoryItem?: boolean;
   }) => (
     <motion.button
       onClick={onClick}
@@ -274,8 +272,8 @@ export default function ChatSidebar({
 
         {/* User Profile Card */}
         <div
-        onClick={()=>handleNavigation("/profile")}
-        className={`relative bg-white dark:bg-gray-800 cursor-pointer rounded-3xl p-1 mb-6 transition-all duration-300 ${isSidebarOpen ? "" : "bg-transparent dark:bg-transparent"}`}>
+          onClick={() => handleNavigation("/profile")}
+          className={`relative bg-white dark:bg-gray-800 cursor-pointer rounded-3xl p-1 mb-6 transition-all duration-300 ${isSidebarOpen ? "" : "bg-transparent dark:bg-transparent"}`}>
           <div className={`flex items-center ${isSidebarOpen ? "gap-4" : "justify-center flex-col gap-2"}`}>
             <div className="relative">
               <div className="w-12 h-12 rounded-[18px] bg-red-100 overflow-hidden flex-shrink-0 border-2 border-white shadow-sm ring-2 ring-red-50">

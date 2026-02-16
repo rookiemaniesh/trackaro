@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { IconCurrencyRupee, IconCalendar, IconTag, IconCreditCard, IconFileText } from "@tabler/icons-react";
+import { useState, useEffect, useCallback } from "react";
+import { IconCurrencyRupee, IconCalendar, IconTag, IconFileText } from "@tabler/icons-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -29,19 +29,11 @@ export function ExpenseHistory() {
   const api = useApi();
   const { isAuthenticated } = useAuth();
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      fetchExpenses();
-    } else {
-      setLoading(false);
-    }
-  }, [isAuthenticated, currentPage]);
-
-  const fetchExpenses = async () => {
+  const fetchExpenses = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       // Fetch expenses from the backend
       const response = await api.get<{
         success: boolean;
@@ -52,7 +44,7 @@ export function ExpenseHistory() {
 
       if (response.success && response.data) {
         // Sort expenses by date (newest first)
-        const sortedExpenses = response.data.expenses.sort((a, b) => 
+        const sortedExpenses = response.data.expenses.sort((a, b) =>
           new Date(b.date).getTime() - new Date(a.date).getTime()
         );
         setExpenses(sortedExpenses);
@@ -63,7 +55,15 @@ export function ExpenseHistory() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [api]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchExpenses();
+    } else {
+      setLoading(false);
+    }
+  }, [isAuthenticated, currentPage, fetchExpenses]);
 
   const formatCurrency = (amount: number | string) => {
     const numAmount = Number(amount);
